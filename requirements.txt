@@ -1,0 +1,4 @@
+#packages
+requests==2.27.1
+xmltodict==0.12.0
+rwsuis==0.2
