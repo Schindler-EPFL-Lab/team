@@ -11,9 +11,10 @@ namespace = "{http://www.w3.org/1999/xhtml}"
 
 
 class RWS:
-    """Class for communicating with RobotWare through Robot Web Services (ABB's Rest API).
-    Most of the functions are mainly aimed at laboratory work at the University of Stavanger,
-    but may hopefully prove useful otherwise as well.
+    """Class for communicating with RobotWare through Robot Web Services
+    (ABB's Rest API).
+    Most of the functions are mainly aimed at laboratory work at the University of
+    Stavanger, but may hopefully prove useful otherwise as well.
     """
 
     def __init__(self, base_url, username="Default User", password="robotics"):
@@ -179,18 +180,16 @@ class RWS:
             print("Could not reset program pointer to main")
 
     def request_mastership(self):
-        resp = self.session.post(self.base_url + "/rw/mastership/request")
+        self.session.post(self.base_url + "/rw/mastership/request")
 
     def release_mastership(self):
-        resp = self.session.post(self.base_url + "/rw/mastership/release")
+        self.session.post(self.base_url + "/rw/mastership/release")
 
     def request_rmmp(self):
-        resp = self.session.post(
-            self.base_url + "/users/rmmp", data={"privilege": "modify"}
-        )
+        self.session.post(self.base_url + "/users/rmmp", data={"privilege": "modify"})
 
     def cancel_rmmp(self):
-        resp = self.session.post(self.base_url + "/users/rmmp?action=cancel")
+        self.session.post(self.base_url + "/users/rmmp?action=cancel")
 
     def motors_on(self):
         """Turns the robot's motors on.
@@ -249,7 +248,7 @@ class RWS:
             Could not start RAPID. Possible causes:
             * Operating mode might not be AUTO. Current opmode: {opmode}.
             * Motors might be turned off. Current ctrlstate: {ctrlstate}.
-            * RAPID might have write access. 
+            * RAPID might have write access.
             """
             )
 
@@ -332,20 +331,23 @@ class RWS:
         else:
             if zonedata in [10, 20, 30, 40, 50, 60, 80, 100, 150, 200]:
                 value = (
-                    f"[FALSE, {zonedata}, {zonedata * 1.5}, {zonedata * 1.5}, {zonedata * 0.15}, "
-                    f"{zonedata * 1.5}, {zonedata * 0.15}]"
+                    f"[FALSE, {zonedata}, {zonedata * 1.5}, {zonedata * 1.5}, "
+                    f"{zonedata * 0.15}, {zonedata * 1.5}, {zonedata * 0.15}]"
                 )
             elif zonedata == 0:
                 value = (
-                    f"[FALSE, {zonedata + 0.3}, {zonedata + 0.3}, {zonedata + 0.3}, {zonedata + 0.03}, "
-                    f"{zonedata + 0.3}, {zonedata + 0.03}]"
+                    f"[FALSE, {zonedata + 0.3}, {zonedata + 0.3}, {zonedata + 0.3}, "
+                    f"{zonedata + 0.03}, {zonedata + 0.3}, {zonedata + 0.03}]"
                 )
             elif zonedata == 1:
-                value = f"[FALSE, {zonedata}, {zonedata}, {zonedata}, {zonedata * 0.1}, {zonedata}, {zonedata * 0.1}]"
+                value = (
+                    f"[FALSE, {zonedata}, {zonedata}, {zonedata}, {zonedata * 0.1},"
+                    f" {zonedata}, {zonedata * 0.1}]"
+                )
             elif zonedata == 5:
                 value = (
-                    f"[FALSE, {zonedata}, {zonedata * 1.6}, {zonedata * 1.6}, {zonedata * 0.16}, "
-                    f"{zonedata * 1.6}, {zonedata * 0.16}]"
+                    f"[FALSE, {zonedata}, {zonedata * 1.6}, {zonedata * 1.6}, "
+                    f"{zonedata * 0.16}, {zonedata * 1.6}, {zonedata * 0.16}]"
                 )
             else:  # zonedata == 'fine':
                 value = f"[TRUE, {0}, {0}, {0}, {0}, {0}, {0}]"
@@ -365,21 +367,6 @@ class RWS:
             print(f'Set "{var}" speeddata to v{speeddata}')
         else:
             print("Could not set speeddata. Check that the variable name is correct")
-
-    def send_puck(self, puck_xyz, puck_angle, rotation_z=0, forward_grip=True):
-        """Sets gripper angle, camera offset and puck target values chosen.
-        If collision check, the variable rotation_z and forward grip may be updated
-        """
-        rotation_angle = puck_angle - rotation_z
-
-        self.set_rapid_variable("gripper_angle", rotation_z)
-        offset_x, offset_y = gripper_camera_offset(rotation_z)
-        if forward_grip:
-            self.set_rapid_array("gripper_camera_offset", (offset_x, offset_y))
-        else:
-            self.set_rapid_array("gripper_camera_offset", (-offset_x, -offset_y))
-        self.set_robtarget_translation("puck_target", puck_xyz)
-        self.set_rapid_variable("puck_angle", rotation_angle)
 
 
 def quaternion_to_radians(quaternion):
@@ -414,27 +401,3 @@ def z_degrees_to_quaternion(rotation_z_degrees):
     ) * math.sin(pitch / 2) * math.cos(yaw / 2)
 
     return [qw, qx, qy, qz]
-
-
-def gripper_camera_offset(rot):
-    """Finds the offset between the camera and the gripper by using the gripper's orientation.
-    Input must be Quaternion or rotation about the z-axis in degrees.
-    """
-
-    r = 55  # Distance between gripper and camera
-
-    # Check if input is quaternion
-    if isinstance(rot, tuple):
-        if len(rot) == 4 and (isinstance(rot[0], int) or isinstance(rot[0], float)):
-            rotation_z_radians = quaternion_to_radians(rot)
-        else:
-            return
-    else:
-        # If input is not Quaternion, it should be int or float (an angle)
-
-        rotation_z_degrees = rot
-
-    offset_x = r * math.cos(math.radians(rotation_z_degrees))
-    offset_y = r * math.sin(math.radians(rotation_z_degrees))
-
-    return offset_x, offset_y
