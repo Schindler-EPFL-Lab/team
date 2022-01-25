@@ -1,11 +1,12 @@
-from requests.auth import HTTPBasicAuth
-from requests import Session
-from typing import Union
 import ast
 import time
 import json
 import math
+from typing import Union
+
 import xmltodict
+from requests.auth import HTTPBasicAuth
+from requests import Session
 
 # Address used to organize ET elements
 namespace = "{http://www.w3.org/1999/xhtml}"
