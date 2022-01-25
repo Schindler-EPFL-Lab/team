@@ -1,8 +1,8 @@
 from RWS_wrapper import RwsWrapper
 
 if __name__ == "__main__":
-    virtual_controller_url = "https://localhost:8881"
-    robot_url = "https://192.168.125.1"
+    url = "https://localhost:8881"  # virtual controller url
+    # url = "https://192.168.125.1"  # real robot url
     home = (
         "[[600, 0.00, 800], [-0.500, 0.0, -0.866, 0.0], [0, 0, 0, 0], "
         "[9E+9,9E+9,9E+9,9E+9,9E+9,9E+9]]"
@@ -23,15 +23,19 @@ if __name__ == "__main__":
         "[[600, -200.00, 800], [-0.500, 0.0, -0.866, 0.0], [0, 0, 0, 0],"
         "[9E+9,9E+9,9E+9,9E+9,9E+9,9E+9]]"
     )
-    rws = RwsWrapper(virtual_controller_url)  # verify certificate set to False
+    rws = RwsWrapper(url)  # verify certificate set to False
 
     # TEST RAPID PROGRAM ->the robot spans the sides of a rectangle in the xy plane
-    path_sequence = [home, loc1, loc2, loc3, loc4, home]
+    path_sequence = [
+        (home, True),
+        (loc1, False),
+        (loc2, False),
+        (loc3, False),
+        (loc4, False),
+        (home, False),
+    ]
     rws.set_RAPID_variable("program_running", "TRUE")
-    for i, waypoint in enumerate(path_sequence):
+    for waypoint, reset_program in path_sequence:
         rws.set_RAPID_variable("Loc", waypoint)
-        reset_program = False
-        if i == 0:
-            reset_program = True
         rws.complete_instruction(reset_program)
     rws.robot.motors_off()
