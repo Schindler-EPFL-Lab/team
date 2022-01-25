@@ -8,7 +8,7 @@ class RwsWrapper:
         self.robot = RWS2.RWS(robot_url)
 
     def set_RAPID_variable(
-        self, variable_name: str, new_value: Union[float, int, bool, str]
+        self, variable_name: str, new_value: Union[float, int, str]
     ) -> None:
         self.robot.request_mastership()
         self.robot.set_rapid_variable(variable_name, new_value)

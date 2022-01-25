@@ -1,5 +1,6 @@
 from requests.auth import HTTPBasicAuth
 from requests import Session
+from typing import Union
 import ast
 import time
 import json
@@ -24,7 +25,7 @@ class RWS:
         self.session = Session()  # create persistent HTTP communication
         self.session.auth = HTTPBasicAuth(self.username, self.password)
 
-    def set_rapid_variable(self, var, value):
+    def set_rapid_variable(self, var, value: Union[str, float, int]):
         """Sets the value of any RAPID variable.
         Unless the variable is of type 'num', 'value' has to be a string.
         """
