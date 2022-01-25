@@ -34,6 +34,4 @@ if __name__ == "__main__":
         if i == 0:
             reset_program = True
         rws.complete_instruction(reset_program)
-    rws.set_RAPID_variable("program_running", "FALSE")
-    rws.complete_instruction()
     rws.robot.motors_off()
