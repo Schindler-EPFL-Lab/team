@@ -173,7 +173,9 @@ class RWS:
         """Resets the program pointer to main procedure in RAPID.
         """
 
-        resp = self.session.post(self.base_url + "/rw/rapid/execution?action=resetpp")
+        resp = self.session.post(
+            self.base_url + "/rw/rapid/execution/resetpp?mastership=implicit"
+        )
         if resp.status_code == 204:
             print("Program pointer reset to main")
         else:
@@ -220,7 +222,7 @@ class RWS:
         else:
             print("Could not turn off motors")
 
-    def start_RAPID(self, pp_to_reset=False):
+    def start_RAPID(self, pp_to_reset: bool):
         """Resets program pointer to main procedure in RAPID and starts RAPID execution.
         """
         if pp_to_reset:
