@@ -16,14 +16,16 @@ class RWS:
     Stavanger, but may hopefully prove useful otherwise as well.
     """
 
-    def __init__(self, base_url, username="Default User", password="robotics"):
+    def __init__(
+        self, base_url: str, username: str = "Default User", password: str = "robotics"
+    ):
         self.base_url = base_url
         self.username = username
         self.password = password
         self.session = Session()  # create persistent HTTP communication
         self.session.auth = HTTPBasicAuth(self.username, self.password)
 
-    def set_rapid_variable(self, var, value: Union[str, float, int]):
+    def set_rapid_variable(self, var: str, value: Union[str, float, int]):
         """Sets the value of any RAPID variable.
         Unless the variable is of type 'num', 'value' has to be a string.
         """
@@ -35,7 +37,7 @@ class RWS:
         )
         return resp
 
-    def get_rapid_variable(self, var):
+    def get_rapid_variable(self, var: str):
         """Gets the raw value of any RAPID variable.
         """
 
@@ -46,7 +48,7 @@ class RWS:
         value = _dict["html"]["body"]["div"]["ul"]["li"]["span"]["#text"]
         return value
 
-    def get_robtarget_variables(self, var):
+    def get_robtarget_variables(self, var: str):
         """Gets both translational and rotational data from robtarget.
         """
 
@@ -93,7 +95,7 @@ class RWS:
 
         return height
 
-    def set_robtarget_translation(self, var, trans):
+    def set_robtarget_translation(self, var: str, trans: Union[list, tuple]):
         """Sets the translational data of a robtarget variable in RAPID.
         """
 
@@ -116,7 +118,7 @@ class RWS:
                 "9E+9,9E+9]]",
             )
 
-    def set_robtarget_rotation_z_degrees(self, var, rotation_z_degrees):
+    def set_robtarget_rotation_z_degrees(self, var: str, rotation_z_degrees: float):
         """Updates the orientation of a robtarget variable
         in RAPID by rotation about the z-axis in degrees.
         """
@@ -135,7 +137,9 @@ class RWS:
             "9E+9,9E+9]]",
         )
 
-    def set_robtarget_rotation_quaternion(self, var, rotation_quaternion):
+    def set_robtarget_rotation_quaternion(
+        self, var: str, rotation_quaternion: Union[list, tuple]
+    ):
         """Updates the orientation of a robtarget variable in RAPID by a Quaternion.
         """
 
@@ -152,7 +156,7 @@ class RWS:
             "9E+9]]",
         )
 
-    def wait_for_rapid(self, var="ready_flag"):
+    def wait_for_rapid(self, var: str = "ready_flag"):
         """Waits for robot to complete RAPID instructions
         until boolean variable in RAPID is set to 'TRUE'.
         Default variable name is 'ready_flag', but others may be used.
@@ -161,11 +165,10 @@ class RWS:
         while self.get_rapid_variable(var) == "FALSE" and self.is_running():
             time.sleep(0.1)
 
-    def set_rapid_array(self, var, value):
+    def set_rapid_array(self, var: str, value: Union[list, tuple]):
         """Sets the values of a RAPID array by sending a list from Python.
         """
 
-        # TODO: Check if array must be same size in RAPID and Python
         self.set_rapid_variable(var, "[" + ",".join([str(s) for s in value]) + "]")
 
     def reset_pp(self):
@@ -305,7 +308,7 @@ class RWS:
         data = _dict["_embedded"]["_state"][0]["ctrlstate"]
         return data
 
-    def set_speed_ratio(self, speed_ratio):
+    def set_speed_ratio(self, speed_ratio: float):
         """Sets the speed ratio of the controller.
         """
 
@@ -322,7 +325,7 @@ class RWS:
         else:
             print("Could not set speed ratio!")
 
-    def set_zonedata(self, var, zonedata):
+    def set_zonedata(self, var: str, zonedata: float):
         """Sets the zonedata of a zonedata variable in RAPID.
         """
 
@@ -359,7 +362,7 @@ class RWS:
         else:
             print("Could not set zonedata! Check that the variable name is correct")
 
-    def set_speeddata(self, var, speeddata):
+    def set_speeddata(self, var: str, speeddata: float):
         """Sets the speeddata of a speeddata variable in RAPID.
         """
 
@@ -370,7 +373,7 @@ class RWS:
             print("Could not set speeddata. Check that the variable name is correct")
 
 
-def quaternion_to_radians(quaternion):
+def quaternion_to_radians(quaternion: float):
     """Convert a Quaternion to a rotation about the z-axis in degrees.
     """
     w, x, y, z = quaternion
@@ -381,7 +384,7 @@ def quaternion_to_radians(quaternion):
     return rotation_z
 
 
-def z_degrees_to_quaternion(rotation_z_degrees):
+def z_degrees_to_quaternion(rotation_z_degrees: float):
     """Convert a rotation about the z-axis in degrees to Quaternion.
     """
     roll = math.pi
