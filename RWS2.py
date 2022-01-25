@@ -8,9 +8,6 @@ import xmltodict
 from requests.auth import HTTPBasicAuth
 from requests import Session
 
-# Address used to organize ET elements
-namespace = "{http://www.w3.org/1999/xhtml}"
-
 
 class RWS:
     """Class for communicating with RobotWare through Robot Web Services
