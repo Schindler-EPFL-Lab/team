@@ -27,18 +27,11 @@ if __name__ == "__main__":
 
     # TEST RAPID PROGRAM ->the robot spans the sides of a rectangle in the xy plane
     rws.set_RAPID_variable("program_running", "TRUE")
-    rws.set_RAPID_variable("Loc", home)
-    rws.complete_instruction()
-    rws.set_RAPID_variable("Loc", Loc1)
-    rws.complete_instruction()
-    rws.set_RAPID_variable("Loc", Loc2)
-    rws.complete_instruction()
-    rws.set_RAPID_variable("Loc", Loc3)
-    rws.complete_instruction()
-    rws.set_RAPID_variable("Loc", Loc4)
-    rws.complete_instruction()
-    rws.set_RAPID_variable("Loc", home)
-    rws.complete_instruction()
+    path_sequence = [home, loc1, loc2, loc3, loc4, home]
+    rws.set_RAPID_variable("program_running", "TRUE")
+    for waypoint in path_sequence:
+        rws.set_RAPID_variable("Loc", waypoint)
+        rws.complete_instruction()
     rws.set_RAPID_variable("program_running", "FALSE")
     rws.complete_instruction()
     rws.robot.motors_off()
