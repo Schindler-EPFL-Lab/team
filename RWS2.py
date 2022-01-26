@@ -4,7 +4,7 @@ import json
 import math
 from typing import Union
 
-import certifi
+# import certifi
 import xmltodict
 from requests.auth import HTTPBasicAuth
 from requests import Session
