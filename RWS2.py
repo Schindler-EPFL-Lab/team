@@ -4,7 +4,7 @@ import json
 import math
 from typing import Union
 
-
+import certifi
 import xmltodict
 from requests.auth import HTTPBasicAuth
 from requests import Session
@@ -25,6 +25,12 @@ class RWS:
         self.password = password
         self.session = Session()  # create persistent HTTP communication
         self.session.auth = HTTPBasicAuth(self.username, self.password)
+        self.session.headers = {
+            "Accept": "application/xhtml+xml;v=2.0",
+            "Content-Type": "application/x-www-form-urlencoded;v=2.0",
+        }
+        self.session.verify = False
+        # self.session.cert = certifi.where()
 
     def set_rapid_variable(self, var: str, value: Union[str, float, int]):
         """Sets the value of any RAPID variable.
@@ -35,7 +41,6 @@ class RWS:
         resp = self.session.post(
             self.base_url + "/rw/rapid/symbol/RAPID/T_ROB1/" + var + "/data",
             data=payload,
-            verify=False,
         )
         return resp
 
@@ -44,8 +49,7 @@ class RWS:
         """
 
         resp = self.session.get(
-            self.base_url + "/rw/rapid/symbol/RAPID/T_ROB1/" + var + "/data?value=1",
-            verify=False,
+            self.base_url + "/rw/rapid/symbol/RAPID/T_ROB1/" + var + "/data?value=1"
         )
         _dict = xmltodict.parse(resp.content)
         value = _dict["html"]["body"]["div"]["ul"]["li"]["span"]["#text"]
@@ -181,8 +185,7 @@ class RWS:
         """
 
         resp = self.session.post(
-            self.base_url + "/rw/rapid/execution/resetpp?mastership=implicit",
-            verify=False,
+            self.base_url + "/rw/rapid/execution/resetpp?mastership=implicit"
         )
         if resp.status_code == 204:
             print("Program pointer reset to main")
@@ -190,10 +193,10 @@ class RWS:
             print("Could not reset program pointer to main")
 
     def request_mastership(self):
-        self.session.post(self.base_url + "/rw/mastership/request", verify=False)
+        self.session.post(self.base_url + "/rw/mastership/request")
 
     def release_mastership(self):
-        self.session.post(self.base_url + "/rw/mastership/release", verify=False)
+        self.session.post(self.base_url + "/rw/mastership/release",)
 
     def request_rmmp(self):
         self.session.post(self.base_url + "/users/rmmp", data={"privilege": "modify"})
@@ -208,9 +211,7 @@ class RWS:
 
         payload = {"ctrl-state": "motoron"}
         resp = self.session.post(
-            self.base_url + "/rw/panel/ctrl-state?ctrl-state=motoron",
-            data=payload,
-            verify=False,
+            self.base_url + "/rw/panel/ctrl-state?ctrl-state=motoron", data=payload,
         )
 
         if resp.status_code == 204:
@@ -248,7 +249,6 @@ class RWS:
         resp = self.session.post(
             self.base_url + "/rw/rapid/execution/start?mastership=implicit",
             data=payload,
-            verify=False,
         )
         if resp.status_code == 204:
             print("RAPID execution started from main")
@@ -271,7 +271,7 @@ class RWS:
 
         payload = {"stopmode": "stop", "usetsp": "normal"}
         resp = self.session.post(
-            self.base_url + "/rw/rapid/execution/stop", data=payload, verify=False
+            self.base_url + "/rw/rapid/execution/stop", data=payload,
         )
         if resp.status_code == 204:
             print("RAPID execution stopped")
@@ -282,9 +282,7 @@ class RWS:
         """Gets the execution state of the controller.
         """
 
-        resp = self.session.get(
-            self.base_url + "/rw/rapid/execution?json=1", verify=False
-        )
+        resp = self.session.get(self.base_url + "/rw/rapid/execution?json=1",)
         _dict = xmltodict.parse(resp.content)
         data = _dict["html"]["body"]["div"]["ul"]["li"]["span"][0]["#text"]
         return data
