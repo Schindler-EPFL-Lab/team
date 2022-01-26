@@ -95,7 +95,9 @@ class RWS:
 
         return height
 
-    def set_robtarget_translation(self, var: str, trans: Union[list, tuple]):
+    def set_robtarget_translation(
+        self, var: str, trans: Union[list[float], tuple[float]]
+    ):
         """Sets the translational data of a robtarget variable in RAPID.
         """
 
@@ -138,7 +140,7 @@ class RWS:
         )
 
     def set_robtarget_rotation_quaternion(
-        self, var: str, rotation_quaternion: Union[list, tuple]
+        self, var: str, rotation_quaternion: Union[list[float], tuple[float]]
     ):
         """Updates the orientation of a robtarget variable in RAPID by a Quaternion.
         """
@@ -165,7 +167,7 @@ class RWS:
         while self.get_rapid_variable(var) == "FALSE" and self.is_running():
             time.sleep(0.1)
 
-    def set_rapid_array(self, var: str, value: Union[list, tuple]):
+    def set_rapid_array(self, var: str, value: Union[list[float], tuple[float]]):
         """Sets the values of a RAPID array by sending a list from Python.
         """
 
