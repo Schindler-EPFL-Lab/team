@@ -1,3 +1,11 @@
+import os
+import sys
+
+# add test package path to import RWS_wrapper module
+test_dir = os.path.dirname(__file__)
+base_dir = os.path.dirname(test_dir)
+sys.path.insert(0, base_dir)
+
 from RWS_wrapper import RwsWrapper
 
 if __name__ == "__main__":
