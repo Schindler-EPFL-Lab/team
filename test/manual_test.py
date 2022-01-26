@@ -1,11 +1,3 @@
-import os
-import sys
-
-# add test package path to import RWS_wrapper module
-test_dir = os.path.dirname(__file__)
-base_dir = os.path.dirname(test_dir)
-sys.path.insert(0, base_dir)
-
 from RWS_wrapper import RwsWrapper
 
 if __name__ == "__main__":
@@ -31,7 +23,7 @@ if __name__ == "__main__":
         "[[600, -200.00, 800], [-0.500, 0.0, -0.866, 0.0], [0, 0, 0, 0],"
         "[9E+9,9E+9,9E+9,9E+9,9E+9,9E+9]]"
     )
-    rws = RwsWrapper(url)  # verify certificate set to False
+    rws = RwsWrapper(url)
 
     # TEST RAPID PROGRAM ->the robot spans the sides of a rectangle in the xy plane
     path_sequence = [
