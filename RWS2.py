@@ -317,14 +317,14 @@ class RWS:
 
         payload = {"speed-ratio": speed_ratio}
         resp = self.session.post(
-            self.base_url + "/rw/panel/speedratio?action=setspeedratio", data=payload
+            self.base_url + "/rw/panel/speedratio?mastership=implicit", data=payload
         )
         if resp.status_code == 204:
             print(f"Set speed ratio to {speed_ratio}%")
         else:
             print("Could not set speed ratio!")
 
-    def set_zonedata(self, var: str, zonedata: float):
+    def set_zonedata(self, var: str, zonedata: Union[float, str]):
         """Sets the zonedata of a zonedata variable in RAPID.
         """
 
@@ -370,17 +370,6 @@ class RWS:
             print(f'Set "{var}" speeddata to v{speeddata}')
         else:
             print("Could not set speeddata. Check that the variable name is correct")
-
-
-def quaternion_to_radians(quaternion: float):
-    """Convert a Quaternion to a rotation about the z-axis in degrees.
-    """
-    w, x, y, z = quaternion
-    t1 = +2.0 * (w * z + x * y)
-    t2 = +1.0 - 2.0 * (y * y + z * z)
-    rotation_z = math.atan2(t1, t2)
-
-    return rotation_z
 
 
 def z_degrees_to_quaternion(rotation_z_degrees: float):
