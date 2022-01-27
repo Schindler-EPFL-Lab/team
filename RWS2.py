@@ -4,7 +4,6 @@ import json
 import math
 from typing import Union
 
-# import certifi
 import xmltodict
 from requests.auth import HTTPBasicAuth
 from requests import Session
@@ -12,9 +11,7 @@ from requests import Session
 
 class RWS:
     """Class for communicating with RobotWare through Robot Web Services
-    (ABB's Rest API).
-    Most of the functions are mainly aimed at laboratory work at the University of
-    Stavanger, but may hopefully prove useful otherwise as well.
+    (ABB's Rest API)
     """
 
     def __init__(
@@ -30,7 +27,6 @@ class RWS:
             "Content-Type": "application/x-www-form-urlencoded;v=2.0",
         }
         self.session.verify = False
-        # self.session.cert = certifi.where()
 
     def set_rapid_variable(self, var: str, value: Union[str, float, int]):
         """Sets the value of any RAPID variable.
