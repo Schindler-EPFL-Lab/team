@@ -60,14 +60,10 @@ class RWS:
         """
 
         resp = self.session.get(
-            self.base_url
-            + "/rw/rapid/symbol/data/RAPID/T_ROB1/"
-            + var
-            + ";value?json=1"
+            self.base_url + "/rw/rapid/symbol/RAPID/T_ROB1/" + var + "/data?value=1"
         )
-        json_string = resp.text
-        _dict = json.loads(json_string)
-        data = _dict["_embedded"]["_state"][0]["value"]
+        _dict = xmltodict.parse(resp.content)
+        data = _dict["html"]["body"]["div"]["ul"]["li"]["span"]["#text"]
         data_list = ast.literal_eval(data)  # Convert the pure string from data to list
         trans = data_list[0]  # Get x,y,z from robtarget relative to work object (table)
         rot = data_list[1]  # Get orientation of robtarget
@@ -202,7 +198,7 @@ class RWS:
         self.session.post(self.base_url + "/users/rmmp", data={"privilege": "modify"})
 
     def cancel_rmmp(self):
-        self.session.post(self.base_url + "/users/rmmp?action=cancel")
+        self.session.post(self.base_url + "/users/rmmp/cancel")
 
     def motors_on(self):
         """Turns the robot's motors on.
@@ -301,20 +297,18 @@ class RWS:
         """Gets the operation mode of the controller.
         """
 
-        resp = self.session.get(self.base_url + "/rw/panel/opmode?json=1")
-        json_string = resp.text
-        _dict = json.loads(json_string)
-        data = _dict["_embedded"]["_state"][0]["opmode"]
+        resp = self.session.get(self.base_url + "/rw/panel/opmode")
+        _dict = xmltodict.parse(resp.content)
+        data = _dict["html"]["body"]["div"]["ul"]["li"][0]["span"]["#text"]
         return data
 
     def get_controller_state(self):
         """Gets the controller state.
         """
 
-        resp = self.session.get(self.base_url + "/rw/panel/ctrlstate?json=1")
-        json_string = resp.text
-        _dict = json.loads(json_string)
-        data = _dict["_embedded"]["_state"][0]["ctrlstate"]
+        resp = self.session.get(self.base_url + "/rw/panel/ctrl-state")
+        _dict = xmltodict.parse(resp.content)
+        data = _dict["html"]["body"]["div"]["ul"]["li"]["span"]["#text"]
         return data
 
     def set_speed_ratio(self, speed_ratio: float):
