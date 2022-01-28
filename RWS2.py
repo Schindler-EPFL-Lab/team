@@ -1,5 +1,4 @@
 import ast
-import time
 import json
 import math
 from typing import Union
@@ -7,6 +6,8 @@ from typing import Union
 import xmltodict
 from requests.auth import HTTPBasicAuth
 from requests import Session
+
+from arco.utility.logger import log
 
 
 class RWS:
@@ -56,14 +57,10 @@ class RWS:
         """
 
         resp = self.session.get(
-            self.base_url
-            + "/rw/rapid/symbol/data/RAPID/T_ROB1/"
-            + var
-            + ";value?json=1"
+            self.base_url + "/rw/rapid/symbol/RAPID/T_ROB1/" + var + "/data?json=1"
         )
-        json_string = resp.text
-        _dict = json.loads(json_string)
-        data = _dict["_embedded"]["_state"][0]["value"]
+        _dict = xmltodict.parse(resp.content)
+        data = _dict["html"]["body"]["div"]["ul"]["li"]["span"]["#text"]
         data_list = ast.literal_eval(data)  # Convert the pure string from data to list
         trans = data_list[0]  # Get x,y,z from robtarget relative to work object (table)
         rot = data_list[1]  # Get orientation of robtarget
@@ -168,7 +165,8 @@ class RWS:
         """
 
         while self.get_rapid_variable(var) == "FALSE" and self.is_running():
-            time.sleep(0.1)
+            # read robot data-> here just printing to the console
+            self.log_robot_data()
 
     def set_rapid_array(self, var: str, value: Union[list[float], tuple[float]]):
         """Sets the values of a RAPID array by sending a list from Python.
@@ -284,7 +282,7 @@ class RWS:
         return data
 
     def is_running(self):
-        """Checks the execution state of the controller and
+        """Checks and return the execution state of the controller.
         """
 
         execution_state = self.get_execution_state()
@@ -376,6 +374,70 @@ class RWS:
             print(f'Set "{var}" speeddata to v{speeddata}')
         else:
             print("Could not set speeddata. Check that the variable name is correct")
+
+    def log_robot_data(self) -> None:
+        """Retrieve robot data and print it to console.
+        """
+        tcp_pos, tcp_ori = self.get_tcp_pose()
+        joints_pos = self.get_joints_positions()
+        log.info(
+            f"\n"
+            f"robot tcp position {tcp_pos} \n"
+            f"robot tcp orientation {tcp_ori} \n"
+            f"robot joints position {joints_pos}"
+        )
+
+    def get_joints_positions(
+        self, n_joints: int = 6, mechunits: str = "ROB_1"
+    ) -> list[float]:
+        """Gets the robot joints positions in degrees.
+        """
+
+        resp = self.session.get(
+            self.base_url
+            + "/rw/motionsystem/mechunits/"
+            + mechunits
+            + "/jointtarget?ignore=1"
+        )
+        _dict = xmltodict.parse(resp.content)
+        joints_pos = []
+        for i in range(n_joints):
+            joints_pos.append(
+                _dict["html"]["body"]["div"]["ul"]["li"]["span"][i]["#text"]
+            )
+        return joints_pos
+
+    def get_tcp_pose(
+        self,
+        mechunits: str = "ROB_1",
+        tool: str = "tool0",
+        wobj: str = "wobj0",
+        frame: str = "Base",
+    ) -> (list[float], list[float]):
+        """Gets the robot tcp position (mm) and orientation (quaternions).
+        """
+
+        resp = self.session.get(
+            self.base_url
+            + "/rw/motionsystem/mechunits/"
+            + mechunits
+            + "/robtarget?tool="
+            + tool
+            + "&wobj="
+            + wobj
+            + "&coordinate="
+            + frame
+        )
+        _dict = xmltodict.parse(resp.content)
+        tcp_pos = []
+        tcp_ori = []
+        # (x,y,z) are stored as the first three values in the xml file
+        for i in range(3):
+            tcp_pos.append(_dict["html"]["body"]["div"]["ul"]["li"]["span"][i]["#text"])
+        # (q1,q2,q3, q4) are stored as the 4/5/6/7 values in the xml file
+        for j in range(3, 7):
+            tcp_ori.append(_dict["html"]["body"]["div"]["ul"]["li"]["span"][j]["#text"])
+        return tcp_pos, tcp_ori
 
 
 def quaternion_to_radians(quaternion: float):
