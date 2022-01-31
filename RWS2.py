@@ -53,7 +53,7 @@ class RWS:
     def get_rapid_variable(self, var: str) -> Union[str, float]:
         """
         Gets the raw value of any RAPID variable.
-        :param var: variable name 
+        :param var: variable name
         :return: variable value
         """
 
@@ -105,7 +105,7 @@ class RWS:
     def get_gripper_height(self) -> float:
         """
         Extracts only the height from gripper position.
-        :return: gripper height 
+        :return: gripper height
         """
 
         trans, rot = self.get_gripper_position()
@@ -145,9 +145,9 @@ class RWS:
         self, var: str, rotation_z_degrees: float
     ) -> None:
         """
-        Updates the orientation of a robtarget variable in RAPID by rotation about 
+        Updates the orientation of a robtarget variable in RAPID by rotation about
         the z-axis in degrees.
-        :param var: variable name 
+        :param var: variable name
         :param rotation_z_degrees: orientation to achieve
         """
 
@@ -380,8 +380,8 @@ class RWS:
     def set_zonedata(self, var: str, zonedata: Union[float, str]) -> None:
         """
         Sets the zonedata of a zonedata variable in RAPID.
-        :param var: variable name 
-        :param zonedata: zonedata information 
+        :param var: variable name
+        :param zonedata: zonedata information
         """
 
         if zonedata not in ["fine", 0, 1, 5, 10, 20, 30, 40, 50, 60, 80, 100, 150, 200]:
@@ -448,9 +448,9 @@ class RWS:
     ) -> list[float]:
         """
         Gets the robot joints positions in degrees.
-        :param n_joints: number of robot joints 
+        :param n_joints: number of robot joints
         :param mechunits: mechanical unit name
-        :return: the robot joints positions in degrees 
+        :return: the robot joints positions in degrees
         """
 
         resp = self.session.get(
@@ -478,7 +478,7 @@ class RWS:
         Gets the robot tcp position (mm) and orientation (quaternions).
         :param mechunits: mechanical units name
         :param tool: tool name
-        :param wobj: working object name 
+        :param wobj: working object name
         :param frame: reference frame to consider
         :return: the robot tcp position and orientation
         """
@@ -509,8 +509,8 @@ class RWS:
 def z_degrees_to_quaternion(rotation_z_degrees: float) -> list[float]:
     """
     Convert a rotation about the z-axis in degrees to Quaternion.
-    :param rotation_z_degrees: angle in degrees 
-    :return: corresponding quaternion representation 
+    :param rotation_z_degrees: angle in degrees
+    :return: corresponding quaternion representation
     """
     roll = math.pi
     pitch = 0

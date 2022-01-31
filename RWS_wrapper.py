@@ -16,10 +16,10 @@ class RwsWrapper:
     ) -> None:
         """
         This method sets a RAPID variable to a new value. Both the variable name and
-        the new value are passed by the user as method arguments. The user needs to 
+        the new value are passed by the user as method arguments. The user needs to
         request the controller mastership before changing the variable.
         :param variable_name: name of variable to update/change
-        :param new_value: new variable value 
+        :param new_value: new variable value
         """
         self.robot.request_mastership()
         self.robot.set_rapid_variable(variable_name, new_value)
@@ -41,7 +41,7 @@ class RwsWrapper:
         if the program pointer needs to be reset and then it waits for the task
         completion. Finally, it stops the RAPID program and resumes the settings.
         :param reset_pp: boolean to determine if the program pointer needs to be reset
-        :param var: RAPID variable that helps to synchronize the python script and the 
+        :param var: RAPID variable that helps to synchronize the python script and the
                     RAPID program to achieve a coherent task execution
         """
         self.turn_motors_on()
