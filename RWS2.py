@@ -18,6 +18,12 @@ class RWS:
     def __init__(
         self, base_url: str, username: str = "Default User", password: str = "robotics"
     ):
+        """
+        Class constructor.
+        :param base_url: base url to address the requests 
+        :param username: authentication username 
+        :param password: authentication password
+        """
         self.base_url = base_url
         self.username = username
         self.password = password
