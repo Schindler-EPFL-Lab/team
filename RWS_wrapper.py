@@ -4,7 +4,7 @@ import RWS2
 
 
 class RwsWrapper:
-    def __init__(self, robot_url: str):
+    def __init__(self, robot_url: str) -> None:
         self.robot = RWS2.RWS(robot_url)
 
     def set_RAPID_variable(
