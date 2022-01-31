@@ -282,7 +282,7 @@ class RWS:
         return data
 
     def is_running(self):
-        """Checks and return the execution state of the controller.
+        """Checks and returns the execution state of the controller.
         """
 
         execution_state = self.get_execution_state()
