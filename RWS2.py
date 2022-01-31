@@ -11,7 +11,8 @@ from arco.utility.logger import log
 
 
 class RWS:
-    """Class for communicating with RobotWare through Robot Web Services
+    """
+    Class for communicating with RobotWare through Robot Web Services
     (ABB's Rest API)
     """
 
@@ -36,10 +37,12 @@ class RWS:
         self.session.verify = False
 
     def set_rapid_variable(self, var: str, value: Union[str, float, int]) -> Response:
-        """Sets the value of any RAPID variable.
-        Unless the variable is of type 'num', 'value' has to be a string.
         """
-
+        Sets the value of any RAPID variable.
+        :param var: RAPID variable name
+        :param value: new value to assign
+        :return: response object with request status and information
+        """
         payload = {"value": value}
         resp = self.session.post(
             self.base_url + "/rw/rapid/symbol/RAPID/T_ROB1/" + var + "/data",
@@ -48,7 +51,10 @@ class RWS:
         return resp
 
     def get_rapid_variable(self, var: str) -> Union[str, float]:
-        """Gets the raw value of any RAPID variable.
+        """
+        Gets the raw value of any RAPID variable.
+        :param var: variable name 
+        :return: variable value
         """
 
         resp = self.session.get(
@@ -59,7 +65,10 @@ class RWS:
         return value
 
     def get_robtarget_variables(self, var: str) -> (list[float], list[float]):
-        """Gets both translational and rotational data from robtarget.
+        """
+        Gets both translational and rotational data from robtarget.
+        :param var: robtarget variable name
+        :return: position and orientation of robtarget variable
         """
 
         resp = self.session.get(
@@ -73,8 +82,10 @@ class RWS:
         return trans, rot
 
     def get_gripper_position(self) -> (list[float], list[float]):
-        """Gets translational and rotational of the UiS tool 'tGripper'
+        """
+        Gets translational and rotational of the UiS tool 'tGripper'
         with respect to the work object 'wobjTableN'.
+        :return: gripper position and orientation
         """
 
         resp = self.session.get(
@@ -92,8 +103,9 @@ class RWS:
         return trans, rot
 
     def get_gripper_height(self) -> float:
-        """Extracts only the height from gripper position.
-        (See get_gripper_position)
+        """
+        Extracts only the height from gripper position.
+        :return: gripper height 
         """
 
         trans, rot = self.get_gripper_position()
@@ -104,7 +116,10 @@ class RWS:
     def set_robtarget_translation(
         self, var: str, trans: Union[list[float], tuple[float]]
     ) -> None:
-        """Sets the translational data of a robtarget variable in RAPID.
+        """
+        Sets the translational data of a robtarget variable in RAPID.
+        :param var: variable name
+        :param trans: position to assign to the variable
         """
 
         _trans, rot = self.get_robtarget_variables(var)
@@ -129,8 +144,11 @@ class RWS:
     def set_robtarget_rotation_z_degrees(
         self, var: str, rotation_z_degrees: float
     ) -> None:
-        """Updates the orientation of a robtarget variable
-        in RAPID by rotation about the z-axis in degrees.
+        """
+        Updates the orientation of a robtarget variable in RAPID by rotation about 
+        the z-axis in degrees.
+        :param var: variable name 
+        :param rotation_z_degrees: orientation to achieve
         """
 
         rot = z_degrees_to_quaternion(rotation_z_degrees)
@@ -150,7 +168,10 @@ class RWS:
     def set_robtarget_rotation_quaternion(
         self, var: str, rotation_quaternion: Union[list[float], tuple[float]]
     ) -> None:
-        """Updates the orientation of a robtarget variable in RAPID by a Quaternion.
+        """
+        Updates the orientation of a robtarget variable in RAPID by a Quaternion.
+        :param var: variable name
+        :param rotation_quaternion: orientation to achieve
         """
 
         trans, _rot = self.get_robtarget_variables(var)
@@ -167,9 +188,10 @@ class RWS:
         )
 
     def wait_for_rapid(self, var: str = "ready_flag") -> None:
-        """Waits for robot to complete RAPID instructions
-        until boolean variable in RAPID is set to 'TRUE'.
-        Default variable name is 'ready_flag', but others may be used.
+        """
+        Waits for robot to complete RAPID instructions until boolean variable in RAPID
+        is set to 'TRUE'. Default variable name is 'ready_flag', but others may be used.
+        :param var: variable name
         """
 
         while self.get_rapid_variable(var) == "FALSE" and self.is_running():
@@ -179,13 +201,17 @@ class RWS:
     def set_rapid_array(
         self, var: str, value: Union[list[float], tuple[float]]
     ) -> None:
-        """Sets the values of a RAPID array by sending a list from Python.
+        """
+        Sets the values of a RAPID array by sending a list from Python.
+        :param var: variable name
+        :param value: value to assign to the variable
         """
 
         self.set_rapid_variable(var, "[" + ",".join([str(s) for s in value]) + "]")
 
     def reset_pp(self) -> None:
-        """Resets the program pointer to main procedure in RAPID.
+        """
+        Reset the program pointer to main procedure in RAPID.
         """
 
         resp = self.session.post(
@@ -203,13 +229,17 @@ class RWS:
         self.session.post(self.base_url + "/rw/mastership/release",)
 
     def request_rmmp(self) -> None:
+        """
+        Request manual mode privileges.
+        """
         self.session.post(self.base_url + "/users/rmmp", data={"privilege": "modify"})
 
     def cancel_rmmp(self) -> None:
         self.session.post(self.base_url + "/users/rmmp/cancel")
 
     def motors_on(self) -> None:
-        """Turns the robot's motors on.
+        """
+        Turns the robot's motors on.
         Operation mode has to be AUTO.
         """
 
@@ -224,7 +254,8 @@ class RWS:
             print("Could not turn on motors. The controller might be in manual mode")
 
     def motors_off(self) -> None:
-        """Turns the robot's motors off.
+        """
+        Turns the robot's motors off.
         """
 
         payload = {"ctrl-state": "motoroff"}
@@ -238,7 +269,10 @@ class RWS:
             print("Could not turn off motors")
 
     def start_RAPID(self, pp_to_reset: bool) -> None:
-        """Resets program pointer to main procedure in RAPID and starts RAPID execution.
+        """
+        The method resets the program pointer if necessary and it starts the RAPID
+        program execution.
+        :param pp_to_reset: determine if it is necessary to reset the program pointer
         """
         if pp_to_reset:
             self.reset_pp()
@@ -270,7 +304,8 @@ class RWS:
             )
 
     def stop_RAPID(self) -> None:
-        """Stops RAPID execution.
+        """
+        Stops RAPID execution.
         """
 
         payload = {"stopmode": "stop", "usetsp": "normal"}
@@ -283,7 +318,8 @@ class RWS:
             print("Could not stop RAPID execution")
 
     def get_execution_state(self) -> str:
-        """Gets the execution state of the controller.
+        """
+        Gets the execution state of the controller.
         """
 
         resp = self.session.get(self.base_url + "/rw/rapid/execution?json=1",)
@@ -292,7 +328,8 @@ class RWS:
         return data
 
     def is_running(self) -> bool:
-        """Checks and returns the execution state of the controller.
+        """
+        Checks and returns the execution state of the controller.
         """
 
         execution_state = self.get_execution_state()
@@ -302,7 +339,8 @@ class RWS:
             return False
 
     def get_operation_mode(self) -> str:
-        """Gets the operation mode of the controller.
+        """
+        Gets the operation mode of the controller.
         """
 
         resp = self.session.get(self.base_url + "/rw/panel/opmode")
@@ -311,7 +349,8 @@ class RWS:
         return data
 
     def get_controller_state(self) -> str:
-        """Gets the controller state.
+        """
+        Gets the controller state.
         """
 
         resp = self.session.get(self.base_url + "/rw/panel/ctrl-state")
@@ -320,7 +359,9 @@ class RWS:
         return data
 
     def set_speed_ratio(self, speed_ratio: float) -> None:
-        """Sets the speed ratio of the controller.
+        """
+        Sets the speed ratio of the controller.
+        :param speed_ratio: new value to assign at the speed ratio (%)
         """
 
         if not 0 < speed_ratio <= 100:
@@ -337,7 +378,10 @@ class RWS:
             print("Could not set speed ratio!")
 
     def set_zonedata(self, var: str, zonedata: Union[float, str]) -> None:
-        """Sets the zonedata of a zonedata variable in RAPID.
+        """
+        Sets the zonedata of a zonedata variable in RAPID.
+        :param var: variable name 
+        :param zonedata: zonedata information 
         """
 
         if zonedata not in ["fine", 0, 1, 5, 10, 20, 30, 40, 50, 60, 80, 100, 150, 200]:
@@ -374,7 +418,10 @@ class RWS:
             print("Could not set zonedata! Check that the variable name is correct")
 
     def set_speeddata(self, var: str, speeddata: float) -> None:
-        """Sets the speeddata of a speeddata variable in RAPID.
+        """
+        Sets the speeddata of a speeddata variable in RAPID.
+        :param var: variable name
+        :param speeddata: new speeddata value
         """
 
         resp = self.set_rapid_variable(var, f"[{speeddata},500,5000,1000]")
@@ -384,7 +431,8 @@ class RWS:
             print("Could not set speeddata. Check that the variable name is correct")
 
     def log_robot_data(self) -> None:
-        """Retrieve robot data and print it to console.
+        """
+        Retrieve robot data and print it to console.
         """
         tcp_pos, tcp_ori = self.get_tcp_pose()
         joints_pos = self.get_joints_positions()
@@ -398,7 +446,11 @@ class RWS:
     def get_joints_positions(
         self, n_joints: int = 6, mechunits: str = "ROB_1"
     ) -> list[float]:
-        """Gets the robot joints positions in degrees.
+        """
+        Gets the robot joints positions in degrees.
+        :param n_joints: number of robot joints 
+        :param mechunits: mechanical unit name
+        :return: the robot joints positions in degrees 
         """
 
         resp = self.session.get(
@@ -422,7 +474,13 @@ class RWS:
         wobj: str = "wobj0",
         frame: str = "Base",
     ) -> (list[float], list[float]):
-        """Gets the robot tcp position (mm) and orientation (quaternions).
+        """
+        Gets the robot tcp position (mm) and orientation (quaternions).
+        :param mechunits: mechanical units name
+        :param tool: tool name
+        :param wobj: working object name 
+        :param frame: reference frame to consider
+        :return: the robot tcp position and orientation
         """
 
         resp = self.session.get(
@@ -449,7 +507,10 @@ class RWS:
 
 
 def z_degrees_to_quaternion(rotation_z_degrees: float) -> list[float]:
-    """Convert a rotation about the z-axis in degrees to Quaternion.
+    """
+    Convert a rotation about the z-axis in degrees to Quaternion.
+    :param rotation_z_degrees: angle in degrees 
+    :return: corresponding quaternion representation 
     """
     roll = math.pi
     pitch = 0
