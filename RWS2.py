@@ -5,7 +5,7 @@ from typing import Union
 
 import xmltodict
 from requests.auth import HTTPBasicAuth
-from requests import Session
+from requests import Session, Response
 
 from arco.utility.logger import log
 
@@ -17,11 +17,11 @@ class RWS:
 
     def __init__(
         self, base_url: str, username: str = "Default User", password: str = "robotics"
-    ):
+    ) -> None:
         """
         Class constructor.
-        :param base_url: base url to address the requests 
-        :param username: authentication username 
+        :param base_url: base url to address the requests
+        :param username: authentication username
         :param password: authentication password
         """
         self.base_url = base_url
@@ -35,7 +35,7 @@ class RWS:
         }
         self.session.verify = False
 
-    def set_rapid_variable(self, var: str, value: Union[str, float, int]):
+    def set_rapid_variable(self, var: str, value: Union[str, float, int]) -> Response:
         """Sets the value of any RAPID variable.
         Unless the variable is of type 'num', 'value' has to be a string.
         """
@@ -47,7 +47,7 @@ class RWS:
         )
         return resp
 
-    def get_rapid_variable(self, var: str):
+    def get_rapid_variable(self, var: str) -> Union[str, float]:
         """Gets the raw value of any RAPID variable.
         """
 
@@ -58,12 +58,12 @@ class RWS:
         value = _dict["html"]["body"]["div"]["ul"]["li"]["span"]["#text"]
         return value
 
-    def get_robtarget_variables(self, var: str):
+    def get_robtarget_variables(self, var: str) -> (list[float], list[float]):
         """Gets both translational and rotational data from robtarget.
         """
 
         resp = self.session.get(
-            self.base_url + "/rw/rapid/symbol/RAPID/T_ROB1/" + var + "/data?json=1"
+            self.base_url + "/rw/rapid/symbol/RAPID/T_ROB1/" + var + "/data?value=1"
         )
         _dict = xmltodict.parse(resp.content)
         data = _dict["html"]["body"]["div"]["ul"]["li"]["span"]["#text"]
@@ -72,7 +72,7 @@ class RWS:
         rot = data_list[1]  # Get orientation of robtarget
         return trans, rot
 
-    def get_gripper_position(self):
+    def get_gripper_position(self) -> (list[float], list[float]):
         """Gets translational and rotational of the UiS tool 'tGripper'
         with respect to the work object 'wobjTableN'.
         """
@@ -91,7 +91,7 @@ class RWS:
 
         return trans, rot
 
-    def get_gripper_height(self):
+    def get_gripper_height(self) -> float:
         """Extracts only the height from gripper position.
         (See get_gripper_position)
         """
@@ -103,7 +103,7 @@ class RWS:
 
     def set_robtarget_translation(
         self, var: str, trans: Union[list[float], tuple[float]]
-    ):
+    ) -> None:
         """Sets the translational data of a robtarget variable in RAPID.
         """
 
@@ -126,7 +126,9 @@ class RWS:
                 "9E+9,9E+9]]",
             )
 
-    def set_robtarget_rotation_z_degrees(self, var: str, rotation_z_degrees: float):
+    def set_robtarget_rotation_z_degrees(
+        self, var: str, rotation_z_degrees: float
+    ) -> None:
         """Updates the orientation of a robtarget variable
         in RAPID by rotation about the z-axis in degrees.
         """
@@ -147,7 +149,7 @@ class RWS:
 
     def set_robtarget_rotation_quaternion(
         self, var: str, rotation_quaternion: Union[list[float], tuple[float]]
-    ):
+    ) -> None:
         """Updates the orientation of a robtarget variable in RAPID by a Quaternion.
         """
 
@@ -164,7 +166,7 @@ class RWS:
             "9E+9]]",
         )
 
-    def wait_for_rapid(self, var: str = "ready_flag"):
+    def wait_for_rapid(self, var: str = "ready_flag") -> None:
         """Waits for robot to complete RAPID instructions
         until boolean variable in RAPID is set to 'TRUE'.
         Default variable name is 'ready_flag', but others may be used.
@@ -174,13 +176,15 @@ class RWS:
             # read robot data-> here just printing to the console
             self.log_robot_data()
 
-    def set_rapid_array(self, var: str, value: Union[list[float], tuple[float]]):
+    def set_rapid_array(
+        self, var: str, value: Union[list[float], tuple[float]]
+    ) -> None:
         """Sets the values of a RAPID array by sending a list from Python.
         """
 
         self.set_rapid_variable(var, "[" + ",".join([str(s) for s in value]) + "]")
 
-    def reset_pp(self):
+    def reset_pp(self) -> None:
         """Resets the program pointer to main procedure in RAPID.
         """
 
@@ -192,19 +196,19 @@ class RWS:
         else:
             print("Could not reset program pointer to main")
 
-    def request_mastership(self):
+    def request_mastership(self) -> None:
         self.session.post(self.base_url + "/rw/mastership/request")
 
-    def release_mastership(self):
+    def release_mastership(self) -> None:
         self.session.post(self.base_url + "/rw/mastership/release",)
 
-    def request_rmmp(self):
+    def request_rmmp(self) -> None:
         self.session.post(self.base_url + "/users/rmmp", data={"privilege": "modify"})
 
-    def cancel_rmmp(self):
-        self.session.post(self.base_url + "/users/rmmp?action=cancel")
+    def cancel_rmmp(self) -> None:
+        self.session.post(self.base_url + "/users/rmmp/cancel")
 
-    def motors_on(self):
+    def motors_on(self) -> None:
         """Turns the robot's motors on.
         Operation mode has to be AUTO.
         """
@@ -219,7 +223,7 @@ class RWS:
         else:
             print("Could not turn on motors. The controller might be in manual mode")
 
-    def motors_off(self):
+    def motors_off(self) -> None:
         """Turns the robot's motors off.
         """
 
@@ -233,7 +237,7 @@ class RWS:
         else:
             print("Could not turn off motors")
 
-    def start_RAPID(self, pp_to_reset: bool):
+    def start_RAPID(self, pp_to_reset: bool) -> None:
         """Resets program pointer to main procedure in RAPID and starts RAPID execution.
         """
         if pp_to_reset:
@@ -265,7 +269,7 @@ class RWS:
             """
             )
 
-    def stop_RAPID(self):
+    def stop_RAPID(self) -> None:
         """Stops RAPID execution.
         """
 
@@ -278,7 +282,7 @@ class RWS:
         else:
             print("Could not stop RAPID execution")
 
-    def get_execution_state(self):
+    def get_execution_state(self) -> str:
         """Gets the execution state of the controller.
         """
 
@@ -287,7 +291,7 @@ class RWS:
         data = _dict["html"]["body"]["div"]["ul"]["li"]["span"][0]["#text"]
         return data
 
-    def is_running(self):
+    def is_running(self) -> bool:
         """Checks and returns the execution state of the controller.
         """
 
@@ -297,27 +301,25 @@ class RWS:
         else:
             return False
 
-    def get_operation_mode(self):
+    def get_operation_mode(self) -> str:
         """Gets the operation mode of the controller.
         """
 
-        resp = self.session.get(self.base_url + "/rw/panel/opmode?json=1")
-        json_string = resp.text
-        _dict = json.loads(json_string)
-        data = _dict["_embedded"]["_state"][0]["opmode"]
+        resp = self.session.get(self.base_url + "/rw/panel/opmode")
+        _dict = xmltodict.parse(resp.content)
+        data = _dict["html"]["body"]["div"]["ul"]["li"][0]["span"]["#text"]
         return data
 
-    def get_controller_state(self):
+    def get_controller_state(self) -> str:
         """Gets the controller state.
         """
 
-        resp = self.session.get(self.base_url + "/rw/panel/ctrlstate?json=1")
-        json_string = resp.text
-        _dict = json.loads(json_string)
-        data = _dict["_embedded"]["_state"][0]["ctrlstate"]
+        resp = self.session.get(self.base_url + "/rw/panel/ctrl-state")
+        _dict = xmltodict.parse(resp.content)
+        data = _dict["html"]["body"]["div"]["ul"]["li"]["span"]["#text"]
         return data
 
-    def set_speed_ratio(self, speed_ratio: float):
+    def set_speed_ratio(self, speed_ratio: float) -> None:
         """Sets the speed ratio of the controller.
         """
 
@@ -327,14 +329,14 @@ class RWS:
 
         payload = {"speed-ratio": speed_ratio}
         resp = self.session.post(
-            self.base_url + "/rw/panel/speedratio?action=setspeedratio", data=payload
+            self.base_url + "/rw/panel/speedratio?mastership=implicit", data=payload
         )
         if resp.status_code == 204:
             print(f"Set speed ratio to {speed_ratio}%")
         else:
             print("Could not set speed ratio!")
 
-    def set_zonedata(self, var: str, zonedata: float):
+    def set_zonedata(self, var: str, zonedata: Union[float, str]) -> None:
         """Sets the zonedata of a zonedata variable in RAPID.
         """
 
@@ -371,7 +373,7 @@ class RWS:
         else:
             print("Could not set zonedata! Check that the variable name is correct")
 
-    def set_speeddata(self, var: str, speeddata: float):
+    def set_speeddata(self, var: str, speeddata: float) -> None:
         """Sets the speeddata of a speeddata variable in RAPID.
         """
 
@@ -446,18 +448,7 @@ class RWS:
         return tcp_pos, tcp_ori
 
 
-def quaternion_to_radians(quaternion: float):
-    """Convert a Quaternion to a rotation about the z-axis in degrees.
-    """
-    w, x, y, z = quaternion
-    t1 = +2.0 * (w * z + x * y)
-    t2 = +1.0 - 2.0 * (y * y + z * z)
-    rotation_z = math.atan2(t1, t2)
-
-    return rotation_z
-
-
-def z_degrees_to_quaternion(rotation_z_degrees: float):
+def z_degrees_to_quaternion(rotation_z_degrees: float) -> list[float]:
     """Convert a rotation about the z-axis in degrees to Quaternion.
     """
     roll = math.pi

@@ -4,7 +4,7 @@ import RWS2
 
 
 class RwsWrapper:
-    def __init__(self, robot_url: str):
+    def __init__(self, robot_url: str) -> None:
         """
         CLass constructor.
         :param robot_url: string that defines the robot url
