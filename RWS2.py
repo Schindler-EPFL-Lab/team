@@ -430,16 +430,37 @@ class RWS:
         else:
             print("Could not set speeddata. Check that the variable name is correct")
 
+    def activate_lead_through(self) -> None:
+        """
+        Request to active the lead-through mode
+        """
+        payload = {"status": "active"}
+        self.session.post(
+            self.base_url + "/rw/motionsystem/mechunits/ROB_1/lead-through",
+            data=payload,
+        )
+
+    def deactivate_lead_through(self) -> None:
+        """
+        Request to deactive the lead-through mode
+        """
+        payload = {"status": "inactive"}
+        self.session.post(
+            self.base_url + "/rw/motionsystem/mechunits/ROB_1/lead-through",
+            data=payload,
+        )
+
     def log_robot_data(self) -> None:
         """
         Retrieve robot data and print it to console.
         """
-        tcp_pos, tcp_ori = self.get_tcp_pose()
+        tcp_pos, tcp_ori, rob_cf = self.get_tcp_info()
         joints_pos = self.get_joints_positions()
         log.info(
             f"\n"
             f"robot tcp position {tcp_pos} \n"
             f"robot tcp orientation {tcp_ori} \n"
+            f"robot axis configuration {rob_cf} \n"
             f"robot joints position {joints_pos}"
         )
 
@@ -461,21 +482,26 @@ class RWS:
         )
         _dict = xmltodict.parse(resp.content)
         joints_pos = []
-        for i in range(n_joints):
-            joints_pos.append(
-                _dict["html"]["body"]["div"]["ul"]["li"]["span"][i]["#text"]
-            )
+        # try except block useful if request fails -> inconsistent data is not important
+        try:
+            for i in range(n_joints):
+                joints_pos.append(
+                    float(_dict["html"]["body"]["div"]["ul"]["li"]["span"][i]["#text"])
+                )
+        except KeyError:
+            pass
         return joints_pos
 
-    def get_tcp_pose(
+    def get_tcp_info(
         self,
         mechunits: str = "ROB_1",
         tool: str = "tool0",
         wobj: str = "wobj0",
         frame: str = "Base",
-    ) -> (list[float], list[float]):
+    ) -> (list[float], list[float], list[float]):
         """
-        Gets the robot tcp position (mm) and orientation (quaternions).
+        Gets the robot tcp position (mm), orientation (quaternions) and axis
+        configuration.
         :param mechunits: mechanical units name
         :param tool: tool name
         :param wobj: working object name
@@ -497,13 +523,27 @@ class RWS:
         _dict = xmltodict.parse(resp.content)
         tcp_pos = []
         tcp_ori = []
-        # (x,y,z) are stored as the first three values in the xml file
-        for i in range(3):
-            tcp_pos.append(_dict["html"]["body"]["div"]["ul"]["li"]["span"][i]["#text"])
-        # (q1,q2,q3, q4) are stored as the 4/5/6/7 values in the xml file
-        for j in range(3, 7):
-            tcp_ori.append(_dict["html"]["body"]["div"]["ul"]["li"]["span"][j]["#text"])
-        return tcp_pos, tcp_ori
+        rob_cf = []
+        # try except block useful if request fails -> inconsistent data is not important
+        try:
+            # (x,y,z) are stored as the first three values in the xml file
+            for i in range(3):
+                tcp_pos.append(
+                    float(_dict["html"]["body"]["div"]["ul"]["li"]["span"][i]["#text"]),
+                )
+            # (q1,q2,q3, q4) are stored as the 4/5/6/7 values in the xml file
+            for j in range(3, 7):
+                tcp_ori.append(
+                    float(_dict["html"]["body"]["div"]["ul"]["li"]["span"][j]["#text"])
+                )
+            # (cf1, cf4, cf6, cfx) are stored as the 8/9/10/11 values in the xml file
+            for k in range(7, 11):
+                rob_cf.append(
+                    float(_dict["html"]["body"]["div"]["ul"]["li"]["span"][k]["#text"])
+                )
+        except KeyError:
+            pass
+        return tcp_pos, tcp_ori, rob_cf
 
 
 def z_degrees_to_quaternion(rotation_z_degrees: float) -> list[float]:
