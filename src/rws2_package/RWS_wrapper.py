@@ -1,6 +1,6 @@
 from typing import Union
 
-import RWS2
+from rws2_package import RWS2
 
 
 class RwsWrapper:
