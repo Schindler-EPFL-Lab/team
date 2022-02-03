@@ -1,6 +1,6 @@
 from typing import Union
 
-import RWS2
+from rws2 import RWS2
 
 
 class RwsWrapper:
@@ -32,6 +32,20 @@ class RwsWrapper:
         self.robot.request_mastership()
         self.robot.motors_on()
         self.robot.release_mastership()
+
+    def activate_lead_through(self) -> None:
+        """
+        This method turns the motors on and activate the lead through mode.
+        """
+        self.turn_motors_on()
+        self.robot.activate_lead_through()
+
+    def deactivate__lead_through(self) -> None:
+        """
+        This method deactivates the lead through mode and switches off the robot motors.
+        """
+        self.robot.deactivate_lead_through()
+        self.robot.motors_off()
 
     def complete_instruction(
         self, reset_pp: bool = False, var: str = "ready_flag"
