@@ -1,0 +1,11 @@
+LICENSE
+README.md
+pyproject.toml
+setup.cfg
+src/rws2_package/RWS2.py
+src/rws2_package/RWS_wrapper.py
+src/rws2_package/__init__.py
+src/rws2_package_Lorenzo.egg-info/PKG-INFO
+src/rws2_package_Lorenzo.egg-info/SOURCES.txt
+src/rws2_package_Lorenzo.egg-info/dependency_links.txt
+src/rws2_package_Lorenzo.egg-info/top_level.txt
