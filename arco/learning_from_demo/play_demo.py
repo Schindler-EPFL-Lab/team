@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 
-from rws2_package.RWS_wrapper import RwsWrapper
+from rws2.RWS_wrapper import RwsWrapper
 
 
 class PlayBack:

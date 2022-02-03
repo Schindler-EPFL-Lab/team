@@ -4,7 +4,7 @@ import time
 
 import keyboard
 
-from rws2_package.RWS_wrapper import RwsWrapper
+from rws2.RWS_wrapper import RwsWrapper
 from arco.learning_from_demo.record_demo import RecordDemo, DataStructure
 
 # Create object for parsing command-line options

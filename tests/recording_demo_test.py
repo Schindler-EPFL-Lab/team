@@ -2,7 +2,7 @@ import time
 
 import keyboard
 
-from rws2_package.RWS_wrapper import RwsWrapper
+from rws2.RWS_wrapper import RwsWrapper
 from arco.learning_from_demo.record_demo import RecordDemo, DataStructure
 
 path_to_store = "robot_trajectory_cf1.json"

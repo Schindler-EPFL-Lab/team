@@ -1,4 +1,4 @@
-from rws2_package.RWS_wrapper import RwsWrapper
+from rws2.RWS_wrapper import RwsWrapper
 
 if __name__ == "__main__":
     url = "https://localhost:8881"  # virtual controller url
