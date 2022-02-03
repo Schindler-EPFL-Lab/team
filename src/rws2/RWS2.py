@@ -7,7 +7,7 @@ import xmltodict
 from requests.auth import HTTPBasicAuth
 from requests import Session, Response
 
-from rws2_package.utility.logger import log
+from rws2.utility.logger import log
 
 
 class RWS:
