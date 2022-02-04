@@ -8,7 +8,7 @@ from rws2.RWS_wrapper import RwsWrapper
 
 class PlayBack:
     df: pd.DataFrame
-    timestamps: int
+    timestamps: pd.Series
     data: pd.DataFrame
     """
     Plays demonstrated trajectories saved in the json format.
