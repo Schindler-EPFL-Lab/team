@@ -1,6 +1,7 @@
 import os
 
 import json
+from typing import Optional
 
 from arco.utility.logger import log
 
@@ -15,7 +16,32 @@ class RecordDemo:
         :param path_to_store_demo: filepath destination
         """
         self.dest_path = path_to_store_demo
-        self.data = DataStructure()
+        self.data = self.create_default_dict()
+
+    @staticmethod
+    def create_default_dict(keys: Optional[list[str]] = None):
+        if not keys:
+            keys = [
+                "timestamp",
+                "tcp_x",
+                "tcp_y",
+                "tcp_z",
+                "tcp_q1",
+                "tcp_q2",
+                "tcp_q3",
+                "tcp_q4",
+                "cf1",
+                "cf4",
+                "cf6",
+                "cfx",
+                "joint_1",
+                "joint_2",
+                "joint_3",
+                "joint_4",
+                "joint_5",
+                "joint_6",
+            ]
+        return {key: [] for key in keys}
 
     def create_file(self) -> None:
         """
@@ -28,7 +54,7 @@ class RecordDemo:
                 self.dest_path
             ), "File already exists, not allowed to overwrite it"
             with open(self.dest_path, "w") as file:
-                file.write(json.dumps(self.data.data))
+                file.write(json.dumps(self.data))
         except AssertionError as e:
             log.error(e)
             pass
@@ -38,33 +64,5 @@ class RecordDemo:
         Updates the data structure with the incoming flow of information.
         :param tmp_dict: robot end effector, joints and timestamp status
         """
-        for key in self.data.keys:
-            self.data.data[key].append(tmp_dict[key])
-
-
-class DataStructure:
-    def __init__(self) -> None:
-        """
-        Class constructor. Defines the dictionary data structure to be recorded.
-        """
-        self.keys = [
-            "timestamp",
-            "tcp_x",
-            "tcp_y",
-            "tcp_z",
-            "tcp_q1",
-            "tcp_q2",
-            "tcp_q3",
-            "tcp_q4",
-            "cf1",
-            "cf4",
-            "cf6",
-            "cfx",
-            "joint_1",
-            "joint_2",
-            "joint_3",
-            "joint_4",
-            "joint_5",
-            "joint_6",
-        ]
-        self.data = {key: [] for key in self.keys}
+        for key in self.data.keys():
+            self.data[key].append(tmp_dict[key])
