@@ -31,6 +31,6 @@ if os.path.splitext(args.demo_path)[1] != ".json":
 
 try:
     play = PlayBack(filename_path=args.demo_path, base_url=args.url)
-    play.playing()
+    play.play()
 finally:
     pass

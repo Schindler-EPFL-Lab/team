@@ -12,4 +12,4 @@ if __name__ == "__main__":
     )
     filename_path = os.path.join(file_dir, filename)
     play = PlayBack(filename_path=filename_path, base_url=url)
-    play.playing()
+    play.play()

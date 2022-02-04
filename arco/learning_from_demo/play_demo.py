@@ -71,21 +71,21 @@ class PlayBack:
     def compute_pos_distance(self) -> float:
         """
         Computes the Euclidean norm between current pose and next target pose.
-        :return: the distance between the current pose and the next target pose
+        :return: the distance between the current pose and the next target pose in mm
         """
         return np.sqrt(np.sum(np.power(self.next_target[:3] - self.current_pose[:3], 2))
                        )
 
     def compute_ori_distance(self) -> float:
         """
-        Very naive way to compute teh difference in orientation
+        Very naive way to compute the difference in orientation
         :return:
         """
         # TODO find a better expression
         return np.sqrt(np.sum(np.power(self.next_target[3:7] - self.current_pose[3:7],
                                        2)))
 
-    def playing(self) -> None:
+    def play(self) -> None:
         """
         Firstly, it sends the robot to the initial trajectory pose. Then, if the new
         target is far enough, it executes the motion, otherwise it queries the next one.
