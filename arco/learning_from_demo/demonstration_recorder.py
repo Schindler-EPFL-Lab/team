@@ -1,9 +1,9 @@
 import os
 
 import json
-from typing import Optional
 
 from arco.utility.logger import log
+from arco.utility.handling_data import create_default_dict
 
 
 class DemonstrationRecorder:
@@ -16,32 +16,7 @@ class DemonstrationRecorder:
         :param path_to_store_demo: filepath destination
         """
         self.dest_path = path_to_store_demo
-        self.data = self.create_default_dict()
-
-    @staticmethod
-    def create_default_dict(keys: Optional[list[str]] = None):
-        if not keys:
-            keys = [
-                "timestamp",
-                "tcp_x",
-                "tcp_y",
-                "tcp_z",
-                "tcp_q1",
-                "tcp_q2",
-                "tcp_q3",
-                "tcp_q4",
-                "cf1",
-                "cf4",
-                "cf6",
-                "cfx",
-                "joint_1",
-                "joint_2",
-                "joint_3",
-                "joint_4",
-                "joint_5",
-                "joint_6",
-            ]
-        return {key: [] for key in keys}
+        self.data = create_default_dict()
 
     def create_file(self) -> None:
         """

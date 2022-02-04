@@ -39,7 +39,7 @@ if os.path.splitext(args.dest_path)[1] != ".json":
 try:
     record = DemonstrationRecorder(path_to_store_demo=args.dest_path)
     rws = RwsWrapper(args.url)
-    data = DataStructure()
+    data = create_default_dict()
     var = "ready_flag"
     # setup robot mode
     rws.activate_lead_through()
@@ -51,7 +51,7 @@ try:
         values_list = timestamp + tcp_pos + tcp_ori + rob_cf + joints
         # check that all information are available
         if tcp_pos and tcp_ori and rob_cf and joints:
-            info = {key: value for (key, value) in zip(data.keys, values_list)}
+            info = {key: value for (key, value) in zip(data.keys(), values_list)}
             record.update(tmp_dict=info)
         if keyboard.is_pressed("q"):
             break
