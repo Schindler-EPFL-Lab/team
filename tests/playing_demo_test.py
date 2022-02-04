@@ -1,6 +1,6 @@
 import os
 
-from arco.learning_from_demo.play_demo import PlayBack
+from arco.learning_from_demo.demonstration_player import DemonstrationPlayer
 
 base_path = os.path.dirname(os.path.dirname(__file__))
 
@@ -11,5 +11,5 @@ if __name__ == "__main__":
         os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "tests"
     )
     filename_path = os.path.join(file_dir, filename)
-    play = PlayBack(filename_path=filename_path, base_url=url)
+    play = DemonstrationPlayer(filename_path=filename_path, base_url=url)
     play.play()

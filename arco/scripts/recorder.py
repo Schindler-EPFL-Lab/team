@@ -5,7 +5,8 @@ import time
 import keyboard
 
 from rws2.RWS_wrapper import RwsWrapper
-from arco.learning_from_demo.record_demo import RecordDemo, DataStructure
+from arco.learning_from_demo.demonstration_recorder import DemonstrationRecorder
+from arco.utility.handling_data import create_default_dict
 
 # Create object for parsing command-line options
 parser = argparse.ArgumentParser(
@@ -36,7 +37,7 @@ if os.path.splitext(args.dest_path)[1] != ".json":
     exit()
 
 try:
-    record = RecordDemo(path_to_store_demo=args.dest_path)
+    record = DemonstrationRecorder(path_to_store_demo=args.dest_path)
     rws = RwsWrapper(args.url)
     data = DataStructure()
     var = "ready_flag"

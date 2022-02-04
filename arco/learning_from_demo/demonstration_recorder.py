@@ -6,7 +6,7 @@ from typing import Optional
 from arco.utility.logger import log
 
 
-class RecordDemo:
+class DemonstrationRecorder:
     """
     Records demonstrated trajectories in the json format.
     """

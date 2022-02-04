@@ -6,14 +6,14 @@ import numpy as np
 from rws2.RWS_wrapper import RwsWrapper
 
 
-class PlayBack:
+class DemonstrationPlayer:
     df: pd.DataFrame
     timestamps: pd.Series
     data: pd.DataFrame
     """
     Plays demonstrated trajectories saved in the json format.
 
-    See 'recording.py' for the recording procedure.
+    See 'recorder.py' for the recording procedure.
     """
 
     def __init__(self, filename_path: str, base_url: str) -> None:

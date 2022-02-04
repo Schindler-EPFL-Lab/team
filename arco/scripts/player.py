@@ -1,7 +1,7 @@
 import argparse
 import os.path
 
-from arco.learning_from_demo.play_demo import PlayBack
+from arco.learning_from_demo.demonstration_player import DemonstrationPlayer
 
 # Create object for parsing command-line options
 parser = argparse.ArgumentParser(
@@ -30,7 +30,7 @@ if os.path.splitext(args.demo_path)[1] != ".json":
     exit()
 
 try:
-    play = PlayBack(filename_path=args.demo_path, base_url=args.url)
+    play = DemonstrationPlayer(filename_path=args.demo_path, base_url=args.url)
     play.play()
 finally:
     pass
