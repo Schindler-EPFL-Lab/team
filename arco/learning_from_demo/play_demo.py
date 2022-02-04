@@ -7,6 +7,9 @@ from rws2.RWS_wrapper import RwsWrapper
 
 
 class PlayBack:
+    df: pd.DataFrame
+    timestamps: int
+    data: pd.DataFrame
     """
     Plays demonstrated trajectories saved in the json format.
 
@@ -20,15 +23,11 @@ class PlayBack:
         :param filename_path: path to the json filename to read
         :param base_url: url address to establish communication with
         """
-        # Load data as pandas dataframe
-        self.df = None
-        self.timestamps = None
-        self.data = None
         self.target_generator = None
         self.current_pose = None
         self.next_target = None
         self.iter = None
-        # control the smoothness of the reproduction
+        # control the smoothness of the reproduction, tol_pos in mm, tol_ori in
         self.tol_pos = 100
         self.tol_ori = 1
         self.rws = RwsWrapper(robot_url=base_url)
