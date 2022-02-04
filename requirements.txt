@@ -1,4 +1,5 @@
 #packages
 requests==2.27.1
 xmltodict==0.12.0
-rwsuis==0.2
+keyboard==0.13.5
+pandas==1.3.5
