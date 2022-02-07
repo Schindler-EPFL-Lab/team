@@ -2,6 +2,8 @@ import os
 
 import pandas as pd
 import numpy as np
+from evo.core.lie_algebra import se3_inverse
+from evo.core.transformations import quaternion_matrix
 
 from rws2.RWS_wrapper import RwsWrapper
 
@@ -27,9 +29,8 @@ class DemonstrationPlayer:
         self.current_pose = None
         self.next_target = None
         self.iter = None
-        # control the smoothness of the reproduction, tol_pos in mm, tol_ori in
-        self.tol_pos = 100
-        self.tol_ori = 1
+        # control the smoothness of the reproduction
+        self.tol_diff = 1
         self.rws = RwsWrapper(robot_url=base_url)
         self.read_split_data(filename_path=filename_path)
 
@@ -63,26 +64,43 @@ class DemonstrationPlayer:
         large enough. It avoids to perform micro movements.
         :return: boolean assessing if the target needs to be considered or not
         """
-        is_pos_different = self.compute_pos_distance() > self.tol_pos
-        is_ori_different = self.compute_ori_distance() > self.tol_ori
-        return is_pos_different or is_ori_different
+        is_different = self.compute_difference() > self.tol_diff
+        return is_different
 
-    def compute_pos_distance(self) -> float:
+    def compute_difference(self) -> float:
         """
-        Computes the Euclidean norm between current pose and next target pose.
-        :return: the distance between the current pose and the next target pose in mm
+        Computes the homogeneous rotation matrix from the quaternions list and then add
+        the translation vector to obtain a homogeneous transformation matrix
+        appertaining to the Lie group SE(3).
+        It does that both for the target and current pose transformations.
+        Finally, it calculates the relative transformation and assesses the discrepancy.
+        :return: the error between the relative transformation and the identity
         """
-        return np.sqrt(np.sum(np.power(self.next_target[:3] - self.current_pose[:3], 2))
-                       )
 
-    def compute_ori_distance(self) -> float:
-        """
-        Very naive way to compute the difference in orientation
-        :return:
-        """
-        # TODO find a better expression
-        return np.sqrt(np.sum(np.power(self.next_target[3:7] - self.current_pose[3:7],
-                                       2)))
+        # define lists
+        target = self.next_target.to_list()
+        current = self.current_pose.to_list()
+
+        # get quaternions vectors as [qw, qx, qy, qz]
+        next_target_ori = [target[6]] + target[3:6]
+        current_ori = [current[6]] + current[3:6]
+
+        # get translation vectors in m instead of mm
+        next_target_tran = [t/1000 for t in target[:3]]
+        current_tran = [c/1000 for c in current[:3]]
+
+        # SE3 matrices construction
+        t_start = quaternion_matrix(current_ori)
+        t_start[:3, 3] = current_tran
+        t_goal = quaternion_matrix(next_target_ori)
+        t_goal[:3, 3] = next_target_tran
+
+        # relative transformation between target and current pose
+        relative_t = np.dot(se3_inverse(t_start), t_goal)
+
+        error = np.linalg.norm(relative_t - np.eye(4))
+
+        return error
 
     def play(self) -> None:
         """
@@ -113,9 +131,10 @@ class DemonstrationPlayer:
         :return: string of a list of lists containing the tcp_pos, tcp_ori, robot config
                  and the external axis
         """
-        pos_list = self.next_target.values[0:3].tolist()
-        ori_list = self.next_target.values[3:7].tolist()
-        config_list = self.next_target.values[7:11].tolist()
+        target = self.next_target.to_list()
+        pos_list = target[0:3]
+        ori_list = target[3:7]
+        config_list = target[7:11]
         ext_axis_list = [9e9, 9e9, 9e9, 9e9, 9e9, 9e9]
         target = str([pos_list, ori_list, config_list, ext_axis_list])
         return target
