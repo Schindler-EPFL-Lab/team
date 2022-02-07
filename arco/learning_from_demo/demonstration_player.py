@@ -2,8 +2,8 @@ import os
 
 import pandas as pd
 import numpy as np
+import evo.core.transformations as tf
 from evo.core.lie_algebra import se3_inverse
-from evo.core.transformations import quaternion_matrix
 
 from rws2.RWS_wrapper import RwsWrapper
 
@@ -90,9 +90,9 @@ class DemonstrationPlayer:
         current_tran = [c/1000 for c in current[:3]]
 
         # SE3 matrices construction
-        t_start = quaternion_matrix(current_ori)
+        t_start = tf.quaternion_matrix(current_ori)
         t_start[:3, 3] = current_tran
-        t_goal = quaternion_matrix(next_target_ori)
+        t_goal = tf.quaternion_matrix(next_target_ori)
         t_goal[:3, 3] = next_target_tran
 
         # relative transformation between target and current pose
