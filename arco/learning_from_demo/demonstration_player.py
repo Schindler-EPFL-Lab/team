@@ -64,8 +64,7 @@ class DemonstrationPlayer:
         large enough. It avoids to perform micro movements.
         :return: boolean assessing if the target needs to be considered or not
         """
-        is_different = self.compute_difference() > self.tol_diff
-        return is_different
+        return self.compute_difference() > self.tol_diff
 
     def compute_difference(self) -> float:
         """
