@@ -20,3 +20,7 @@ jobs:
       python -m pip install flake8
       flake8 --max-line-length=88
     displayName: 'Run lint tests'
+
+  - script: |
+      python -m unittest discover tests
+    displayName: 'Run tests'
