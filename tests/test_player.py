@@ -5,7 +5,8 @@ from unittest import mock
 import pandas as pd
 
 from arco.learning_from_demo.demonstration_player import DemonstrationPlayer
-from arco.utility.handling_data import create_default_dict, read_json_file
+from arco.utility.handling_data import create_default_dict, read_json_file, \
+    target_encoding
 
 
 # unittest will test all the methods whose name starts with 'test'
@@ -64,16 +65,15 @@ class PlayerTest(unittest.TestCase):
         filename_path = os.path.join(file_dir, filename)
         play = DemonstrationPlayer(filename_path=filename_path, base_url=url)
         play.rws = mock_rws
-
-        # checks that no value is None and the type is int or float
+        dataframe_test = read_json_file(filename_path)
+        # checks that all the read data are the expected ones
         for t in range(len(play.timestamps) - 1):
             play.get_next_target()
-            for value in play.next_target:
-                self.assertTrue(value is not None)
-                self.assertTrue(isinstance(value, int) or isinstance(value, float))
+            self.assertEqual(play.next_target.to_list(),
+                             dataframe_test.iloc[t, 1:12].to_list())
             target = play.set_target()
-            # checks that the target to pass is a string as rws requires
-            self.assertTrue(isinstance(target, str))
+            # checks that the target to pass is exactly the string as rws requires
+            self.assertEqual(target, target_encoding(dataframe_test, t))
 
     @mock.patch('rws2.RWS_wrapper')
     def test_positive_error(self, mock_rws):
