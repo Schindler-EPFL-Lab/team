@@ -28,9 +28,9 @@ class DemonstrationPlayer:
         self.target_generator = None
         self.current_pose = None
         self.next_target = None
-        self.iter = 0
+        self.iter: int = 0
         # control the smoothness of the reproduction
-        self.tol_diff = 1
+        self.tol_diff: float = 1
         self.rws = RwsWrapper(robot_url=base_url)
         self.read_split_data(filename_path=filename_path)
 
