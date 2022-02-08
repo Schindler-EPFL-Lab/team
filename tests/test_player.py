@@ -12,7 +12,7 @@ from arco.utility.handling_data import create_default_dict
 class PlayerTest(unittest.TestCase):
 
     # return True or False
-    def test_default_dictionary_init(self):
+    def test_default_dictionary_init(self) -> bool:
         is_well_init = True
         default_dict = create_default_dict()
         for key in default_dict.keys():
