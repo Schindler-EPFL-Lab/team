@@ -33,7 +33,7 @@ def create_default_dict(keys: Optional[list[str]] = None):
     return {key: [] for key in keys}
 
 
-def read_json_file(filename_path):
+def read_json_file(filename_path: str) -> pd.DataFrame:
     """
     Read json file in a pandas dataframe
     :param filename_path: filename path
@@ -41,3 +41,19 @@ def read_json_file(filename_path):
     """
     df = pd.read_json(filename_path)
     return df
+
+
+def target_encoding(dataframe: pd.DataFrame, index: int) -> str:
+    """
+    Receives the dataframe and the row index to extract the target data.
+    Finally, it constructs the message and it encodes it as a string.
+    :param dataframe: dataframe to read data from
+    :param index: row index
+    :return: the target pose in the right encoding
+    """
+    target = dataframe.iloc[index, 1:12].to_list()
+    pos_list = target[0:3]
+    ori_list = target[3:7]
+    config_list = target[7:11]
+    ext_axis_list = [9e9, 9e9, 9e9, 9e9, 9e9, 9e9]
+    return str([pos_list, ori_list, config_list, ext_axis_list])
