@@ -5,7 +5,7 @@ from unittest import mock
 import pandas as pd
 
 from arco.learning_from_demo.demonstration_player import DemonstrationPlayer
-from arco.utility.handling_data import create_default_dict
+from arco.utility.handling_data import create_default_dict, read_json_file
 
 
 # unittest will test all the methods whose name starts with 'test'
@@ -27,11 +27,9 @@ class PlayerTest(unittest.TestCase):
             os.path.dirname(os.path.dirname(__file__)), "demonstrations"
         )
         filename_path = os.path.join(file_dir, filename)
-        extension = os.path.splitext(filename_path)[1]
         # checks that the file exists, inside a valid directory and right file extension
         self.assertTrue(os.path.exists(filename_path))
         self.assertTrue(os.path.isdir(file_dir))
-        self.assertEqual(extension, '.json')
         dataframe = pd.read_json(filename_path)
         default_dict = create_default_dict()
         # checks that the dataframe has the same keys as the recorded dictionary
@@ -66,6 +64,7 @@ class PlayerTest(unittest.TestCase):
         filename_path = os.path.join(file_dir, filename)
         play = DemonstrationPlayer(filename_path=filename_path, base_url=url)
         play.rws = mock_rws
+
         # checks that no value is None and the type is int or float
         for t in range(len(play.timestamps) - 1):
             play.get_next_target()
