@@ -1,5 +1,5 @@
 import os
-from typing import Iterator
+from typing import Optional, Iterator
 
 import pandas as pd
 import numpy as np
@@ -26,7 +26,7 @@ class DemonstrationPlayer:
         :param filename_path: path to the json filename to read
         :param base_url: url address to establish communication with
         """
-        self.target_generator = Iterator[pd.Series]
+        self.target_generator: Optional[Iterator[(int, pd.Series)]] = None
         self.current_pose = pd.Series()
         self.next_target = pd.Series()
         self.iter = 0
