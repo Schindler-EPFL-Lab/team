@@ -40,7 +40,7 @@ class RwsWrapper:
         self.turn_motors_on()
         self.robot.activate_lead_through()
 
-    def deactivate__lead_through(self) -> None:
+    def deactivate_lead_through(self) -> None:
         """
         This method deactivates the lead through mode and switches off the robot motors.
         """
