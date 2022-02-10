@@ -26,7 +26,7 @@ class DemonstrationPlayer:
         :param filename_path: path to the json filename to read
         :param base_url: url address to establish communication with
         """
-        self.target_generator: Optional[Iterator[(int, pd.Series)]] = None
+        self.target_generator: Optional[Iterator[tuple[int, pd.Series]]] = None
         self.current_pose = pd.Series()
         self.next_target = pd.Series()
         self.iter = 0
