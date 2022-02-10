@@ -56,7 +56,7 @@ try:
         if keyboard.is_pressed("q"):
             break
     # robot shutdown operations
-    rws.deactivate__lead_through()
+    rws.deactivate_lead_through()
     rws.set_RAPID_variable(var, "FALSE")
     # save data to file
     record.create_file()
