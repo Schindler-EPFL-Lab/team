@@ -31,7 +31,7 @@ class DemonstrationPlayer:
         self.next_target = pd.Series()
         self.iter = 0
         # control the smoothness of the reproduction
-        self.tol_diff = 1.0
+        self.tol_diff = 0.25
         self.rws = RwsWrapper(robot_url=base_url)
         self.read_split_data(filename_path=filename_path)
 
