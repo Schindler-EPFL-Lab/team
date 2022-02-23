@@ -31,7 +31,7 @@ class DemonstrationPlayer:
         self.next_target = pd.Series()
         self.iter = 0
         # control the smoothness of the reproduction
-        self.tol_diff = 1.0
+        self.tol_diff = 0.25
         self.rws = RwsWrapper(robot_url=base_url)
         self.read_split_data(filename_path=filename_path)
 
@@ -48,8 +48,8 @@ class DemonstrationPlayer:
                                                               "for reading the file"
         self.df = pd.read_json(filename_path)
         self.timestamps = self.df["timestamp"]
-        # consider only tcp_pos, tcp_ori and robot configuration
-        self.data = self.df.iloc[:, 1:12]
+        # discard the timestamp column
+        self.data = self.df.iloc[:, 1:]
         # iterator over the dataframe rows
         self.target_generator = self.data.iterrows()
 
@@ -128,21 +128,19 @@ class DemonstrationPlayer:
     def set_target(self) -> str:
         """
         Creates the target in the required format accepted by RAPID.
-        :return: string of a list of lists containing the tcp_pos, tcp_ori, robot config
-                 and the external axis
+        :return: string of a list of lists containing the joint positions (degrees) and
+        the external axis
         """
         target = self.next_target.to_list()
-        pos_list = target[0:3]
-        ori_list = target[3:7]
-        config_list = target[7:11]
+        joint_list = target[-6:]
         ext_axis_list = [9e9, 9e9, 9e9, 9e9, 9e9, 9e9]
-        target = str([pos_list, ori_list, config_list, ext_axis_list])
+        target = str([joint_list, ext_axis_list])
         return target
 
     def execute_target(self, target):
         """
-        Manipulates the RAPID variable to set new target and reach it.
+        Manipulates the RAPID variable (Joint) to set new target and reach it.
         :param target: new target value to assign to the robot
         """
-        self.rws.set_RAPID_variable("Loc", target)
+        self.rws.set_RAPID_variable("Joint", target)
         self.rws.complete_instruction()
