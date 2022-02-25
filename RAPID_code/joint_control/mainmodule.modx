@@ -1,16 +1,17 @@
 MODULE mainmodule
     
-    PERS jointtarget Joint := [[-2.83718, 3.73721, 10.8371, -2.48416, 43.1535, -12.6959],  [9E+9, 9E+9, 9E+9, 9E+9, 9E+9, 9E+9]];
+    PERS jointtarget Joint := [[-3.77457, 10.5359, 6.66075, -6.83143, 40.1793, -3.14245],  [9E+9, 9E+9, 9E+9, 9E+9, 9E+9, 9E+9]];
     PERS jointtarget joint_angles;
     PERS num target_distance; 
     PERS num tol := 0.1;
+    PERS speeddata vel := [50, 200, 5000, 1000];
     PERS bool ready_flag := FALSE;
     PERS bool program_running := TRUE;
     PROC main()
         TPWrite "Execution started";
         WHILE program_running DO 
             wait_new_target;
-            MoveAbsJ Joint, v50, fine, tool0;
+            MoveAbsJ Joint, vel, fine, tool0;
             complete_instruction;
         ENDWHILE
     ENDPROC
