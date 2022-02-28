@@ -1,6 +1,9 @@
 MODULE mainmodule
     
-    PERS jointtarget Joint := [[-3.77457, 10.5359, 6.66075, -6.83143, 40.1793, -3.14245],  [9E+9, 9E+9, 9E+9, 9E+9, 9E+9, 9E+9]];
+    PERS jointtarget Joint := [
+    [33.8536, -29.1738, 34.8296, 10.3122, 41.8432, -0.00160708],
+    [9E+9, 9E+9, 9E+9, 9E+9, 9E+9, 9E+9]
+    ];
     PERS jointtarget joint_angles;
     PERS num target_distance; 
     PERS num tol := 0.1;
@@ -19,8 +22,14 @@ MODULE mainmodule
     PROC complete_instruction()
             WHILE NOT ready_flag DO
                 joint_angles := CJointT();
-                target_distance := Sqrt(Pow(Joint.robax.rax_1 - joint_angles.robax.rax_1, 2) + Pow(Joint.robax.rax_2 - joint_angles.robax.rax_2, 2) + Pow(Joint.robax.rax_3 - joint_angles.robax.rax_3, 2)
-                + Pow(Joint.robax.rax_4 - joint_angles.robax.rax_4, 2) + Pow(Joint.robax.rax_5 - joint_angles.robax.rax_5, 2) + Pow(Joint.robax.rax_6 - joint_angles.robax.rax_6, 2));
+                target_distance := Sqrt(
+                Pow(Joint.robax.rax_1 - joint_angles.robax.rax_1, 2) + 
+                Pow(Joint.robax.rax_2 - joint_angles.robax.rax_2, 2) + 
+                Pow(Joint.robax.rax_3 - joint_angles.robax.rax_3, 2) + 
+                Pow(Joint.robax.rax_4 - joint_angles.robax.rax_4, 2) + 
+                Pow(Joint.robax.rax_5 - joint_angles.robax.rax_5, 2) + 
+                Pow(Joint.robax.rax_6 - joint_angles.robax.rax_6, 2)
+                );
                 IF target_distance < tol THEN
                     ready_flag := TRUE;
                 ENDIF
