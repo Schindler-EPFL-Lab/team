@@ -4,7 +4,6 @@ if __name__ == "__main__":
     url = "https://localhost:8881"  # virtual controller url
     # url = "https://192.168.125.1"  # real robot url
 
-
     home = (
         "[[600, 0.00, 800], [-0.500, 0.0, -0.866, 0.0], [0, 0, 0, 0], "
         "[9E+9,9E+9,9E+9,9E+9,9E+9,9E+9]]"
