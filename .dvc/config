@@ -1,0 +1,4 @@
+[core]
+    remote = azure
+['remote "azure"']
+    url = azure://learningbydemonstration
