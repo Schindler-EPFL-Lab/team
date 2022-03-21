@@ -1,7 +1,7 @@
 import argparse
 import os.path
-import time
 
+from timeit import default_timer as timer
 import keyboard
 
 from rws2.RWS_wrapper import RwsWrapper
@@ -43,11 +43,11 @@ try:
     var = "ready_flag"
     # setup robot mode
     rws.activate_lead_through()
-    t_start = time.time()
+    t_start = timer()
     while True:
         tcp_pos, tcp_ori, rob_cf = rws.robot.get_tcp_info()
         joints = rws.robot.get_joints_positions()
-        timestamp = [time.time() - t_start]
+        timestamp = [timer() - t_start]
         values_list = timestamp + tcp_pos + tcp_ori + rob_cf + joints
         # check that all information are available
         if tcp_pos and tcp_ori and rob_cf and joints:
