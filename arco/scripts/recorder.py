@@ -1,7 +1,7 @@
 import argparse
 import os.path
-
 from timeit import default_timer as timer
+
 import keyboard
 
 from rws2.RWS_wrapper import RwsWrapper
