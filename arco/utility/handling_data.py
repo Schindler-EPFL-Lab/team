@@ -1,4 +1,5 @@
 from typing import Optional
+import os
 
 import pandas as pd
 
@@ -57,3 +58,22 @@ def target_encoding(dataframe: pd.DataFrame, index: int) -> str:
     config_list = target[7:11]
     ext_axis_list = [9e9, 9e9, 9e9, 9e9, 9e9, 9e9]
     return str([pos_list, ori_list, config_list, ext_axis_list])
+
+
+def get_demo_files() -> list[str]:
+    """
+    This function retrieves all the demonstrations files in the demonstrations folder.
+    All the files that are not in the .json format are discarded.
+    :return: a list containing all file paths corresponding to demonstrations
+    """
+    repo_dir = os.path.dirname(os.getcwd())
+    demo_path = os.path.join(repo_dir, "demonstrations")
+    # initialize empty list to store demonstrations files paths
+    list_file_paths = []
+    # explore all the files present/in all folders inside the parent folder
+    for (dir_path, dir_names, file_names) in os.walk(demo_path):
+        for file in file_names:
+            # discard if not a .json file
+            if file.endswith(".json"):
+                list_file_paths.append(os.path.join(dir_path, file))
+    return list_file_paths
