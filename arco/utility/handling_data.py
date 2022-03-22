@@ -9,6 +9,7 @@ import pandas as pd
 def create_default_dict(keys: Optional[list[str]] = None):
     """
     Function to create default dictionary to store trajectory demonstration.
+
     :param keys: optional dictionary keys
     :return: dictionary with values initialized to empty lists
     """
@@ -38,7 +39,8 @@ def create_default_dict(keys: Optional[list[str]] = None):
 
 def read_json_file(filename_path: str) -> pd.DataFrame:
     """
-    Read json file in a pandas dataframe
+    Read json file in a pandas dataframe.
+
     :param filename_path: filename path
     :return: the dataframe
     """
@@ -50,6 +52,7 @@ def target_encoding(dataframe: pd.DataFrame, index: int) -> str:
     """
     Receives the dataframe and the row index to extract the target data.
     Finally, it constructs the message and it encodes it as a string.
+
     :param dataframe: dataframe to read data from
     :param index: row index
     :return: the target pose in the right encoding
@@ -66,6 +69,7 @@ def get_demo_files() -> list[str]:
     """
     This function retrieves all the demonstrations files in the demonstrations folder.
     All the files that are not in the .json format are discarded.
+
     :return: a list containing all file paths corresponding to demonstrations
     """
     repo_dir = os.path.dirname(os.path.dirname(os.getcwd()))
@@ -84,9 +88,9 @@ def get_demo_files() -> list[str]:
 def check_data_timestamps(list_file_paths: list[str]) -> None:
     """
     The function controls that the timestamps are updated at each single data reading,
-    if it is not the case, an assertion error is thrown
-    :param list_file_paths:
-    :return: None
+    if it is not the case, an assertion error is thrown.
+
+    :param list_file_paths:a list containing all files paths to analyse
     """
     # analyse each single file
     for data_path in list_file_paths:
@@ -103,8 +107,8 @@ def check_nan_values(list_file_paths: list[str]) -> None:
     """
     The function checks that each data dictionary in the dataset doesn't contain missing
     values, if it is not the case, an assertion error is thrown
-    :param list_file_paths:
-    :return: None
+
+    :param list_file_paths:a list containing all files paths to analyse
     """
     # consider empty string and numpy.inf as na values
     pd.set_option('mode.use_inf_as_na', True)
@@ -119,8 +123,8 @@ def check_reading_files(list_file_paths: list[str]) -> None:
     """
     The function verifies that each data dictionary in the dataset has the required keys
     ,if it is not the case, an assertion error is thrown
-    :param list_file_paths:
-    :return: None
+
+    :param list_file_paths:a list containing all files paths to analyse
     """
     # analyse each single file
     for data_path in list_file_paths:

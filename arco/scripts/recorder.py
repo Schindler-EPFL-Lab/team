@@ -43,6 +43,7 @@ try:
     var = "ready_flag"
     # setup robot mode
     rws.activate_lead_through()
+    # since RWS2 doesn't return a timestamp with the measurement, compute it from Python
     t_start = timer()
     while True:
         tcp_pos, tcp_ori, rob_cf = rws.robot.get_tcp_info()
