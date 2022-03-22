@@ -88,7 +88,7 @@ def get_demo_files() -> list[str]:
 def check_data_timestamps(list_file_paths: list[str]) -> None:
     """
     The function controls that the timestamps are updated at each single data reading,
-    if it is not the case, an assertion error is thrown.
+    if it is not the case, an error is raised.
 
     :param list_file_paths:a list containing all files paths to analyse
     """
@@ -100,13 +100,14 @@ def check_data_timestamps(list_file_paths: list[str]) -> None:
             time = np.array(data["timestamp"])
             delta_t = time[1:] - time[0:-1]
             # check that time is updated at every data reading step
-            assert sum(delta_t == 0) == 0, "Timestamps not updated correctly"
+            if np.any(delta_t == 0):
+                raise ValueError("Timestamps not updated correctly")
 
 
 def check_nan_values(list_file_paths: list[str]) -> None:
     """
     The function checks that each data dictionary in the dataset doesn't contain missing
-    values, if it is not the case, an assertion error is thrown
+    values, if it is not the case, an error is raised.
 
     :param list_file_paths:a list containing all files paths to analyse
     """
@@ -116,13 +117,14 @@ def check_nan_values(list_file_paths: list[str]) -> None:
     for data_path in list_file_paths:
         # load data as pandas dataframe
         df = pd.read_json(data_path)
-        assert not df.isnull().values.any(), "Missing values in the dictionary"
+        if df.isnull().values.any():
+            raise ValueError("Missing values in the dictionary")
 
 
 def check_reading_files(list_file_paths: list[str]) -> None:
     """
     The function verifies that each data dictionary in the dataset has the required keys
-    ,if it is not the case, an assertion error is thrown
+    ,if it is not the case, an error is raised.
 
     :param list_file_paths:a list containing all files paths to analyse
     """
@@ -133,4 +135,5 @@ def check_reading_files(list_file_paths: list[str]) -> None:
         default_dict = create_default_dict()
         # checks that the dataframe has the same keys as the recorded dictionary
         for df_key, dict_key in zip(df.keys(), default_dict.keys()):
-            assert df_key == dict_key, "Dictionary keys inconsistent"
+            if df_key != dict_key:
+                raise ValueError("Dictionary keys inconsistent")
