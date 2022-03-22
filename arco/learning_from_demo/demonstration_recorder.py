@@ -32,7 +32,6 @@ class DemonstrationRecorder:
                 file.write(json.dumps(self.data))
         except AssertionError as e:
             log.error(e)
-            pass
 
     def update(self, tmp_dict: dict) -> None:
         """
