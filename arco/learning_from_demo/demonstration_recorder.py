@@ -3,7 +3,8 @@ import os
 import json
 
 from arco.utility.logger import log
-from arco.utility.handling_data import create_default_dict
+from arco.utility.handling_data import create_default_dict, check_reading_files, \
+    check_nan_values, check_data_timestamps
 
 
 class DemonstrationRecorder:
@@ -21,13 +22,17 @@ class DemonstrationRecorder:
     def create_file(self) -> None:
         """
         Writes the recorded data to a new file. If the file already exists, it is not
-        allowed to overwrite it and it prints an error log to the console. The program
-        is not stopped and the robot shutdown operations can be executed.
+        allowed to overwrite it and it prints an error log to the console.
+        Before saving the file, content checks verify its integrity.
+        The program is not stopped and the robot shutdown operations can be executed.
         """
         try:
             assert not os.path.isfile(
                 self.dest_path
             ), "File already exists, not allowed to overwrite it"
+            check_data_timestamps(self.data)
+            check_nan_values(self.data)
+            check_reading_files(self.data)
             with open(self.dest_path, "w") as file:
                 file.write(json.dumps(self.data))
         except AssertionError as e:

@@ -1,7 +1,5 @@
 from typing import Optional
-from pathlib import Path
 
-import json
 import numpy as np
 import pandas as pd
 
@@ -65,66 +63,48 @@ def target_encoding(dataframe: pd.DataFrame, index: int) -> str:
     return str([pos_list, ori_list, config_list, ext_axis_list])
 
 
-def get_demo_files() -> list[str]:
-    """
-    Retrieves all the demonstrations files in the demonstrations folder.
-    All the files that are not in the .json format are discarded.
-
-    :return: a list containing all file paths corresponding to demonstrations
-    """
-    demo_folder = Path(Path(__file__).resolve(strict=True).parent.parent.parent,
-                       "demonstrations")
-    files_paths = list(Path(demo_folder).rglob('*.json'))
-    all_demonstration_files = [str(path) for path in files_paths]
-    return all_demonstration_files
-
-
-def check_data_timestamps(data_path: str) -> None:
+def check_data_timestamps(data: dict) -> None:
     """
     Controls that the timestamps are updated at each single data reading.
     If consecutive timestamps are equal, an error is raised.
 
-    :param data_path:the data path of the file to analyse
+    :param data:the data dictionary to analyse
     :raises ValueError: consecutive timestamp readings are not updated correctly
     """
-    with open(data_path, 'r') as f:
-        # load data and extract time vector
-        data = json.load(f)
-        time = np.array(data["timestamp"])
-        delta_t = time[1:] - time[0:-1]
-        # check that time is updated at every data reading step
-        if np.any(delta_t == 0):
-            raise ValueError("Timestamps not updated correctly")
+    time = np.array(data["timestamp"])
+    delta_t = time[1:] - time[0:-1]
+    # check that time is updated at every data reading step
+    if np.any(delta_t == 0):
+        raise ValueError("Timestamps not updated correctly")
 
 
-def check_nan_values(data_path: str) -> None:
+def check_nan_values(data: dict) -> None:
     """
     Checks that each data dictionary in the dataset doesn't contain missing values.
     If the dictionary contains missing values, an error is raised.
 
-    :param data_path:the data path of the file to analyse
+    :param data:the data dictionary to analyse
     :raises ValueError: the dictionary contains invalid data
     """
     # consider empty string and numpy.inf as na values
     pd.set_option('mode.use_inf_as_na', True)
     # load data as pandas dataframe
-    df = read_json_file(data_path)
+    df = pd.DataFrame.from_dict(data)
     if df.isnull().values.any():
         raise ValueError("Missing values in the dictionary")
 
 
-def check_reading_files(data_path: str) -> None:
+def check_reading_files(data: dict) -> None:
     """
     Verifies that the data dictionary has the required keys.
     If the pair of keys between dictionaries are different, an error is raised.
 
-    :param data_path:the data path of the file to analyse
+    :param data:the data dictionary to analyse
     :raises ValueError: dictionaries have different pair of keys
     """
-    # load data as pandas dataframe
-    df = read_json_file(data_path)
+
     default_dict = create_default_dict()
     # checks that the dataframe has the same keys as the recorded dictionary
-    for df_key, dict_key in zip(df.keys(), default_dict.keys()):
+    for df_key, dict_key in zip(data.keys(), default_dict.keys()):
         if df_key != dict_key:
             raise ValueError("Dictionary keys inconsistent")
