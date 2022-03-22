@@ -81,7 +81,8 @@ def check_data_timestamps(list_file_paths: list[str]) -> None:
     Controls that the timestamps are updated at each single data reading.
     If consecutive timestamps are equal, an error is raised.
 
-    :param list_file_paths:a list containing all files paths to analyse
+    :param data_path:the data path of the file to analyse
+    :raises ValueError: consecutive timestamp readings are not updated correctly
     """
     # analyse each single file
     for data_path in list_file_paths:
@@ -100,7 +101,8 @@ def check_nan_values(list_file_paths: list[str]) -> None:
     Checks that each data dictionary in the dataset doesn't contain missing values.
     If the dictionary contains missing values, an error is raised.
 
-    :param list_file_paths:a list containing all files paths to analyse
+    :param data_path:the data path of the file to analyse
+    :raises ValueError: the dictionary contains invalid data
     """
     # consider empty string and numpy.inf as na values
     pd.set_option('mode.use_inf_as_na', True)
@@ -117,7 +119,8 @@ def check_reading_files(list_file_paths: list[str]) -> None:
     Verifies that each data dictionary in the dataset has the required keys.
     If the pair of keys between dictionaries are different, an error is raised.
 
-    :param list_file_paths:a list containing all files paths to analyse
+    :param data_path:the data path of the file to analyse
+    :raises ValueError: dictionaries have different pair of keys
     """
     # analyse each single file
     for data_path in list_file_paths:
