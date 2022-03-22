@@ -115,7 +115,7 @@ def check_nan_values(data_path: str) -> None:
 
 def check_reading_files(data_path: str) -> None:
     """
-    Verifies that each data dictionary in the dataset has the required keys.
+    Verifies that the data dictionary has the required keys.
     If the pair of keys between dictionaries are different, an error is raised.
 
     :param data_path:the data path of the file to analyse
