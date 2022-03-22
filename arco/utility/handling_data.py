@@ -65,7 +65,7 @@ def target_encoding(dataframe: pd.DataFrame, index: int) -> str:
     return str([pos_list, ori_list, config_list, ext_axis_list])
 
 
-def get_demo_files() -> list[Path]:
+def get_demo_files() -> list[str]:
     """
     Retrieves all the demonstrations files in the demonstrations folder.
     All the files that are not in the .json format are discarded.
@@ -79,7 +79,7 @@ def get_demo_files() -> list[Path]:
     return all_demonstration_files
 
 
-def check_data_timestamps(list_file_paths: list[str]) -> None:
+def check_data_timestamps(data_path: str) -> None:
     """
     Controls that the timestamps are updated at each single data reading.
     If consecutive timestamps are equal, an error is raised.
@@ -87,19 +87,17 @@ def check_data_timestamps(list_file_paths: list[str]) -> None:
     :param data_path:the data path of the file to analyse
     :raises ValueError: consecutive timestamp readings are not updated correctly
     """
-    # analyse each single file
-    for data_path in list_file_paths:
-        with open(data_path, 'r') as f:
-            # load data and extract time vector
-            data = json.load(f)
-            time = np.array(data["timestamp"])
-            delta_t = time[1:] - time[0:-1]
-            # check that time is updated at every data reading step
-            if np.any(delta_t == 0):
-                raise ValueError("Timestamps not updated correctly")
+    with open(data_path, 'r') as f:
+        # load data and extract time vector
+        data = json.load(f)
+        time = np.array(data["timestamp"])
+        delta_t = time[1:] - time[0:-1]
+        # check that time is updated at every data reading step
+        if np.any(delta_t == 0):
+            raise ValueError("Timestamps not updated correctly")
 
 
-def check_nan_values(list_file_paths: list[str]) -> None:
+def check_nan_values(data_path: str) -> None:
     """
     Checks that each data dictionary in the dataset doesn't contain missing values.
     If the dictionary contains missing values, an error is raised.
@@ -109,15 +107,13 @@ def check_nan_values(list_file_paths: list[str]) -> None:
     """
     # consider empty string and numpy.inf as na values
     pd.set_option('mode.use_inf_as_na', True)
-    # analyse each single file
-    for data_path in list_file_paths:
-        # load data as pandas dataframe
-        df = read_json_file(data_path)
-        if df.isnull().values.any():
-            raise ValueError("Missing values in the dictionary")
+    # load data as pandas dataframe
+    df = read_json_file(data_path)
+    if df.isnull().values.any():
+        raise ValueError("Missing values in the dictionary")
 
 
-def check_reading_files(list_file_paths: list[str]) -> None:
+def check_reading_files(data_path: str) -> None:
     """
     Verifies that each data dictionary in the dataset has the required keys.
     If the pair of keys between dictionaries are different, an error is raised.
@@ -125,12 +121,10 @@ def check_reading_files(list_file_paths: list[str]) -> None:
     :param data_path:the data path of the file to analyse
     :raises ValueError: dictionaries have different pair of keys
     """
-    # analyse each single file
-    for data_path in list_file_paths:
-        # load data as pandas dataframe
-        df = read_json_file(data_path)
-        default_dict = create_default_dict()
-        # checks that the dataframe has the same keys as the recorded dictionary
-        for df_key, dict_key in zip(df.keys(), default_dict.keys()):
-            if df_key != dict_key:
-                raise ValueError("Dictionary keys inconsistent")
+    # load data as pandas dataframe
+    df = read_json_file(data_path)
+    default_dict = create_default_dict()
+    # checks that the dataframe has the same keys as the recorded dictionary
+    for df_key, dict_key in zip(df.keys(), default_dict.keys()):
+        if df_key != dict_key:
+            raise ValueError("Dictionary keys inconsistent")
