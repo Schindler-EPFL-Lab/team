@@ -72,8 +72,11 @@ def get_demo_files() -> list[Path]:
 
     :return: a list containing all file paths corresponding to demonstrations
     """
-    repo_dir = Path.cwd().resolve().parent.parent
-    return list(Path(repo_dir, "demonstrations").rglob('*.json'))
+    demo_folder = Path(Path(__file__).resolve(strict=True).parent.parent.parent,
+                       "demonstrations")
+    files_paths = list(Path(demo_folder).rglob('*.json'))
+    all_demonstration_files = [str(path) for path in files_paths]
+    return all_demonstration_files
 
 
 def check_data_timestamps(list_file_paths: list[str]) -> None:
