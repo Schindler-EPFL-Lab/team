@@ -1,5 +1,5 @@
 from typing import Optional
-import os
+from pathlib import Path
 
 import json
 import numpy as np
@@ -8,7 +8,7 @@ import pandas as pd
 
 def create_default_dict(keys: Optional[list[str]] = None):
     """
-    Function to create default dictionary to store trajectory demonstration.
+    Creates default dictionary to store trajectory demonstration.
 
     :param keys: optional dictionary keys
     :return: dictionary with values initialized to empty lists
@@ -39,7 +39,7 @@ def create_default_dict(keys: Optional[list[str]] = None):
 
 def read_json_file(filename_path: str) -> pd.DataFrame:
     """
-    Read json file in a pandas dataframe.
+    Reads json file in a pandas dataframe.
 
     :param filename_path: filename path
     :return: the dataframe
@@ -65,30 +65,21 @@ def target_encoding(dataframe: pd.DataFrame, index: int) -> str:
     return str([pos_list, ori_list, config_list, ext_axis_list])
 
 
-def get_demo_files() -> list[str]:
+def get_demo_files() -> list[Path]:
     """
-    This function retrieves all the demonstrations files in the demonstrations folder.
+    Retrieves all the demonstrations files in the demonstrations folder.
     All the files that are not in the .json format are discarded.
 
     :return: a list containing all file paths corresponding to demonstrations
     """
-    repo_dir = os.path.dirname(os.path.dirname(os.getcwd()))
-    demo_path = os.path.join(repo_dir, "demonstrations")
-    # initialize empty list to store demonstrations files paths
-    list_file_paths = []
-    # explore all the files present/in all folders inside the parent folder
-    for (dir_path, dir_names, file_names) in os.walk(demo_path):
-        for file in file_names:
-            # discard if not a .json file
-            if file.endswith(".json"):
-                list_file_paths.append(os.path.join(dir_path, file))
-    return list_file_paths
+    repo_dir = Path.cwd().resolve().parent.parent
+    return list(Path(repo_dir, "demonstrations").rglob('*.json'))
 
 
 def check_data_timestamps(list_file_paths: list[str]) -> None:
     """
-    The function controls that the timestamps are updated at each single data reading,
-    if it is not the case, an error is raised.
+    Controls that the timestamps are updated at each single data reading.
+    If consecutive timestamps are equal, an error is raised.
 
     :param list_file_paths:a list containing all files paths to analyse
     """
@@ -106,8 +97,8 @@ def check_data_timestamps(list_file_paths: list[str]) -> None:
 
 def check_nan_values(list_file_paths: list[str]) -> None:
     """
-    The function checks that each data dictionary in the dataset doesn't contain missing
-    values, if it is not the case, an error is raised.
+    Checks that each data dictionary in the dataset doesn't contain missing values.
+    If the dictionary contains missing values, an error is raised.
 
     :param list_file_paths:a list containing all files paths to analyse
     """
@@ -116,22 +107,22 @@ def check_nan_values(list_file_paths: list[str]) -> None:
     # analyse each single file
     for data_path in list_file_paths:
         # load data as pandas dataframe
-        df = pd.read_json(data_path)
+        df = read_json_file(data_path)
         if df.isnull().values.any():
             raise ValueError("Missing values in the dictionary")
 
 
 def check_reading_files(list_file_paths: list[str]) -> None:
     """
-    The function verifies that each data dictionary in the dataset has the required keys
-    ,if it is not the case, an error is raised.
+    Verifies that each data dictionary in the dataset has the required keys.
+    If the pair of keys between dictionaries are different, an error is raised.
 
     :param list_file_paths:a list containing all files paths to analyse
     """
     # analyse each single file
     for data_path in list_file_paths:
         # load data as pandas dataframe
-        df = pd.read_json(data_path)
+        df = read_json_file(data_path)
         default_dict = create_default_dict()
         # checks that the dataframe has the same keys as the recorded dictionary
         for df_key, dict_key in zip(df.keys(), default_dict.keys()):
