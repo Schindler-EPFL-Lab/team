@@ -1,37 +1,33 @@
-from typing import Optional
-
 import numpy as np
 import pandas as pd
 
 
-def create_default_dict(keys: Optional[list[str]] = None):
+def create_default_dict() -> dict:
     """
     Creates default dictionary to store trajectory demonstration.
 
-    :param keys: optional dictionary keys
     :return: dictionary with values initialized to empty lists
     """
-    if not keys:
-        keys = [
-            "timestamp",
-            "tcp_x",
-            "tcp_y",
-            "tcp_z",
-            "tcp_q1",
-            "tcp_q2",
-            "tcp_q3",
-            "tcp_q4",
-            "cf1",
-            "cf4",
-            "cf6",
-            "cfx",
-            "joint_1",
-            "joint_2",
-            "joint_3",
-            "joint_4",
-            "joint_5",
-            "joint_6",
-        ]
+    keys = [
+        "timestamp",
+        "tcp_x",
+        "tcp_y",
+        "tcp_z",
+        "tcp_q1",
+        "tcp_q2",
+        "tcp_q3",
+        "tcp_q4",
+        "cf1",
+        "cf4",
+        "cf6",
+        "cfx",
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6",
+    ]
     return {key: [] for key in keys}
 
 
@@ -92,19 +88,3 @@ def check_nan_values(data: dict) -> None:
     df = pd.DataFrame.from_dict(data)
     if df.isnull().values.any():
         raise ValueError("Missing values in the dictionary")
-
-
-def check_reading_files(data: dict) -> None:
-    """
-    Verifies that the data dictionary has the required keys.
-    If the pair of keys between dictionaries are different, an error is raised.
-
-    :param data:the data dictionary to analyse
-    :raises ValueError: dictionaries have different pair of keys
-    """
-
-    default_dict = create_default_dict()
-    # checks that the dataframe has the same keys as the recorded dictionary
-    for df_key, dict_key in zip(data.keys(), default_dict.keys()):
-        if df_key != dict_key:
-            raise ValueError("Dictionary keys inconsistent")

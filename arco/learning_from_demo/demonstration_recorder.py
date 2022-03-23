@@ -3,8 +3,8 @@ import os
 import json
 
 from arco.utility.logger import log
-from arco.utility.handling_data import create_default_dict, check_reading_files, \
-    check_nan_values, check_data_timestamps
+from arco.utility.handling_data import create_default_dict, check_nan_values, \
+    check_data_timestamps
 
 
 class DemonstrationRecorder:
@@ -32,7 +32,6 @@ class DemonstrationRecorder:
             ), "File already exists, not allowed to overwrite it"
             check_data_timestamps(self.data)
             check_nan_values(self.data)
-            check_reading_files(self.data)
             with open(self.dest_path, "w") as file:
                 file.write(json.dumps(self.data))
         except AssertionError as e:
