@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -49,14 +51,11 @@ def target_encoding(dataframe: pd.DataFrame, index: int) -> str:
 
     :param dataframe: dataframe to read data from
     :param index: row index
-    :return: the target pose in the right encoding
+    :return: the target joints angles in the right encoding
     """
-    target = dataframe.iloc[index, 1:12].to_list()
-    pos_list = target[0:3]
-    ori_list = target[3:7]
-    config_list = target[7:11]
+    joints = dataframe.iloc[index, 12:].to_list()
     ext_axis_list = [9e9, 9e9, 9e9, 9e9, 9e9, 9e9]
-    return str([pos_list, ori_list, config_list, ext_axis_list])
+    return str([joints, ext_axis_list])
 
 
 def check_data_timestamps(data: dict) -> None:
@@ -88,3 +87,16 @@ def check_nan_values(data: dict) -> None:
     df = pd.DataFrame.from_dict(data)
     if df.isnull().values.any():
         raise ValueError("Missing values in the dictionary")
+
+
+def get_demo_files(demo_folder_path: str) -> list[str]:
+    """
+    Retrieves all the demonstrations files in the .json format in the dataset
+    folder.
+
+    :param demo_folder_path: the path of the dataset
+    :return: a list containing all file paths corresponding to demonstrations
+    """
+    files_paths = list(Path(demo_folder_path).rglob('*.json'))
+    all_demonstration_files = [str(path) for path in files_paths]
+    return all_demonstration_files

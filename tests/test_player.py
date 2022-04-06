@@ -70,7 +70,7 @@ class PlayerTest(unittest.TestCase):
         for t in range(len(play.timestamps) - 1):
             play.get_next_target()
             self.assertEqual(play.next_target.to_list(),
-                             dataframe_test.iloc[t, 1:12].to_list())
+                             dataframe_test.iloc[t, 1:].to_list())
             target = play.set_target()
             # checks that the target to pass is exactly the string as rws requires
             self.assertEqual(target, target_encoding(dataframe_test, t))

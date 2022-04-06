@@ -4,3 +4,5 @@ xmltodict==0.12.0
 keyboard==0.13.5
 pandas==1.3.5
 evo==1.16.0
+dtaidistance==2.3.6
+scipy==1.7.3
