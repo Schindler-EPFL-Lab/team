@@ -8,7 +8,6 @@ from arco.learning_from_demo.data_preprocessing import DataPreprocessing
 
 
 class ProbabilisticEncodingTest(unittest.TestCase):
-
     def test_probabilistic_encoding(self):
 
         sampling_rate = 100
@@ -17,17 +16,18 @@ class ProbabilisticEncodingTest(unittest.TestCase):
         dp = DataPreprocessing(data_path, sampling_rate=sampling_rate)
         dp.preprocessing()
         data = np.array(dp.aligned_and_padded_trajectories)
-        pe = ProbabilisticEncoding(data, max_k=10)
-        # check number of demo
-        self.assertEqual(pe.nb_demo, 2)
-        # check demonstrations length
-        self.assertEqual(pe.length_demo, 1027)
-        # check number features
-        self.assertEqual(pe.nb_features, 7)
+        pe = ProbabilisticEncoding(
+            data,
+            max_nb_components=10,
+            min_nb_components=2,
+            to_plot=False,
+            iterations=1,
+            random_state=0,
+        )
         # check best number GMM components
-        self.assertEqual(pe.best_gmm.n_components, 5)
+        self.assertEqual(pe.gmm.n_components, 3)
         # check best covariance type
-        self.assertEqual(pe.best_gmm.covariance_type, 'diag')
+        self.assertEqual(pe.gmm.covariance_type, "full")
 
 
 if __name__ == "__main__":
