@@ -94,7 +94,3 @@ class PlayerTest(unittest.TestCase):
             error = play.compute_difference()
             self.assertTrue(error >= 0)
             play.current_pose = play.next_target
-
-
-if __name__ == "__main__":
-    unittest.main(exit=False)

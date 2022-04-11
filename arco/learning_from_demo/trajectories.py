@@ -9,12 +9,12 @@ class Trajectories:
     the from_dataset_file method or directly loads the trajectories data to analyse
 
     :param aligned_trajectories: preprocessed trajectories
-                                 data has shape (nb_samples x demo_length x nb_joints+1)
-                                 the first column of each sample denotes the timestamp
+           data has shape (nb_trajectories x demo_length x nb_joints + 1)
+           the first column of each sample denotes the timestamp
     """
     def __init__(self, aligned_trajectories: np.ndarray):
         self.aligned_trajectories = aligned_trajectories
-        self.timestamp = self.aligned_trajectories[:, :, 0]
+        self.timestamps = self.aligned_trajectories[0, :, 0]
         self.joints_trajectories = self.aligned_trajectories[:, :, 1:]
 
     @classmethod

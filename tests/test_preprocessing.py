@@ -27,7 +27,3 @@ class PreprocessTest(unittest.TestCase):
             self.assertEqual(len(data) - 1, data.iloc[-1, 0] * sampling_rate)
             # test padding
             self.assertEqual(np.shape(dp.aligned_and_padded_trajectories)[1], 1027)
-
-
-if __name__ == "__main__":
-    unittest.main(exit=False)

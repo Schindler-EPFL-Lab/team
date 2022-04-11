@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
@@ -5,11 +7,17 @@ from matplotlib.patches import Ellipse
 from arco.learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
 
 
-def plot_gmm(gmm: ProbabilisticEncoding):
+def plot_gmm(
+    gmm: ProbabilisticEncoding,
+    x_query: Optional[np.ndarray] = None,
+    prediction: Optional[np.ndarray] = None
+):
     """
     Plots obtained with GMM fitting
 
     :param gmm: the GMM fitted over the data
+    :param x_query: query points vector
+    :param prediction: regression line prediction
     """
     x = gmm.trajectories
     for i in range(1, np.shape(x)[1]):
@@ -22,7 +30,7 @@ def plot_gmm(gmm: ProbabilisticEncoding):
             s=200,
             alpha=0.5,
             zorder=2,
-            label="Gaussian means"
+            label="Gaussian means",
         )
         plt.xlabel("time [s]", fontsize=16)
         plt.ylabel("joint angle [deg]", fontsize=16)
@@ -30,11 +38,19 @@ def plot_gmm(gmm: ProbabilisticEncoding):
 
         w_factor = 0.2 / gmm.gmm.weights_.max()
         for pos, covar, w in zip(
-                gmm.gmm.means_, gmm.gmm.covariances_, gmm.gmm.weights_
+            gmm.gmm.means_, gmm.gmm.covariances_, gmm.gmm.weights_
         ):
             covar = covar[0:i + 1:i, 0:i + 1:i]
             pos = pos[0:i + 1:i]
             draw_ellipse(pos, covar, alpha=w * w_factor)
+        if x_query is not None and prediction is not None:
+            plt.plot(
+                x_query,
+                prediction[:gmm.length_demo, i],
+                color="r",
+                linewidth=5,
+                label="regression line",
+            )
         plt.legend()
         plt.show()
 
@@ -46,10 +62,20 @@ def plot_js_distance(gmm_js: ProbabilisticEncoding):
     :param gmm_js: the GMM fittings over the data in the range of GMM components
     """
     min_idx = np.argmin(gmm_js.results)
-    plt.errorbar(gmm_js.n_components_range, gmm_js.results, yerr=gmm_js.results_std,
-                 label="data mean and std")
-    plt.plot(gmm_js.nb_comp_js, gmm_js.results[min_idx], "o", c="r", markersize=10,
-             label="optimal nb_components")
+    plt.errorbar(
+        gmm_js.n_components_range,
+        gmm_js.results,
+        yerr=gmm_js.results_std,
+        label="data mean and std"
+    )
+    plt.plot(
+        gmm_js.nb_comp_js,
+        gmm_js.results[min_idx],
+        "o",
+        c="r",
+        markersize=10,
+        label="optimal nb_components"
+    )
     plt.legend()
     plt.title("Distance between Train and Test GMMs", fontsize=20)
     plt.xticks(gmm_js.n_components_range)

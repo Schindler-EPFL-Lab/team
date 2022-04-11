@@ -17,13 +17,13 @@ class ProbabilisticEncoding:
     # probabilistic encoding of data with GMM number of components search space between
     2 and 10
     pe = ProbabilisticEncoding(
-        data, iterations=30, max_nb_components=10, min_nb_components=2
+        trajectories, iterations=30, max_nb_components=10, min_nb_components=2
     )
     ```
 
-    :param data: dataset to fit, each sample contains the robot joint angle trajectories
-                 data has shape (nb_samples x demo_length x nb_joints + 1)
-                 the first column of each sample denotes the timestamp
+    :param trajectories: dataset with robot joint angle trajectories
+                         data has shape (nb_samples x demo_length x nb_joints + 1)
+                         the first column of each sample denotes the timestamp
     :param iterations: runs to compute statistics over JS metric
     :param min_nb_components: minimum number of GMM components allowed to model the data
     :param max_nb_components: maximum number of GMM components allowed to model the data
@@ -36,10 +36,12 @@ class ProbabilisticEncoding:
         iterations: int,
         min_nb_components: int = 2,
         max_nb_components: int = 10,
-        random_state: Optional[int] = None
+        random_state: Optional[int] = None,
     ) -> None:
         self._iterations = iterations
-        _, _, self._nb_features = np.shape(trajectories.aligned_trajectories)
+        _, self.length_demo, self._nb_features = np.shape(
+            trajectories.aligned_trajectories
+        )
         # dataset as a NumPy array of shape (n_samples_per_trajectories *
         # n_trajectories, n_features)
         self.trajectories = trajectories.aligned_trajectories.reshape(
@@ -64,7 +66,7 @@ class ProbabilisticEncoding:
         nb_components: int,
         cov_type: str = "full",
         init_type: str = "kmeans",
-        random_state: Optional[int] = None
+        random_state: Optional[int] = None,
     ) -> GaussianMixture:
         """
         Fits a Gaussian Mixture Model on the data
@@ -88,7 +90,7 @@ class ProbabilisticEncoding:
         self,
         max_nb_components: int,
         min_nb_components: int,
-        random_state: Optional[int] = None
+        random_state: Optional[int] = None,
     ) -> GaussianMixture:
         """
         Computes the Jensen-Shannon (JS) metric. The lesser is the JS-distance between
