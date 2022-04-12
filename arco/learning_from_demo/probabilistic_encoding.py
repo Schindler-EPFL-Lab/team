@@ -86,14 +86,17 @@ class ProbabilisticEncoding:
         the two GMMs, the more the GMMs agree on how to fit the data.
         Returns the best GMM fitting with the identified best number of GMM components
 
-        :param min_nb_components: max components value to define range of search space
-        :param max_nb_components: max components value to define range of search space.
+        :param min_nb_components: min components number to define range of search space.
+               Defaults to 2 if less than 2.
+        :param max_nb_components: max components number to define range of search space.
                Defaults to 2 if less than 2.
         :param to_plot: boolean assessing if the BIC scores plot is required or not
         :param random_state: reproducibility of GMM initialization for testing purposes
         :return: the best fitted GMM mixture on the data according to JS distance score
         """
         # check valid range for number components
+        if min_nb_components <= 2:
+            min_nb_components = 2
         if max_nb_components <= 2:
             max_nb_components = 2
         if max_nb_components <= min_nb_components:
