@@ -63,12 +63,22 @@ class TrajectoriesTest(unittest.TestCase):
         )
 
     def test_padding(self) -> None:
-        traj = Trajectory(np.array([0, 1, 2]))
+        traj = Trajectory(
+            np.array([[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]])
+        )
         traj.pad_end(10)
         self.assertEqual(len(traj), 10)
 
     def test_upsample(self) -> None:
-        traj = Trajectory(np.array([[0, 1, 3], [1, 2, 4], [2, 3, 5]]))
+        traj = Trajectory(
+            np.array(
+                [
+                    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                ]
+            )
+        )
         traj.upsample(2)
         np.testing.assert_array_almost_equal(
             traj.get_joint(1), np.array([1, 1.5, 2, 2.5, 3])
@@ -77,10 +87,26 @@ class TrajectoriesTest(unittest.TestCase):
     def test_load_list_of_trajectories(self) -> None:
         # standard data file to perform tests
         list_traj = [
-            Trajectory(np.array([[0, 1, 3, 4], [1, 2, 4, 5], [2, 3, 5, 6]])),
-            Trajectory(np.array([[0, 1, 3, 4], [1, 2, 4, 5], [2, 3, 5, 6]])),
+            Trajectory(
+                np.array(
+                    [
+                        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        [1, 2, 4, 5, 6, 7, 8, 9, 10, 11],
+                        [2, 3, 5, 7, 9, 11, 13, 15, 17, 19],
+                    ]
+                )
+            ),
+            Trajectory(
+                np.array(
+                    [
+                        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        [1, 2, 4, 5, 6, 7, 8, 9, 10, 11],
+                        [2, 3, 5, 7, 9, 11, 13, 15, 17, 19],
+                    ]
+                )
+            ),
         ]
         trajectories = AlignedTrajectories.from_list_trajectories(list_traj)
         self.assertEqual(np.shape(trajectories.aligned_trajectories)[0], 2)
         self.assertEqual(np.shape(trajectories.aligned_trajectories)[1], 3)
-        self.assertEqual(np.shape(trajectories.aligned_trajectories)[2], 4)
+        self.assertEqual(np.shape(trajectories.aligned_trajectories)[2], 7)

@@ -17,7 +17,7 @@ class DemonstrationPlayer:
                            that is tolerated (unit: degrees)
     """
 
-    def __init__(self, base_url: str, tolerance_diff: float = 5) -> None:
+    def __init__(self, base_url: str, tolerance_diff: float = 1) -> None:
         self.current_pose: Optional[np.ndarray] = None
         self.next_target: Optional[np.ndarray] = None
         # control the smoothness of the reproduction (unit: degrees)
@@ -52,7 +52,7 @@ class DemonstrationPlayer:
         :param trajectory: Trajectories object to reproduce
         """
         self.rws.set_RAPID_variable("program_running", "TRUE")
-        for i, joints in enumerate(trajectory.trajectory):
+        for i, joints in enumerate(trajectory.joints):
             self.next_target = joints
             if i == 0:
                 self.current_pose = joints
