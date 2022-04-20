@@ -99,12 +99,11 @@ class ProbabilisticEncoding:
         :return: the best fitted GMM mixture on the data according to JS distance score
         """
         # check valid range for number components
-        if min_nb_components <= 2:
-            min_nb_components = 2
-        if max_nb_components <= 2:
-            max_nb_components = 2
-        if max_nb_components <= min_nb_components:
-            raise RuntimeError("Invalid range for search space!")
+        if max_nb_components <= min_nb_components or max_nb_components < 2 or \
+                min_nb_components < 2:
+            raise RuntimeError("Invalid range for search space! max_nb_components must "
+                               "be larger or equal to min_nb_components and "
+                               "min_nb_components not smaller than 2")
         # search space range
         n_components_range = range(min_nb_components, max_nb_components)
         # dataset as a NumPy array of shape (n_samples, n_features)
@@ -116,7 +115,7 @@ class ProbabilisticEncoding:
         for n in n_components_range:
             dist = []
             # loop over number runs
-            for iteration in range(self._iterations):
+            for _ in range(self._iterations):
                 train, test = train_test_split(
                     x, test_size=0.5, random_state=random_state
                 )
