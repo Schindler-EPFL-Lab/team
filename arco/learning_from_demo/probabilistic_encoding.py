@@ -22,7 +22,9 @@ class ProbabilisticEncoding:
     pe.plot_gmm()
     ```
 
-    :param data: dataset to fit
+    :param data: dataset to fit, each sample contains the robot joint angle trajectories
+                 data has shape (nb_samples x demo_length x nb_joints + 1)
+                 the first column of each sample denotes the timestamp
     :param iterations: runs to compute statistics over JS metric
     :param min_nb_components: minimum number of GMM components allowed to model the data
     :param max_nb_components: maximum number of GMM components allowed to model the data
@@ -57,7 +59,7 @@ class ProbabilisticEncoding:
         random_state: Optional[int] = None
     ) -> GaussianMixture:
         """
-        Fits a Gaussian Mixture Model with given hyper-parameters on the data
+        Fits a Gaussian Mixture Model on the data
 
         :param nb_components: number of GMM components
         :param cov_type: covariance type (e.g spherical, full, ..)
@@ -172,8 +174,8 @@ class ProbabilisticEncoding:
         """
         Calculates the Jensen-Shannon divergence metric
 
-        :param gmm_p:
-        :param gmm_q:
+        :param gmm_p: GMM fitting over training set
+        :param gmm_q: GMM fitting over testing set
         :param n_samples: number of samples extracted from the distribution
         :return: the JS metric of the configuration
         """
