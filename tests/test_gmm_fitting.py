@@ -26,8 +26,8 @@ class ProbabilisticEncodingTest(unittest.TestCase):
         )
         # check best number GMM components
         self.assertEqual(pe.gmm.n_components, 3)
-        # check best covariance type
-        self.assertEqual(pe.gmm.covariance_type, "full")
+        # check norm of first covariance matrix
+        self.assertEqual(int(np.linalg.norm(pe.gmm.covariances_[0])), 249)
 
 
 if __name__ == "__main__":
