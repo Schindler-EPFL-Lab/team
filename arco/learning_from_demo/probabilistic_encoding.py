@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.mixture import GaussianMixture
@@ -35,7 +37,7 @@ class ProbabilisticEncoding:
         min_nb_components: int = 2,
         max_nb_components: int = 10,
         to_plot: bool = False,
-        random_state: int = None,
+        random_state: Optional[int] = None
     ) -> None:
         self._data = data
         self._iterations = iterations
@@ -52,7 +54,7 @@ class ProbabilisticEncoding:
         nb_components: int,
         cov_type: str = "full",
         init_type: str = "kmeans",
-        random_state: int = None,
+        random_state: Optional[int] = None
     ) -> GaussianMixture:
         """
         Fits a Gaussian Mixture Model with given hyper-parameters on the data
@@ -79,7 +81,7 @@ class ProbabilisticEncoding:
         max_nb_components: int,
         min_nb_components: int = 2,
         to_plot: bool = False,
-        random_state: int = None,
+        random_state: Optional[int] = None
     ) -> GaussianMixture:
         """
         Computes the Jensen-Shannon (JS) metric. The lesser is the JS-distance between
@@ -206,7 +208,7 @@ class ProbabilisticEncoding:
         n_components_range: range,
         results: list[np.ndarray],
         res_sigs: list[np.ndarray],
-        nb_comp_js: int,
+        nb_comp_js: int
     ):
         """
         Plots the mean and the std of the JS distance over the range of GMM components
