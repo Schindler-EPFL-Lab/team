@@ -81,7 +81,7 @@ class ProbabilisticEncoding:
     def _select_gmm_js_distance(
         self,
         max_nb_components: int,
-        min_nb_components: int = 2,
+        min_nb_components: int,
         to_plot: bool = False,
         random_state: Optional[int] = None
     ) -> GaussianMixture:
@@ -91,9 +91,7 @@ class ProbabilisticEncoding:
         Returns the best GMM fitting with the identified best number of GMM components
 
         :param min_nb_components: min components number to define range of search space.
-               Defaults to 2 if less than 2.
         :param max_nb_components: max components number to define range of search space.
-               Defaults to 2 if less than 2.
         :param to_plot: boolean assessing if the BIC scores plot is required or not
         :param random_state: reproducibility of GMM initialization for testing purposes
         :return: the best fitted GMM mixture on the data according to JS distance score
