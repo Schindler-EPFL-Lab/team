@@ -44,7 +44,7 @@ class ProbabilisticEncoding:
         self.n_components_range = []
         # runs for standard deviation
         self.results = []
-        self.res_sigs = []
+        self.results_std = []
         # chosen number of components
         self.nb_comp_js = 0
         # number of components selection
@@ -118,7 +118,7 @@ class ProbabilisticEncoding:
                 dist.append(self._js_metric(gmm_train, gmm_test))
 
             self.results.append(np.mean(dist))
-            self.res_sigs.append(np.std(dist))
+            self.results_std.append(np.std(dist))
 
         # identify minimum in the JS distance corresponding to best nb_components
         min_idx = np.argmin(self.results)

@@ -48,7 +48,7 @@ def plot_js_distance(
     :param gmm_js: the GMM fittings over the data in the range of GMM components
     """
     min_idx = np.argmin(gmm_js.results)
-    plt.errorbar(gmm_js.n_components_range, gmm_js.results, yerr=gmm_js.res_sigs,
+    plt.errorbar(gmm_js.n_components_range, gmm_js.results, yerr=gmm_js.results_std,
                  label="data mean and std")
     plt.plot(gmm_js.nb_comp_js, gmm_js.results[min_idx], "o", c="r", markersize=10,
              label="optimal nb_components")
