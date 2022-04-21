@@ -20,9 +20,8 @@ class ProbabilisticEncodingTest(unittest.TestCase):
             data,
             max_nb_components=10,
             min_nb_components=2,
-            to_plot=False,
             iterations=1,
-            random_state=0,
+            random_state=0
         )
         # check best number GMM components
         self.assertEqual(pe.gmm.n_components, 3)
