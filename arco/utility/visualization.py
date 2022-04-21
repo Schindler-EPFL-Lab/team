@@ -14,14 +14,15 @@ def plot_gmm(gmm: ProbabilisticEncoding):
     x = gmm.data
     for i in range(1, np.shape(x)[1]):
         plt.figure(figsize=(10, 8))
-        plt.scatter(x[:, 0], x[:, i], s=1, cmap="viridis", zorder=1)
+        plt.scatter(x[:, 0], x[:, i], s=1, cmap="viridis", zorder=1, label="datapoints")
         plt.scatter(
             gmm.gmm.means_[:, 0],
             gmm.gmm.means_[:, i],
             c="black",
-            s=300,
+            s=200,
             alpha=0.5,
             zorder=2,
+            label="Gaussian means"
         )
         plt.xlabel("time [s]", fontsize=16)
         plt.ylabel("joint angle [deg]", fontsize=16)
@@ -34,7 +35,7 @@ def plot_gmm(gmm: ProbabilisticEncoding):
             covar = covar[0: i + 1: i, 0: i + 1: i]
             pos = pos[0: i + 1: i]
             draw_ellipse(pos, covar, alpha=w * w_factor)
-        plt.legend(["datapoints", "Gaussian means", "Gaussian covariances"])
+        plt.legend()
         plt.show()
 
 
@@ -47,9 +48,11 @@ def plot_js_distance(
     :param gmm_js: the GMM fittings over the data in the range of GMM components
     """
     min_idx = np.argmin(gmm_js.results)
-    plt.plot(gmm_js.nb_comp_js, gmm_js.results[min_idx], "o", c="r", markersize=10)
-    plt.errorbar(gmm_js.n_components_range, gmm_js.results, yerr=gmm_js.res_sigs)
-    plt.legend(["data mean and std", "optimal nb_components"])
+    plt.errorbar(gmm_js.n_components_range, gmm_js.results, yerr=gmm_js.res_sigs,
+                 label="data mean and std")
+    plt.plot(gmm_js.nb_comp_js, gmm_js.results[min_idx], "o", c="r", markersize=10,
+             label="optimal nb_components")
+    plt.legend()
     plt.title("Distance between Train and Test GMMs", fontsize=20)
     plt.xticks(gmm_js.n_components_range)
     plt.xlabel("Number of components", fontsize=16)
