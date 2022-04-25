@@ -4,6 +4,8 @@ import numpy as np
 from sklearn.mixture import GaussianMixture
 from sklearn.model_selection import train_test_split
 
+from arco.learning_from_demo.trajectories import Trajectories
+
 
 class ProbabilisticEncoding:
     """
@@ -30,16 +32,19 @@ class ProbabilisticEncoding:
 
     def __init__(
         self,
-        data: np.ndarray,
+        trajectories: Trajectories,
         iterations: int,
         min_nb_components: int = 2,
         max_nb_components: int = 10,
         random_state: Optional[int] = None
     ) -> None:
         self._iterations = iterations
-        _, _, self._nb_features = np.shape(data)
-        # dataset as a NumPy array of shape (n_samples, n_features)
-        self.data = data.reshape(-1, self._nb_features)
+        _, _, self._nb_features = np.shape(trajectories.aligned_trajectories)
+        # dataset as a NumPy array of shape (n_samples_per_trajectories *
+        # n_trajectories, n_features)
+        self.trajectories = trajectories.aligned_trajectories.reshape(
+            -1, self._nb_features
+        )
         # search space range
         self.n_components_range = []
         # runs for standard deviation
@@ -77,7 +82,7 @@ class ProbabilisticEncoding:
             random_state=random_state,
         )
         # the fitted mixture
-        return gmm.fit(self.data)
+        return gmm.fit(self.trajectories)
 
     def _select_gmm_js_distance(
         self,
@@ -114,7 +119,7 @@ class ProbabilisticEncoding:
             # loop over number runs
             for _ in range(self._iterations):
                 train, test = train_test_split(
-                    self.data, test_size=0.5, random_state=random_state
+                    self.trajectories, test_size=0.5, random_state=random_state
                 )
                 # fit over the train and test datasets
                 gmm_train = GaussianMixture(n, random_state=random_state).fit(train)

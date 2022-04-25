@@ -11,7 +11,7 @@ def plot_gmm(gmm: ProbabilisticEncoding):
 
     :param gmm: the GMM fitted over the data
     """
-    x = gmm.data
+    x = gmm.trajectories
     for i in range(1, np.shape(x)[1]):
         plt.figure(figsize=(10, 8))
         plt.scatter(x[:, 0], x[:, i], s=1, cmap="viridis", zorder=1, label="datapoints")

@@ -16,13 +16,15 @@ class DataPreprocessing:
     # preprocessing
     dp.preprocessing()
     ```
+
+    :param data_path: path to the dataset
+    :param sampling_rate: the desired sampling frequency
     """
-    def __init__(self, dataset_path: str, sampling_rate: int) -> None:
-        """
-        :param dataset_path: the path to reach the dataset folder
-        :param sampling_rate: the desired sampling frequency
-        """
-        self._trajectories_to_align = self._load_data(dataset_path)
+
+    def __init__(
+        self, data_path: str, sampling_rate: int
+    ) -> None:
+        self._trajectories_to_align = self._load_data(data_path)
         # minimal cumulative distance demonstration as reference
         self._df_ref = self._select_reference_demo()
         self._sampling_rate = sampling_rate
@@ -33,7 +35,7 @@ class DataPreprocessing:
         self.aligned_and_padded_trajectories = []
 
     @staticmethod
-    def _load_data(data_path) -> list[pd.DataFrame]:
+    def _load_data(data_path: str) -> list[pd.DataFrame]:
         """
         Loads the dataset as a list of dataframes
 
@@ -73,17 +75,27 @@ class DataPreprocessing:
         :return: the up-sampled dataframe
         """
         df.iloc[:, 0] = df.iloc[:, 0] - df.iloc[0, 0]
-        timestamp = df['timestamp'].to_numpy()
+        timestamp = df["timestamp"].to_numpy()
         joints = df[
-            ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5',
-             'joint_6']].to_numpy()
+            ["joint_1", "joint_2", "joint_3", "joint_4", "joint_5", "joint_6"]
+        ].to_numpy()
         f = interpolate.interp1d(timestamp, joints, axis=0)
         time_new = np.arange(0, int(timestamp[-1] * des_freq) / des_freq, 1 / des_freq)
         # use interpolation function returned by `interp1d` to generate new data points
         joints_new = f(time_new)
         data = np.append(time_new.reshape(-1, 1), joints_new, axis=1)
-        return pd.DataFrame(data, columns=['timestamp', 'joint_1', 'joint_2', 'joint_3',
-                                           'joint_4', 'joint_5', 'joint_6'])
+        return pd.DataFrame(
+            data,
+            columns=[
+                "timestamp",
+                "joint_1",
+                "joint_2",
+                "joint_3",
+                "joint_4",
+                "joint_5",
+                "joint_6",
+            ],
+        )
 
     @staticmethod
     def _pad_to_same_length(dfs: list[pd.DataFrame]) -> list[pd.DataFrame]:
@@ -104,7 +116,8 @@ class DataPreprocessing:
                 df = pd.concat([df, pd.concat([df.iloc[-1:]] * nb_samples)])
                 # updates the timestamps
                 df.iloc[-nb_samples:, 0] = df.iloc[-nb_samples:, 0] + np.linspace(
-                    0.01, 0.01 * nb_samples, nb_samples)
+                    0.01, 0.01 * nb_samples, nb_samples
+                )
                 df.reset_index(drop=True, inplace=True)
             padded_data.append(df)
         return padded_data
@@ -127,10 +140,10 @@ class DataPreprocessing:
         :return: the selected demonstration
         """
         # put data in the distance_matrix_fast method required format
-        time_series = (
-            [df[['tcp_x', 'tcp_y', 'tcp_z']].to_numpy() for df in
-             self._trajectories_to_align]
-        )
+        time_series = [
+            df[["tcp_x", "tcp_y", "tcp_z"]].to_numpy()
+            for df in self._trajectories_to_align
+        ]
         ds = dtw.distance_matrix_fast(time_series)
         # sum over one axis (ds matrix is symmetric)
         cumulative_dist = np.sum(ds, axis=1)
@@ -146,10 +159,10 @@ class DataPreprocessing:
         """
         self._aligned_data_list = []
         # end effector position information considered
-        tcp_ref = np.array(self._df_ref[['tcp_x', 'tcp_y', 'tcp_z']])
+        tcp_ref = np.array(self._df_ref[["tcp_x", "tcp_y", "tcp_z"]])
         path = None
         for df_2 in self._trajectories_to_align:
-            tcp2 = np.array(df_2[['tcp_x', 'tcp_y', 'tcp_z']])
+            tcp2 = np.array(df_2[["tcp_x", "tcp_y", "tcp_z"]])
             d, paths = dtw_ndim.warping_paths(tcp_ref, tcp2)
             # best matching transformation
             path = dtw.best_path(paths)
@@ -172,8 +185,8 @@ class DataPreprocessing:
         for align_df in self._aligned_data_list:
             # compute the average sampling frequency of the acquired demo
             average_sampling = (
-                    (len(align_df) - align_df.duplicated().sum()) / align_df.iloc[-1, 0]
-            )
+                len(align_df) - align_df.duplicated().sum()
+            ) / align_df.iloc[-1, 0]
             # extends dataframe with time increments
             df_ext = self._extend_duplicates(align_df, average_sampling)
             self._extended_dfs.append(df_ext)
