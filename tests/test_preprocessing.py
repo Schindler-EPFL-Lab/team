@@ -4,6 +4,7 @@ import unittest
 import numpy as np
 
 from arco.learning_from_demo.data_preprocessing import DataPreprocessing
+from arco.learning_from_demo.trajectories import Trajectories
 
 
 class PreprocessTest(unittest.TestCase):
@@ -13,7 +14,8 @@ class PreprocessTest(unittest.TestCase):
         sampling_rate = 100
         base_path = pathlib.Path(__file__).parent.absolute()
         data_path = str(pathlib.Path(base_path, "data"))
-        dp = DataPreprocessing(data_path, sampling_rate=sampling_rate)
+        trajectories_list = Trajectories._load_data(data_path)
+        dp = DataPreprocessing(trajectories_list, sampling_rate=sampling_rate)
         self.assertEqual(np.shape(dp.trajectories_to_align[0]), (519, 18))
         # test reference trajectory has been selected
         self.assertFalse(dp.reference.empty)

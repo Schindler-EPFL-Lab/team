@@ -16,13 +16,13 @@ class ProbabilisticEncodingTest(unittest.TestCase):
     ]:
         base_path = pathlib.Path(__file__).parent.absolute()
         data_path = str(pathlib.Path(base_path, "data"))
-        trajectories = Trajectories.from_dataset_file(data_path)
+        trajectories = Trajectories.load_dataset_and_preprocess(data_path)
         pe = ProbabilisticEncoding(
             trajectories,
             max_nb_components=10,
             min_nb_components=2,
             iterations=1,
-            random_state=0,
+            random_state=0
         )
         return trajectories, pe
 

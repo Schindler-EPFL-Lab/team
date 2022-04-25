@@ -3,8 +3,6 @@ import numpy as np
 from dtaidistance import dtw, dtw_ndim
 from scipy import interpolate
 
-from arco.utility.handling_data import get_demo_files
-
 
 class DataPreprocessing:
     """
@@ -17,14 +15,14 @@ class DataPreprocessing:
     dp.preprocessing()
     ```
 
-    :param data_path: path to the dataset
+    :param traj_to_align: trajectories to align
     :param sampling_rate: the desired sampling frequency
     """
 
     def __init__(
-        self, data_path: str, sampling_rate: int
+        self, traj_to_align: list[pd.DataFrame], sampling_rate: int
     ) -> None:
-        self._trajectories_to_align = self._load_data(data_path)
+        self.trajectories_to_align = traj_to_align
         # minimal cumulative distance demonstration as reference
         self._df_ref = self._select_reference_demo()
         self._sampling_rate = sampling_rate
@@ -33,20 +31,6 @@ class DataPreprocessing:
         self._upsampled_data = []
         # final output of the algorithm
         self.aligned_and_padded_trajectories = []
-
-    @staticmethod
-    def _load_data(data_path: str) -> list[pd.DataFrame]:
-        """
-        Loads the dataset as a list of dataframes
-
-        :param data_path: the path to reach the dataset folder
-        :return: the list of dataframes corresponding to the demonstration dataset
-        """
-        files_paths = get_demo_files(data_path)
-        df_list = []
-        for file_path in files_paths:
-            df_list.append(pd.read_json(file_path))
-        return df_list
 
     @staticmethod
     def _extend_duplicates(df: pd.DataFrame, av_sampling: float) -> pd.DataFrame:
@@ -123,10 +107,6 @@ class DataPreprocessing:
         return padded_data
 
     @property
-    def trajectories_to_align(self):
-        return self._trajectories_to_align
-
-    @property
     def reference(self):
         return self._df_ref
 
@@ -142,14 +122,14 @@ class DataPreprocessing:
         # put data in the distance_matrix_fast method required format
         time_series = [
             df[["tcp_x", "tcp_y", "tcp_z"]].to_numpy()
-            for df in self._trajectories_to_align
+            for df in self.trajectories_to_align
         ]
         ds = dtw.distance_matrix_fast(time_series)
         # sum over one axis (ds matrix is symmetric)
         cumulative_dist = np.sum(ds, axis=1)
         idx_min = np.argwhere(cumulative_dist == np.min(cumulative_dist))[0][0]
         # remove and return selected reference
-        return self._trajectories_to_align.pop(idx_min)
+        return self.trajectories_to_align.pop(idx_min)
 
     def _align_data(self) -> None:
         """
@@ -161,7 +141,7 @@ class DataPreprocessing:
         # end effector position information considered
         tcp_ref = np.array(self._df_ref[["tcp_x", "tcp_y", "tcp_z"]])
         path = None
-        for df_2 in self._trajectories_to_align:
+        for df_2 in self.trajectories_to_align:
             tcp2 = np.array(df_2[["tcp_x", "tcp_y", "tcp_z"]])
             d, paths = dtw_ndim.warping_paths(tcp_ref, tcp2)
             # best matching transformation

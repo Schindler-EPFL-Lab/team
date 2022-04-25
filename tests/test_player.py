@@ -2,17 +2,40 @@ import os
 import unittest
 from unittest import mock
 
+import numpy as np
 import pandas as pd
 
 from arco.learning_from_demo.demonstration_player import DemonstrationPlayer
-from arco.utility.handling_data import create_default_dict, read_json_file, \
-    target_encoding
+from arco.learning_from_demo.trajectories import Trajectories
+from arco.utility.handling_data import (
+    create_default_dict,
+    read_json_file,
+    target_encoding,
+)
 
 
-# unittest will test all the methods whose name starts with 'test'
 class PlayerTest(unittest.TestCase):
+    @staticmethod
+    def _setup():
+        return (
+            PlayerTest._create_player(),
+            Trajectories.load_single_trajectory(PlayerTest._get_file_path()),
+        )
 
-    # return True or False
+    @staticmethod
+    def _create_player() -> DemonstrationPlayer:
+        url = "https://localhost:8881"
+        player = DemonstrationPlayer(base_url=url)
+        return player
+
+    @staticmethod
+    def _get_file_path() -> str:
+        # standard data file to perform tests
+        filename = "manual_trajectory.json"
+        file_dir = os.path.join(os.path.dirname(__file__), "trajectory_data")
+        filename_path = os.path.join(file_dir, filename)
+        return filename_path
+
     def test_default_dictionary_init(self) -> bool:
         is_well_init = True
         default_dict = create_default_dict()
@@ -22,11 +45,8 @@ class PlayerTest(unittest.TestCase):
         return is_well_init
 
     def test_reading_file(self):
-        # standard data file to perform tests
-        filename = "test_data.json"
-        file_dir = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), "demonstrations"
-        )
+        filename = "manual_trajectory.json"
+        file_dir = os.path.join(os.path.dirname(__file__), "trajectory_data")
         filename_path = os.path.join(file_dir, filename)
         # checks that the file exists, inside a valid directory and right file extension
         self.assertTrue(os.path.exists(filename_path))
@@ -37,60 +57,34 @@ class PlayerTest(unittest.TestCase):
         for df_key, dict_key in zip(dataframe.keys(), default_dict.keys()):
             self.assertEqual(df_key, dict_key)
 
-    @mock.patch('rws2.RWS_wrapper')
-    def test_demonstration_length(self, mock_rws):
-        url = "https://localhost:8881"
-        # standard data file to perform tests
-        filename = "test_data.json"
-        file_dir = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), "demonstrations"
-        )
-        filename_path = os.path.join(file_dir, filename)
-        play = DemonstrationPlayer(filename_path=filename_path, base_url=url)
-        play.rws = mock_rws
-        # before playing the demonstration, iteration should be 0
-        self.assertEqual(play.iter, 0)
-        play.play()
-        # after the end of the demonstration, iteration should equal the number of steps
-        self.assertEqual(play.iter, len(play.timestamps) - 1)
-
-    @mock.patch('rws2.RWS_wrapper')
+    @mock.patch("rws2.RWS_wrapper")
     def test_target_integrity(self, mock_rws):
-        url = "https://localhost:8881"
-        # standard data file to perform tests
-        filename = "test_data.json"
-        file_dir = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), "demonstrations"
-        )
-        filename_path = os.path.join(file_dir, filename)
-        play = DemonstrationPlayer(filename_path=filename_path, base_url=url)
+        play, trajectory = PlayerTest._setup()
         play.rws = mock_rws
-        dataframe_test = read_json_file(filename_path)
+        dataframe_test = read_json_file(self._get_file_path())
         # checks that all the read data are the expected ones
-        for t in range(len(play.timestamps) - 1):
-            play.get_next_target()
-            self.assertEqual(play.next_target.to_list(),
-                             dataframe_test.iloc[t, 1:].to_list())
+        for t, joints in enumerate(trajectory.joints_trajectories[0]):
+            play.next_target = np.around(joints, decimals=6)
+            self.assertEqual(
+                play.next_target.all(),
+                dataframe_test.iloc[t, -6:].to_numpy().round(decimals=6).all(),
+            )
             target = play.set_target()
             # checks that the target to pass is exactly the string as rws requires
-            self.assertEqual(target, target_encoding(dataframe_test, t))
+            self.assertEqual(
+                target, target_encoding(dataframe_test.round(decimals=6), t)
+            )
 
-    @mock.patch('rws2.RWS_wrapper')
+    @mock.patch("rws2.RWS_wrapper")
     def test_positive_error(self, mock_rws):
-        url = "https://localhost:8881"
-        # standard data file to perform tests
-        filename = "test_data.json"
-        file_dir = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), "demonstrations"
-        )
-        filename_path = os.path.join(file_dir, filename)
-        play = DemonstrationPlayer(filename_path=filename_path, base_url=url)
+        play, trajectory = PlayerTest._setup()
         play.rws = mock_rws
-        # checks that the error between a couple of consecutive targets is always >= 0
-        play.get_next_target()
+        errors = np.zeros(10)
+        # checks that the error between a couple of consecutive targets is correct
+        play.next_target = trajectory.joints_trajectories[0, 0]
         play.current_pose = play.next_target
-        for t in range(len(play.timestamps) - 1):
-            play.get_next_target()
+        for i, joints in enumerate(trajectory.joints_trajectories[0]):
+            play.next_target = joints
             error = play.compute_difference()
-            self.assertTrue(error >= 0)
+            self.assertEqual(error, errors[i])
             play.current_pose = play.next_target

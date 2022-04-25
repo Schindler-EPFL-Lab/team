@@ -1,6 +1,7 @@
 import os
 
 from arco.learning_from_demo.demonstration_player import DemonstrationPlayer
+from arco.learning_from_demo.trajectories import Trajectories
 
 base_path = os.path.dirname(os.path.dirname(__file__))
 
@@ -11,5 +12,6 @@ if __name__ == "__main__":
         os.path.dirname(os.path.dirname(__file__)), "demonstrations"
     )
     filename_path = os.path.join(file_dir, filename)
-    play = DemonstrationPlayer(filename_path=filename_path, base_url=url)
-    play.play()
+    play = DemonstrationPlayer(url)
+    trajectory = Trajectories.load_single_trajectory(filename_path)
+    play.play(trajectory)

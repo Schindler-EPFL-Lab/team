@@ -36,7 +36,7 @@ class ProbabilisticEncoding:
         iterations: int,
         min_nb_components: int = 2,
         max_nb_components: int = 10,
-        random_state: Optional[int] = None,
+        random_state: Optional[int] = None
     ) -> None:
         self._iterations = iterations
         _, self.length_demo, self._nb_features = np.shape(
@@ -66,7 +66,7 @@ class ProbabilisticEncoding:
         nb_components: int,
         cov_type: str = "full",
         init_type: str = "kmeans",
-        random_state: Optional[int] = None,
+        random_state: Optional[int] = None
     ) -> GaussianMixture:
         """
         Fits a Gaussian Mixture Model on the data
@@ -90,7 +90,7 @@ class ProbabilisticEncoding:
         self,
         max_nb_components: int,
         min_nb_components: int,
-        random_state: Optional[int] = None,
+        random_state: Optional[int] = None
     ) -> GaussianMixture:
         """
         Computes the Jensen-Shannon (JS) metric. The lesser is the JS-distance between
