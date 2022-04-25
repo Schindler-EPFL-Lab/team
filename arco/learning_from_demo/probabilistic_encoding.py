@@ -51,7 +51,7 @@ class ProbabilisticEncoding:
         self.gmm = self._select_gmm_js_distance(
             max_nb_components=max_nb_components,
             min_nb_components=min_nb_components,
-            random_state=random_state
+            random_state=random_state,
         )
 
     def _gmm_fitting(
@@ -96,11 +96,16 @@ class ProbabilisticEncoding:
         :return: the best fitted GMM mixture on the data according to JS distance score
         """
         # check valid range for number components
-        if max_nb_components <= min_nb_components or max_nb_components < 2 or \
-                min_nb_components < 2:
-            raise RuntimeError("Invalid range for search space! max_nb_components must "
-                               "be larger or equal to min_nb_components and "
-                               "min_nb_components not smaller than 2")
+        if (
+            max_nb_components <= min_nb_components
+            or max_nb_components < 2
+            or min_nb_components < 2
+        ):
+            raise RuntimeError(
+                "Invalid range for search space! max_nb_components must "
+                "be larger or equal to min_nb_components and "
+                "min_nb_components not smaller than 2"
+            )
         # search space range
         self.n_components_range = range(min_nb_components, max_nb_components)
         # loop over range
@@ -124,8 +129,9 @@ class ProbabilisticEncoding:
         min_idx = np.argmin(self.results)
         self.nb_comp_js = self.n_components_range[min_idx]
 
-        return self._gmm_fitting(nb_components=self.nb_comp_js,
-                                 random_state=random_state)
+        return self._gmm_fitting(
+            nb_components=self.nb_comp_js, random_state=random_state
+        )
 
     @staticmethod
     def _js_metric(
@@ -134,8 +140,8 @@ class ProbabilisticEncoding:
         """
         Calculates the Jensen-Shannon divergence metric
 
-        :param gmm_p: GMM fitting over training set
-        :param gmm_q: GMM fitting over testing set
+        :param gmm_p: GMM fitted over training set
+        :param gmm_q: GMM fitted over testing set
         :param n_samples: number of samples extracted from the distribution
         :return: the JS metric of the configuration
         """
