@@ -9,7 +9,7 @@ def plot_gmm(gmm: ProbabilisticEncoding):
     """
     Plots obtained with GMM fitting
 
-    :param gmm: the GMM fitting over the data
+    :param gmm: the GMM fitted over the data
     """
     x = gmm.data
     for i in range(1, np.shape(x)[1]):
@@ -32,16 +32,14 @@ def plot_gmm(gmm: ProbabilisticEncoding):
         for pos, covar, w in zip(
                 gmm.gmm.means_, gmm.gmm.covariances_, gmm.gmm.weights_
         ):
-            covar = covar[0: i + 1: i, 0: i + 1: i]
-            pos = pos[0: i + 1: i]
+            covar = covar[0:i + 1:i, 0:i + 1:i]
+            pos = pos[0:i + 1:i]
             draw_ellipse(pos, covar, alpha=w * w_factor)
         plt.legend()
         plt.show()
 
 
-def plot_js_distance(
-    gmm_js: ProbabilisticEncoding
-):
+def plot_js_distance(gmm_js: ProbabilisticEncoding):
     """
     Plots the mean and the std of the JS distance over the range of GMM components
 
@@ -79,7 +77,7 @@ def draw_ellipse(position, covariance, ax=None, **kwargs):
         width, height = 2 * np.sqrt(covariance)
 
     # Draw the Ellipse
-    for nsig in range(1, 4):
+    for std_dev in range(1, 4):
         ax.add_patch(
-            Ellipse(position, nsig * width, nsig * height, angle, **kwargs)
+            Ellipse(position, std_dev * width, std_dev * height, angle, **kwargs)
         )
