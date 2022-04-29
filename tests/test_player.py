@@ -4,9 +4,8 @@ from unittest import mock
 
 import numpy as np
 import pandas as pd
-
 from arco.learning_from_demo.demonstration_player import DemonstrationPlayer
-from arco.learning_from_demo.trajectories import Trajectories
+from arco.learning_from_demo.trajectory import Trajectory
 from arco.utility.handling_data import (
     create_default_dict,
     read_json_file,
@@ -19,7 +18,7 @@ class PlayerTest(unittest.TestCase):
     def _setup():
         return (
             PlayerTest._create_player(),
-            Trajectories.load_single_trajectory(PlayerTest._get_file_path()),
+            Trajectory.from_file(PlayerTest._get_file_path()),
         )
 
     @staticmethod
@@ -63,7 +62,7 @@ class PlayerTest(unittest.TestCase):
         play.rws = mock_rws
         dataframe_test = read_json_file(self._get_file_path())
         # checks that all the read data are the expected ones
-        for t, joints in enumerate(trajectory.joints_trajectories[0]):
+        for t, joints in enumerate(trajectory.joints):
             play.next_target = np.around(joints, decimals=6)
             self.assertEqual(
                 play.next_target.all(),
@@ -79,12 +78,23 @@ class PlayerTest(unittest.TestCase):
     def test_positive_error(self, mock_rws):
         play, trajectory = PlayerTest._setup()
         play.rws = mock_rws
-        errors = np.zeros(10)
+        errors = [
+            0,
+            2.4494,
+            2.4494,
+            2.4494,
+            2.4494,
+            2.4494,
+            2.4494,
+            2.4494,
+            2.4494,
+            2.4494,
+        ]
         # checks that the error between a couple of consecutive targets is correct
-        play.next_target = trajectory.joints_trajectories[0, 0]
+        play.next_target = trajectory.joints[0]
         play.current_pose = play.next_target
-        for i, joints in enumerate(trajectory.joints_trajectories[0]):
+        for i, joints in enumerate(trajectory.joints):
             play.next_target = joints
             error = play.compute_difference()
-            self.assertEqual(error, errors[i])
+            self.assertAlmostEqual(error, errors[i], places=3)
             play.current_pose = play.next_target

@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.mixture import GaussianMixture
 from sklearn.model_selection import train_test_split
 
-from arco.learning_from_demo.trajectories import Trajectories
+from arco.learning_from_demo.aligned_trajectories import AlignedTrajectories
 
 
 class ProbabilisticEncoding:
@@ -32,11 +32,11 @@ class ProbabilisticEncoding:
 
     def __init__(
         self,
-        trajectories: Trajectories,
+        trajectories: AlignedTrajectories,
         iterations: int,
         min_nb_components: int = 2,
         max_nb_components: int = 10,
-        random_state: Optional[int] = None
+        random_state: Optional[int] = None,
     ) -> None:
         self._iterations = iterations
         _, self.length_demo, self._nb_features = np.shape(
@@ -66,7 +66,7 @@ class ProbabilisticEncoding:
         nb_components: int,
         cov_type: str = "full",
         init_type: str = "kmeans",
-        random_state: Optional[int] = None
+        random_state: Optional[int] = None,
     ) -> GaussianMixture:
         """
         Fits a Gaussian Mixture Model on the data
@@ -90,7 +90,7 @@ class ProbabilisticEncoding:
         self,
         max_nb_components: int,
         min_nb_components: int,
-        random_state: Optional[int] = None
+        random_state: Optional[int] = None,
     ) -> GaussianMixture:
         """
         Computes the Jensen-Shannon (JS) metric. The lesser is the JS-distance between
@@ -142,7 +142,7 @@ class ProbabilisticEncoding:
 
     @staticmethod
     def _js_metric(
-        gmm_p: GaussianMixture, gmm_q: GaussianMixture, n_samples: int = 10 ** 5
+        gmm_p: GaussianMixture, gmm_q: GaussianMixture, n_samples: int = 10**5
     ) -> float:
         """
         Calculates the Jensen-Shannon divergence metric

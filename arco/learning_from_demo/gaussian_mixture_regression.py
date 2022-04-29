@@ -2,7 +2,7 @@ import numpy as np
 from gmr import GMM
 
 from arco.learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
-from arco.learning_from_demo.trajectories import Trajectories
+from arco.learning_from_demo.aligned_trajectories import AlignedTrajectories
 
 
 class GMR:
@@ -25,7 +25,7 @@ class GMR:
     """
 
     def __init__(
-        self, trajectories: Trajectories, prob_encoding: ProbabilisticEncoding
+        self, trajectories: AlignedTrajectories, prob_encoding: ProbabilisticEncoding
     ) -> None:
         self._trajectories = trajectories
         self._gmm = GMM(

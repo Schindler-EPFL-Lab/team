@@ -1,7 +1,8 @@
+from typing import Optional
 import numpy as np
 
 from rws2.RWS_wrapper import RwsWrapper
-from arco.learning_from_demo.trajectories import Trajectories
+from arco.learning_from_demo.trajectory import Trajectory
 
 
 class DemonstrationPlayer:
@@ -16,13 +17,9 @@ class DemonstrationPlayer:
                            that is tolerated (unit: degrees)
     """
 
-    def __init__(
-        self,
-        base_url: str,
-        tolerance_diff: float = 5
-    ) -> None:
-        self.current_pose = None
-        self.next_target = None
+    def __init__(self, base_url: str, tolerance_diff: float = 5) -> None:
+        self.current_pose: Optional[np.ndarray] = None
+        self.next_target: Optional[np.ndarray] = None
         # control the smoothness of the reproduction (unit: degrees)
         self.tol_diff = tolerance_diff
         self.rws = RwsWrapper(robot_url=base_url)
@@ -45,7 +42,7 @@ class DemonstrationPlayer:
         distance = np.linalg.norm(self.next_target - self.current_pose)
         return distance
 
-    def play(self, trajectory: Trajectories) -> None:
+    def play(self, trajectory: Trajectory) -> None:
         """
         Firstly, it sends the robot to the initial trajectory joint angles. Then, if the
         new target is far enough, it executes the motion, otherwise it queries the
@@ -55,7 +52,7 @@ class DemonstrationPlayer:
         :param trajectory: Trajectories object to reproduce
         """
         self.rws.set_RAPID_variable("program_running", "TRUE")
-        for i, joints in enumerate(trajectory.joints_trajectories[0]):
+        for i, joints in enumerate(trajectory.trajectory):
             self.next_target = joints
             if i == 0:
                 self.current_pose = joints
