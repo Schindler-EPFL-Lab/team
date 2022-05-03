@@ -56,7 +56,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
       displayName: "Install requirements"
-      condition: ne(variables.CACHE_RESTORED, 'false')
+      condition: eq(variables.CACHE_RESTORED, 'false')
 
     - script: |
         git clone git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/rws2
