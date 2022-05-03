@@ -545,6 +545,27 @@ class RWS:
             pass
         return tcp_pos, tcp_ori, rob_cf
 
+    def upload_text_file_to_controller(
+        self, text_data: str, filename: str, directory: str = "data"
+    ) -> None:
+        """
+        Uploads a file text to the controller. The destination directory is specified by
+        the user if different than the recommended default one
+
+        :param text_data: content of the file
+        :param filename: name of the file to store
+        :param directory: directory in the controller where the file should be saved
+        """
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/octet-stream;v=2.0",
+        }
+        self.session.put(
+            self.base_url + "/fileservice/" + directory + "/" + filename,
+            data=text_data,
+            headers=headers,
+        )
+
 
 def z_degrees_to_quaternion(rotation_z_degrees: float) -> list[float]:
     """
