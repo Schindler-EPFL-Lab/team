@@ -29,9 +29,9 @@ class ProbabilisticEncodingTest(unittest.TestCase):
 
         _, pe = self._create_trajectory_and_prob_encoding()
         # check best number GMM components
-        self.assertEqual(pe.gmm.n_components, 3)
+        self.assertEqual(pe.gmm.n_components, 5)
         # check norm of covariance matrices
-        for i, norm in enumerate([249, 341, 308]):
+        for i, norm in enumerate([217, 80, 50, 281, 58]):
             self.assertEqual(int(np.linalg.norm(pe.gmm.covariances_[i])), norm)
 
     def test_gmr_implementation(self):
@@ -42,33 +42,13 @@ class ProbabilisticEncodingTest(unittest.TestCase):
         # check prediction vector, first timestamp
         np.testing.assert_array_almost_equal(
             regression.prediction[0, :],
-            np.array(
-                [
-                    0.0,
-                    4.516551,
-                    -31.69882542,
-                    73.77655872,
-                    9.95006722,
-                    -48.19025304,
-                    -10.81080946,
-                ]
-            ),
+            np.array([0.0, 0.43, -21.18, 68.83, 6.32, -49.99, -11.77]),
             decimal=1,
         )
 
         # check prediction vector, last timestamp
         np.testing.assert_array_almost_equal(
             regression.prediction[-1, :],
-            np.array(
-                [
-                    10.26,
-                    15.80567897,
-                    32.30803174,
-                    13.01057104,
-                    17.39767237,
-                    -49.55641484,
-                    -16.30629655,
-                ]
-            ),
+            np.array([12.83, 19.76, 43.12, -5.45, 26.73, -44.88, -24.18]),
             decimal=1,
         )

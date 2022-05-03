@@ -28,11 +28,7 @@ class AlignedTrajectories:
         :return: an AlignedTrajectories containing all the trajectories of
             [trajectories]
         """
-        np_trajectories = np.array(trajectories[0].joint_timestamps)
-        for traj_index in range(1, len(trajectories)):
-            np_trajectories = np.stack(
-                (np_trajectories, trajectories[traj_index].joint_timestamps)
-            )
+        np_trajectories = np.stack(([traj.joint_timestamps for traj in trajectories]))
         return cls(np_trajectories)
 
     @property
