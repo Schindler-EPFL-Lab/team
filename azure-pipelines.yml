@@ -21,6 +21,60 @@ jobs:
       flake8 --max-line-length=88
     displayName: 'Run lint tests'
 
-  - script: |
-      python -m unittest discover tests
-    displayName: 'Run tests'
+- job: "Tests"
+  pool:
+    vmImage: "windows-latest"
+
+  variables:
+    # variables are automatically exported as environment variables
+    # so this will override pip's default cache dir
+    - name: pip_cache_dir
+      value: $(Pipeline.Workspace)/.pip
+
+  steps:
+    - task: InstallSSHKey@0
+      inputs:
+        knownHostsEntry: "$(KNOWN_HOST)"
+        sshPublicKey: "$(PUB_KEY)"
+        sshKeySecureFile: "id_rsa"
+
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: "3.9"
+
+    - task: Cache@2
+      inputs:
+        key: 'python | "$(Agent.OS)" | requirements.txt'
+        restoreKeys: |
+          python | "$(Agent.OS)"
+          python
+        path: $(PIP_CACHE_DIR)
+        cacheHitVar: CACHE_RESTORED
+      displayName: Cache pip packages
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+      displayName: "Install requirements"
+      condition: ne(variables.CACHE_RESTORED, 'false')
+
+    - script: |
+        git clone git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/rws2
+        cd rws2
+        pip install .
+      displayName: "Install arco"
+
+    - task: PowerShell@2
+      inputs:
+        targetType: "inline"
+        script: |
+          dvc remote add --global -d azure azure://arcodatasets
+          dvc remote modify --global azure connection_string $env:ARCODATASET_CONNECTION_STRING
+          python tests/data/load_test_data.py
+      env:
+        ARCODATASET_CONNECTION_STRING: $(ARCODATASET_CONNECTION_STRING)
+      displayName: "Download data"
+
+    - script: |
+        python -m unittest discover tests
+      displayName: "Run tests"
