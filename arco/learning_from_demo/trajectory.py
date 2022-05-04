@@ -13,8 +13,9 @@ class Trajectory(TrajectoryBase):
 
     :param: trajectory: a numpy array with timestamps, joint position, and tcp position.
     """
+
     def __init__(self, trajectory: np.ndarray):
-        assert np.shape(trajectory)[1] == 10, 'array dimensions are not correct'
+        assert np.shape(trajectory)[1] == 10, "array dimensions are not correct"
         super().__init__(trajectory)
 
     @classmethod

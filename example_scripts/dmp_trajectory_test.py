@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 
+from rws2.RWS2 import RWS
 from arco.learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
 from arco.learning_from_demo.gaussian_mixture_regression import GMR
 from arco.learning_from_demo.dynamical_movement_primitives import (
@@ -30,5 +31,8 @@ if __name__ == "__main__":
     # retrieve target goal (goal from camera, initial joints from robot)
     target = regression.prediction[-1, 1:]
     initial_state = regression.prediction[0, 1:]
-    j_angles = dmp.compute_joint_dynamics(goal=target, y_init=initial_state)
+    dmp_traj = dmp.compute_joint_dynamics(goal=target, y_init=initial_state)
     plotting(dmp)
+    text = dmp_traj.joints_to_string()
+    rws = RWS("https://localhost:8881")
+    rws.upload_text_file_to_controller(text_data=text, filename='test.txt')

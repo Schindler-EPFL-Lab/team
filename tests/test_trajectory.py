@@ -110,3 +110,19 @@ class TrajectoriesTest(unittest.TestCase):
         self.assertEqual(np.shape(trajectories.aligned_trajectories)[0], 2)
         self.assertEqual(np.shape(trajectories.aligned_trajectories)[1], 3)
         self.assertEqual(np.shape(trajectories.aligned_trajectories)[2], 7)
+
+    def test_joints_to_string(self):
+        # test that the string to store has been generated well
+        self.assertEqual(
+            self.trajectory.joints_to_string(),
+            "[110.0, 120.0, 130.0, 140.0, 150.0, 160.0]\n"
+            "[111.0, 121.0, 131.0, 141.0, 151.0, 161.0]\n"
+            "[112.0, 122.0, 132.0, 142.0, 152.0, 162.0]\n"
+            "[113.0, 123.0, 133.0, 143.0, 153.0, 163.0]\n"
+            "[114.0, 124.0, 134.0, 144.0, 154.0, 164.0]\n"
+            "[115.0, 125.0, 135.0, 145.0, 155.0, 165.0]\n"
+            "[116.0, 126.0, 136.0, 146.0, 156.0, 166.0]\n"
+            "[117.0, 127.0, 137.0, 147.0, 157.0, 167.0]\n"
+            "[118.0, 128.0, 138.0, 148.0, 158.0, 168.0]\n"
+            "[119.0, 129.0, 139.0, 149.0, 159.0, 169.0]",
+        )
