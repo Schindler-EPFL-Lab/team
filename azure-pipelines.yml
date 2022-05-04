@@ -14,7 +14,7 @@ jobs:
   steps:
   - task: UsePythonVersion@0
     inputs:
-      versionSpec: '3.7'
+      versionSpec: '3.9'
 
   - script: |
       python -m pip install flake8
@@ -24,12 +24,6 @@ jobs:
 - job: "Tests"
   pool:
     vmImage: "windows-latest"
-
-  variables:
-    CONDA_ENV_NAME: "unit_test"
-    # set $(CONDA) environment variable to your conda path
-    # (pre-populated on 'ubuntu-latest' VMs)
-    CONDA_ENV_DIR: $(CONDA)/envs/$(CONDA_ENV_NAME)
 
   steps:
     - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
@@ -46,41 +40,32 @@ jobs:
         versionSpec: "3.9"
 
     - task: Cache@2
-      displayName: Use cached Anaconda environment
+      displayName: Cache Anaconda
       inputs:
-        key: 'conda | "$(Agent.OS)" | requirements.txt'
-        path: $(CONDA_ENV_DIR)
+        key: 'conda | "$(Agent.OS)" | environment.yml'
+        path: $(CONDA)/envs
         cacheHitVar: CONDA_CACHE_RESTORED
 
-    - bash: conda create --yes --quiet --name $(CONDA_ENV_NAME)
-      displayName: Create Anaconda environment
+    - script: conda env create --quiet --file environment.yml
+      displayName: Create environment
       condition: eq(variables.CONDA_CACHE_RESTORED, 'false')
 
-    - bash: |
-        call activate $(CONDA_ENV_NAME)
-        pip install -r requirements.txt
-      displayName: Install dependencies
-      condition: eq(variables.CONDA_CACHE_RESTORED, 'false')
-
-    - script: |
-        git clone git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/rws2
-        cd rws2
-        pip install .
-      displayName: "Install arco"
-
-    - task: PowerShell@2
-      inputs:
-        targetType: "inline"
-        script: |
-          dvc remote add --global -d azure azure://arcodatasets
-          dvc remote modify --global azure connection_string $env:ARCODATASET_CONNECTION_STRING
-          python tests/data/load_test_data.py
+    - powershell: |
+        conda run -n unittest dvc remote add --global -d azure azure://arcodatasets
+        conda run -n unittest dvc remote modify --global azure connection_string $env:ARCODATASET_CONNECTION_STRING
+        conda run -n unittest python tests/data/load_test_data.py
       env:
         ARCODATASET_CONNECTION_STRING: $(ARCODATASET_CONNECTION_STRING)
       displayName: "Download data"
 
     - script: |
-        call activate $(CONDA_ENV_NAME)
-        pip install --no-deps .
+        call activate unittest
+        git clone git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/rws2
+        cd rws2
+        pip install .
+      displayName: "Install arco"
+
+    - script: |
+        call activate unittest
         python -m unittest discover tests
       displayName: "Run tests"
