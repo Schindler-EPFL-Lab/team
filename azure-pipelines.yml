@@ -26,12 +26,15 @@ jobs:
     vmImage: "windows-latest"
 
   variables:
-    # variables are automatically exported as environment variables
-    # so this will override pip's default cache dir
-    - name: pip_cache_dir
-      value: $(Pipeline.Workspace)/.pip
+    CONDA_ENV_NAME: "unit_test"
+    # set $(CONDA) environment variable to your conda path
+    # (pre-populated on 'ubuntu-latest' VMs)
+    CONDA_ENV_DIR: $(CONDA)/envs/$(CONDA_ENV_NAME)
 
   steps:
+    - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
+      displayName: Add conda to PATH
+
     - task: InstallSSHKey@0
       inputs:
         knownHostsEntry: "$(KNOWN_HOST)"
@@ -43,20 +46,21 @@ jobs:
         versionSpec: "3.9"
 
     - task: Cache@2
+      displayName: Use cached Anaconda environment
       inputs:
-        key: 'python | "$(Agent.OS)" | requirements.txt'
-        restoreKeys: |
-          python | "$(Agent.OS)"
-          python
-        path: $(PIP_CACHE_DIR)
-        cacheHitVar: CACHE_RESTORED
-      displayName: Cache pip packages
+        key: 'conda | "$(Agent.OS)" | requirements.txt'
+        path: $(CONDA_ENV_DIR)
+        cacheHitVar: CONDA_CACHE_RESTORED
 
-    - script: |
-        python -m pip install --upgrade pip
+    - bash: conda create --yes --quiet --name $(CONDA_ENV_NAME)
+      displayName: Create Anaconda environment
+      condition: eq(variables.CONDA_CACHE_RESTORED, 'false')
+
+    - bash: |
+        call activate $(CONDA_ENV_NAME)
         pip install -r requirements.txt
-      displayName: "Install requirements"
-      condition: eq(variables.CACHE_RESTORED, 'false')
+      displayName: Install dependencies
+      condition: eq(variables.CONDA_CACHE_RESTORED, 'false')
 
     - script: |
         git clone git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/rws2
@@ -76,5 +80,7 @@ jobs:
       displayName: "Download data"
 
     - script: |
+        call activate $(CONDA_ENV_NAME)
+        pip install --no-deps .
         python -m unittest discover tests
       displayName: "Run tests"
