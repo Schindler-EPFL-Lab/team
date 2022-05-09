@@ -35,7 +35,7 @@ class DataPreprocessing:
         Extends the timestamps of the duplicated values (i.e generates new datapoints
         from duplicated values with the same information but different timestamps)
 
-        :param traj_to_align: the trajectory to extend
+        :param traj: the trajectory to extend
         :param av_sampling: average sampling rate of the data
         """
 
@@ -52,7 +52,7 @@ class DataPreprocessing:
         Detects the maximum trajectory length and then pads all the other demonstrations
         with their respective end value to have the same length
 
-        :param dfs: list of dataframes
+        :param trajectories: list of Trajectory objects
         :return: list with padded dataframes
         """
         max_len = len(max(trajectories, key=len))
