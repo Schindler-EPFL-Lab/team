@@ -1,8 +1,8 @@
 import argparse
 import os.path
 
-from arco.learning_from_demo.demonstration_player import DemonstrationPlayer
-from arco.learning_from_demo.trajectory import Trajectory
+from learning_from_demo.demonstration_player import DemonstrationPlayer
+from learning_from_demo.trajectory import Trajectory
 
 # Create object for parsing command-line options
 parser = argparse.ArgumentParser(

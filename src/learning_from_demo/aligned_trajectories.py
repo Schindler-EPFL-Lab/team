@@ -1,7 +1,7 @@
 import numpy as np
-from arco.learning_from_demo.data_preprocessing import DataPreprocessing
-from arco.learning_from_demo.trajectory import Trajectory
-from arco.utility.handling_data import get_demo_files
+from learning_from_demo.data_preprocessing import DataPreprocessing
+from learning_from_demo.trajectory import Trajectory
+from learning_from_demo.utility.handling_data import get_demo_files
 
 
 class AlignedTrajectories:

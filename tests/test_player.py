@@ -4,9 +4,9 @@ from unittest import mock
 
 import numpy as np
 import pandas as pd
-from arco.learning_from_demo.demonstration_player import DemonstrationPlayer
-from arco.learning_from_demo.trajectory import Trajectory
-from arco.utility.handling_data import (
+from learning_from_demo.demonstration_player import DemonstrationPlayer
+from learning_from_demo.trajectory import Trajectory
+from learning_from_demo.utility.handling_data import (
     create_default_dict,
     read_json_file,
     target_encoding,

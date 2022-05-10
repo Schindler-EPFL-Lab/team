@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.mixture import GaussianMixture
 from sklearn.model_selection import train_test_split
 
-from arco.learning_from_demo.aligned_trajectories import AlignedTrajectories
+from learning_from_demo.aligned_trajectories import AlignedTrajectories
 
 
 class ProbabilisticEncoding:

@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from dtaidistance import dtw, dtw_ndim
 
-from arco.learning_from_demo.trajectory import Trajectory
+from learning_from_demo.trajectory import Trajectory
 
 
 class DataPreprocessing:

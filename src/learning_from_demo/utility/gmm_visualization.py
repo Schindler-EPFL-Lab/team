@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 
-from arco.learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
+from learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
 
 
 def plot_gmm(

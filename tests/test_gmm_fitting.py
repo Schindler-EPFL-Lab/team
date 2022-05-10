@@ -3,9 +3,9 @@ import unittest
 
 import numpy as np
 
-from arco.learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
-from arco.learning_from_demo.aligned_trajectories import AlignedTrajectories
-from arco.learning_from_demo.gaussian_mixture_regression import GMR
+from learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
+from learning_from_demo.aligned_trajectories import AlignedTrajectories
+from learning_from_demo.gaussian_mixture_regression import GMR
 
 
 class ProbabilisticEncodingTest(unittest.TestCase):

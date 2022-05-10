@@ -3,7 +3,7 @@ import os
 
 import numpy as np
 
-from arco.learning_from_demo.dynamical_movement_primitives import (
+from learning_from_demo.dynamical_movement_primitives import (
     DynamicMovementPrimitives,
 )
 

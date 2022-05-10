@@ -2,9 +2,9 @@ import os
 
 import json
 
-from arco.utility.logger import log
-from arco.utility.handling_data import create_default_dict, check_nan_values, \
-    check_data_timestamps
+from learning_from_demo.utility.logger import log
+from learning_from_demo.utility.handling_data import create_default_dict, \
+    check_nan_values, check_data_timestamps
 
 
 class DemonstrationRecorder:

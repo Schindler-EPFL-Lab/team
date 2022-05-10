@@ -6,7 +6,7 @@ def main():
         [
             "dvc",
             "get",
-            "git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/arco-datasets",
+            "git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/src-datasets",
             "demonstrations/approaching/approaching_amk_1.json",
             "-o",
             "tests/data/approaching_amk_1.json",
@@ -17,7 +17,7 @@ def main():
         [
             "dvc",
             "get",
-            "git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/arco-datasets",
+            "git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/src-datasets",
             "demonstrations/approaching/approaching_mm_1.json",
             "-o",
             "tests/data/approaching_mm_1.json",
@@ -28,7 +28,7 @@ def main():
         [
             "dvc",
             "get",
-            "git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/arco-datasets",
+            "git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/src-datasets",
             "demonstrations/approaching/approaching_lp_1.json",
             "-o",
             "tests/data/approaching_lp_1.json",

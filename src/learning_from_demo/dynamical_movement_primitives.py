@@ -1,6 +1,6 @@
 import numpy as np
 
-from arco.learning_from_demo.dmp_trajectory import DmpTrajectory
+from learning_from_demo.dmp_trajectory import DmpTrajectory
 
 
 class DynamicMovementPrimitives:

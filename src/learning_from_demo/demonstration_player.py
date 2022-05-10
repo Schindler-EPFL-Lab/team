@@ -2,7 +2,7 @@ from typing import Optional
 import numpy as np
 
 from rws2.RWS_wrapper import RwsWrapper
-from arco.learning_from_demo.trajectory import Trajectory
+from learning_from_demo.trajectory import Trajectory
 
 
 class DemonstrationPlayer:

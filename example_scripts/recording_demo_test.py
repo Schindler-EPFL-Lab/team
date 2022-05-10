@@ -3,8 +3,8 @@ import time
 import keyboard
 
 from rws2.RWS_wrapper import RwsWrapper
-from arco.learning_from_demo.demonstration_recorder import DemonstrationRecorder
-from arco.utility.handling_data import create_default_dict
+from learning_from_demo.demonstration_recorder import DemonstrationRecorder
+from learning_from_demo.utility.handling_data import create_default_dict
 
 path_to_store = "sample_test.json"
 url = "https://localhost:8881"

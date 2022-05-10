@@ -1,7 +1,7 @@
 import numpy as np
 
 from rws2.RWS2 import RWS
-from arco.utility.lie_algebra_and_tf import quaternion_matrix, se3_inverse
+from learning_from_demo.utility.lie_algebra_and_tf import quaternion_matrix, se3_inverse
 
 
 def endpoint_accuracy(rws: RWS) -> float:

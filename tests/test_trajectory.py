@@ -2,9 +2,9 @@ import unittest
 import os
 
 import numpy as np
-from arco.learning_from_demo.aligned_trajectories import AlignedTrajectories
 
-from arco.learning_from_demo.trajectory import Trajectory
+from learning_from_demo.aligned_trajectories import AlignedTrajectories
+from learning_from_demo.trajectory import Trajectory
 
 
 class TrajectoriesTest(unittest.TestCase):

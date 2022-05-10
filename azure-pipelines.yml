@@ -63,7 +63,7 @@ jobs:
         git clone git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/rws2
         cd rws2
         pip install .
-      displayName: "Install arco"
+      displayName: "Install src"
 
     - script: |
         call activate unittest

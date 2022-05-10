@@ -4,8 +4,8 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from arco.learning_from_demo.data_preprocessing import DataPreprocessing
-from arco.learning_from_demo.aligned_trajectories import AlignedTrajectories
+from learning_from_demo.data_preprocessing import DataPreprocessing
+from learning_from_demo.aligned_trajectories import AlignedTrajectories
 
 
 class PreprocessTest(unittest.TestCase):

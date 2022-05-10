@@ -1,8 +1,8 @@
 import numpy as np
 from gmr import GMM
 
-from arco.learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
-from arco.learning_from_demo.aligned_trajectories import AlignedTrajectories
+from learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
+from learning_from_demo.aligned_trajectories import AlignedTrajectories
 
 
 class GMR:

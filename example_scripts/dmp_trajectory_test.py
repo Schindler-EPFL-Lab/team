@@ -3,13 +3,13 @@ import os
 import numpy as np
 
 from rws2.RWS2 import RWS
-from arco.learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
-from arco.learning_from_demo.gaussian_mixture_regression import GMR
-from arco.learning_from_demo.dynamical_movement_primitives import (
+from learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
+from learning_from_demo.gaussian_mixture_regression import GMR
+from learning_from_demo.dynamical_movement_primitives import (
     DynamicMovementPrimitives
 )
-from arco.learning_from_demo.aligned_trajectories import AlignedTrajectories
-from arco.utility.dmp_visualization import plotting
+from learning_from_demo.aligned_trajectories import AlignedTrajectories
+from learning_from_demo.utility.dmp_visualization import plotting
 
 
 if __name__ == "__main__":
