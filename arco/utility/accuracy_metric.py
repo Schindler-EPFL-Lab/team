@@ -2,7 +2,6 @@ import numpy as np
 
 from rws2.RWS2 import RWS
 from arco.utility.lie_algebra_and_tf import quaternion_matrix, se3_inverse
-from arco.learning_from_demo.trajectory import Trajectory
 
 
 def endpoint_accuracy(rws: RWS) -> float:
@@ -44,24 +43,4 @@ def endpoint_accuracy(rws: RWS) -> float:
 
     error = np.linalg.norm(relative_t - np.eye(4))
 
-    return error
-
-
-def trajectory_accuracy(
-    robot_trajectory: Trajectory, trajectory_dmp: Trajectory
-) -> float:
-    """
-    Compute the root squared cumulative error along the motion between the trajectory
-    to track and the executed trajectory
-
-    :param robot_trajectory: trajectory executed by the robot
-    :param trajectory_dmp: trajectory to track, input to the joint position controller
-    :return: the cumulative error along the trajectory
-    """
-
-    error = 0
-    for j_robot, j_dmp in zip(
-        robot_trajectory.joints, trajectory_dmp.joints
-    ):
-        error += np.linalg.norm(j_robot - j_dmp)
     return error

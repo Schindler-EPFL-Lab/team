@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -29,3 +30,20 @@ class TrajectoryBase(ABC):
 
     def __len__(self) -> int:
         return len(self._trajectory)
+
+    def rms_cumulative_error(self, other_trajectory: TrajectoryBase) -> float:
+        """
+        Compute the root squared cumulative error along the motion between the
+        trajectory to track and the executed trajectory
+
+        :param other_trajectory: trajectory to track, input to the joint position
+                                 controller
+        :return: the cumulative error along the trajectory
+        """
+
+        error = 0
+        for i in range(len(self.joints)):
+            error += np.linalg.norm(
+                self.get_joints_at_index(i) - other_trajectory.get_joints_at_index(i)
+            )
+        return error
