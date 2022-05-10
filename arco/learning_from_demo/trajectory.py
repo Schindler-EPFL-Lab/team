@@ -65,12 +65,6 @@ class Trajectory(TrajectoryBase):
     def average_sampling(self) -> float:
         return len(np.unique(self._trajectory, axis=0)) / self.timestamps[-1]
 
-    def get_joint(self, i: int) -> np.ndarray:
-        return self._trajectory[:, i]
-
-    def __len__(self) -> int:
-        return len(self._trajectory)
-
     def upsample(self, des_freq: int) -> None:
         """
         Upsample the trajectory by computing a linear interpolation function fitting

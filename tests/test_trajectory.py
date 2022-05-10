@@ -81,7 +81,7 @@ class TrajectoriesTest(unittest.TestCase):
         )
         traj.upsample(2)
         np.testing.assert_array_almost_equal(
-            traj.get_joint(1), np.array([1, 1.5, 2, 2.5, 3])
+            traj.get_joint(0), np.array([1, 1.5, 2, 2.5, 3])
         )
 
     def test_load_list_of_trajectories(self) -> None:
