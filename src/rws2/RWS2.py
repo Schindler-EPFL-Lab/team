@@ -1,6 +1,7 @@
 import ast
 import json
 import math
+import os
 from typing import Union
 
 import xmltodict
@@ -586,6 +587,31 @@ class RWS:
             + "/rw/rapid/tasks/"
             + task
             + "/program/load?mastership=implicit",
+            data=payload,
+        )
+
+    def save_program_to_controller(
+        self, program_name: str, task: str = "T_ROB1", dest_path: str = None
+    ) -> None:
+        """
+        Stores the desired rapid program to the controller
+
+        :param program_name: the program name
+        :param task: RAPID task
+        :param dest_path: controller destination path
+        """
+        if dest_path is None:
+            dest_path = os.path.join(
+                "data/rapid_programs/", os.path.splitext(program_name)[0]
+            )
+
+        payload = {"path": dest_path}
+        self.session.post(
+            self.base_url
+            + "/rw/rapid/tasks/"
+            + task
+            + "/program/save?name="
+            + program_name,
             data=payload,
         )
 
