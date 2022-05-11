@@ -566,6 +566,29 @@ class RWS:
             headers=headers,
         )
 
+    def upload_program_to_controller(
+        self, prog_path: str, task: str = "T_ROB1", load_mode: str = "replace"
+    ) -> None:
+        """
+        Uploads the specified rapid program to the controller. The program has been
+        previously stored and can be retrieved at the path indicated by prog_path
+
+        :param prog_path: the program path
+        :param task: RAPID task
+        :param load_mode: loading mode add/replace
+        """
+        payload = {
+            "progpath": prog_path,
+            "loadmode": load_mode,
+        }
+        self.session.post(
+            self.base_url
+            + "/rw/rapid/tasks/"
+            + task
+            + "/program/load?mastership=implicit",
+            data=payload,
+        )
+
 
 def z_degrees_to_quaternion(rotation_z_degrees: float) -> list[float]:
     """
