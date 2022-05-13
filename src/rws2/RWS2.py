@@ -2,7 +2,7 @@ import ast
 import json
 import math
 import os
-from typing import Union
+from typing import Union, Optional
 
 import xmltodict
 from requests.auth import HTTPBasicAuth
@@ -612,7 +612,7 @@ class RWS:
         )
 
     def save_program_to_controller(
-        self, program_name: str, task: str = "T_ROB1", dest_path: str = None
+        self, program_name: str, task: str = "T_ROB1", dest_path: Optional[str] = None
     ) -> None:
         """
         Saves the loaded rapid program in RobotStudio to the robot controller. Required
