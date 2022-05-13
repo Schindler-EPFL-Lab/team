@@ -15,17 +15,16 @@ class RWS:
     """
     Class for communicating with RobotWare through Robot Web Services
     (ABB's Rest API)
+
+    :param base_url: base url to address the requests
+    :param username: authentication username
+    :param password: authentication password
     """
 
     def __init__(
         self, base_url: str, username: str = "Default User", password: str = "robotics"
     ) -> None:
-        """
-        Class constructor.
-        :param base_url: base url to address the requests
-        :param username: authentication username
-        :param password: authentication password
-        """
+
         self.base_url = base_url
         self.username = username
         self.password = password
@@ -40,6 +39,7 @@ class RWS:
     def set_rapid_variable(self, var: str, value: Union[str, float, int]) -> Response:
         """
         Sets the value of any RAPID variable.
+
         :param var: RAPID variable name
         :param value: new value to assign
         :return: response object with request status and information
@@ -54,6 +54,7 @@ class RWS:
     def get_rapid_variable(self, var: str) -> Union[str, float]:
         """
         Gets the raw value of any RAPID variable.
+
         :param var: variable name
         :return: variable value
         """
@@ -68,6 +69,7 @@ class RWS:
     def get_robtarget_variables(self, var: str) -> (list[float], list[float]):
         """
         Gets both translational and rotational data from robtarget.
+
         :param var: robtarget variable name
         :return: position and orientation of robtarget variable
         """
@@ -86,6 +88,7 @@ class RWS:
         """
         Gets translational and rotational of the UiS tool 'tGripper'
         with respect to the work object 'wobjTableN'.
+
         :return: gripper position and orientation
         """
 
@@ -106,6 +109,7 @@ class RWS:
     def get_gripper_height(self) -> float:
         """
         Extracts only the height from gripper position.
+
         :return: gripper height
         """
 
@@ -119,6 +123,7 @@ class RWS:
     ) -> None:
         """
         Sets the translational data of a robtarget variable in RAPID.
+
         :param var: variable name
         :param trans: position to assign to the variable
         """
@@ -148,6 +153,7 @@ class RWS:
         """
         Updates the orientation of a robtarget variable in RAPID by rotation about
         the z-axis in degrees.
+
         :param var: variable name
         :param rotation_z_degrees: orientation to achieve
         """
@@ -171,6 +177,7 @@ class RWS:
     ) -> None:
         """
         Updates the orientation of a robtarget variable in RAPID by a Quaternion.
+
         :param var: variable name
         :param rotation_quaternion: orientation to achieve
         """
@@ -192,6 +199,7 @@ class RWS:
         """
         Waits for robot to complete RAPID instructions until boolean variable in RAPID
         is set to 'TRUE'. Default variable name is 'ready_flag', but others may be used.
+
         :param var: variable name
         """
 
@@ -204,6 +212,7 @@ class RWS:
     ) -> None:
         """
         Sets the values of a RAPID array by sending a list from Python.
+
         :param var: variable name
         :param value: value to assign to the variable
         """
@@ -273,6 +282,7 @@ class RWS:
         """
         The method resets the program pointer if necessary and it starts the RAPID
         program execution.
+
         :param pp_to_reset: determine if it is necessary to reset the program pointer
         """
         if pp_to_reset:
@@ -362,6 +372,7 @@ class RWS:
     def set_speed_ratio(self, speed_ratio: float) -> None:
         """
         Sets the speed ratio of the controller.
+
         :param speed_ratio: new value to assign at the speed ratio (%)
         """
 
@@ -381,6 +392,7 @@ class RWS:
     def set_zonedata(self, var: str, zonedata: Union[float, str]) -> None:
         """
         Sets the zonedata of a zonedata variable in RAPID.
+
         :param var: variable name
         :param zonedata: zonedata information
         """
@@ -421,6 +433,7 @@ class RWS:
     def set_speeddata(self, var: str, speeddata: float) -> None:
         """
         Sets the speeddata of a speeddata variable in RAPID.
+
         :param var: variable name
         :param speeddata: new speeddata value
         """
@@ -470,6 +483,7 @@ class RWS:
     ) -> list[float]:
         """
         Gets the robot joints positions in degrees.
+
         :param n_joints: number of robot joints
         :param mechunits: mechanical unit name
         :return: the robot joints positions in degrees
@@ -503,6 +517,7 @@ class RWS:
         """
         Gets the robot tcp position (mm), orientation (quaternions) and axis
         configuration.
+
         :param mechunits: mechanical units name
         :param tool: tool name
         :param wobj: working object name
@@ -551,12 +566,14 @@ class RWS:
     ) -> None:
         """
         Uploads a file text to the controller. The destination directory is specified by
-        the user if different than the recommended default one
+        the user if different than the recommended default one.
+        Conceptually, similar to the save_program_to_controller() method
 
         :param text_data: content of the file
         :param filename: name of the file to store
         :param directory: directory in the controller where the file should be saved
         """
+
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/octet-stream;v=2.0",
@@ -571,13 +588,17 @@ class RWS:
         self, prog_path: str, task: str = "T_ROB1", load_mode: str = "replace"
     ) -> None:
         """
-        Uploads the specified rapid program to the controller. The program has been
-        previously stored and can be retrieved at the path indicated by prog_path
+        Uploads the specified rapid program to the controller. To be able to upload the
+        rapid program, this latter needs to have been previously stored in the
+        robot controller (see save_program_to_controller() method for more information
+        on this required step). The program path location is where the program is stored
+        in the controller
 
         :param prog_path: the program path
         :param task: RAPID task
-        :param load_mode: loading mode add/replace
+        :param load_mode: loading mode between add/replace
         """
+
         payload = {
             "progpath": prog_path,
             "loadmode": load_mode,
@@ -594,12 +615,17 @@ class RWS:
         self, program_name: str, task: str = "T_ROB1", dest_path: str = None
     ) -> None:
         """
-        Stores the desired rapid program to the controller
+        Saves the loaded rapid program in RobotStudio to the robot controller. Required
+        steps, open RobotStudio, load program, save program to robot controller (can be
+        the virtual controller or the real controller depending on the RWS url address).
+        The saved files can be retrieved in the FlexPendant device in the File Explorer
+        tab
 
-        :param program_name: the program name
-        :param task: RAPID task
-        :param dest_path: controller destination path
+        :param program_name: the program name loaded in RobotStudio
+        :param task: RAPID task name (default T_ROB1)
+        :param dest_path: optional controller destination path
         """
+
         if dest_path is None:
             dest_path = os.path.join(
                 "data/rapid_programs/", os.path.splitext(program_name)[0]
@@ -619,9 +645,11 @@ class RWS:
 def z_degrees_to_quaternion(rotation_z_degrees: float) -> list[float]:
     """
     Convert a rotation about the z-axis in degrees to Quaternion.
+
     :param rotation_z_degrees: angle in degrees
     :return: corresponding quaternion representation
     """
+
     roll = math.pi
     pitch = 0
     yaw = math.radians(rotation_z_degrees)
