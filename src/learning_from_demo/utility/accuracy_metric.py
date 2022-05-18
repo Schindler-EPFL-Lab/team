@@ -17,11 +17,11 @@ def endpoint_accuracy(rws: RWS) -> float:
     """
 
     # reads the endpoint pose computed through forward kinematics in RAPID
-    endpoint_pose_lists = rws.get_robtarget_variables('endpoint_pose')
+    endpoint_pose_lists = rws.get_robtarget_variables("endpoint_pose")
     endpoint_pose = endpoint_pose_lists[0] + endpoint_pose_lists[1]
 
     # reads the target pose in RAPID
-    target_pose_lists = rws.get_robtarget_variables('target_pose')
+    target_pose_lists = rws.get_robtarget_variables("target_pose")
     target_pose = target_pose_lists[0] + target_pose_lists[1]
 
     # get quaternions vectors as [qw, qx, qy, qz]

@@ -16,11 +16,13 @@ parser = argparse.ArgumentParser(
 )
 
 # Add argument which takes the url to be used for the communication
-parser.add_argument("--url", type=str, required=True, help="Url address to send "
-                    "requests to")
+parser.add_argument(
+    "--url", type=str, required=True, help="Url address to send " "requests to"
+)
 # Add argument which takes the file destination path to be used for data storing
-parser.add_argument("--dest_path", type=str, required=True, help="Destination path to"
-                    "save data")
+parser.add_argument(
+    "--dest_path", type=str, required=True, help="Destination path to" "save data"
+)
 # Parse the command line arguments to an object
 args = parser.parse_args()
 

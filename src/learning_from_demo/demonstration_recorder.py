@@ -3,14 +3,18 @@ import os
 import json
 
 from learning_from_demo.utility.logger import log
-from learning_from_demo.utility.handling_data import create_default_dict, \
-    check_nan_values, check_data_timestamps
+from learning_from_demo.utility.handling_data import (
+    create_default_dict,
+    check_nan_values,
+    check_data_timestamps,
+)
 
 
 class DemonstrationRecorder:
     """
     Records demonstrated trajectories in the json format.
     """
+
     def __init__(self, path_to_store_demo: str) -> None:
         """
         Class constructor. Takes as argument the filepath to store the data.

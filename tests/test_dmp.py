@@ -3,9 +3,7 @@ import os
 
 import numpy as np
 
-from learning_from_demo.dynamical_movement_primitives import (
-    DynamicMovementPrimitives,
-)
+from learning_from_demo.dynamical_movement_primitives import DynamicMovementPrimitives
 
 
 class DynamicalMovementPrimitivesTest(unittest.TestCase):
@@ -352,7 +350,5 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         )
         # test that the last combination of joint angles corresponds to the target one
         np.testing.assert_almost_equal(
-            dmp.y[-1, :, 0],
-            np.array([0.2, 0.2, 0.2, 0.2, 0.2, 0.2]),
-            decimal=3,
+            dmp.y[-1, :, 0], np.array([0.2, 0.2, 0.2, 0.2, 0.2, 0.2]), decimal=3,
         )

@@ -82,7 +82,7 @@ def check_nan_values(data: dict) -> None:
     :raises ValueError: the dictionary contains invalid data
     """
     # consider empty string and numpy.inf as na values
-    pd.set_option('mode.use_inf_as_na', True)
+    pd.set_option("mode.use_inf_as_na", True)
     # load data as pandas dataframe
     df = pd.DataFrame.from_dict(data)
     if df.isnull().values.any():
@@ -97,6 +97,6 @@ def get_demo_files(demo_folder_path: str) -> list[str]:
     :param demo_folder_path: the path of the dataset
     :return: a list containing all file paths corresponding to demonstrations
     """
-    files_paths = list(Path(demo_folder_path).rglob('*.json'))
+    files_paths = list(Path(demo_folder_path).rglob("*.json"))
     all_demonstration_files = [str(path) for path in files_paths]
     return all_demonstration_files

@@ -59,9 +59,7 @@ class TrajectoryBase(ABC):
         """
 
         current_pose = self.get_joints_at_index(0)
-        selected_waypoint = [
-            self._joint_to_string(self.get_joints_at_index(0))
-        ]
+        selected_waypoint = [self._joint_to_string(self.get_joints_at_index(0))]
         for joints in self.joints:
             if self._target_is_eligible(joints, current_pose, tol_diff):
                 selected_waypoint.append(self._joint_to_string(joints))
@@ -72,8 +70,8 @@ class TrajectoryBase(ABC):
     def flip_trajectory(self) -> None:
         """
         Flips the trajectory along the time axis
-
         """
+
         self._trajectory = np.flip(self._trajectory, axis=0)
 
     @staticmethod

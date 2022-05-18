@@ -1,9 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from learning_from_demo.dynamical_movement_primitives import (
-    DynamicMovementPrimitives,
-)
+from learning_from_demo.dynamical_movement_primitives import DynamicMovementPrimitives
 
 
 def plotting(dmp: DynamicMovementPrimitives) -> None:

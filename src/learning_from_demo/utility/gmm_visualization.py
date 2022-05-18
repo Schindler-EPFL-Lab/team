@@ -10,7 +10,7 @@ from learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
 def plot_gmm(
     gmm: ProbabilisticEncoding,
     x_query: Optional[np.ndarray] = None,
-    prediction: Optional[np.ndarray] = None
+    prediction: Optional[np.ndarray] = None,
 ):
     """
     Plots obtained with GMM fitting
@@ -46,7 +46,7 @@ def plot_gmm(
         if x_query is not None and prediction is not None:
             plt.plot(
                 x_query,
-                prediction[:gmm.length_demo, i],
+                prediction[: gmm.length_demo, i],
                 color="r",
                 linewidth=5,
                 label="regression line",
@@ -66,7 +66,7 @@ def plot_js_distance(gmm_js: ProbabilisticEncoding):
         gmm_js.n_components_range,
         gmm_js.results,
         yerr=gmm_js.results_std,
-        label="data mean and std"
+        label="data mean and std",
     )
     plt.plot(
         gmm_js.nb_comp_js,
@@ -74,7 +74,7 @@ def plot_js_distance(gmm_js: ProbabilisticEncoding):
         "o",
         c="r",
         markersize=10,
-        label="optimal nb_components"
+        label="optimal nb_components",
     )
     plt.legend()
     plt.title("Distance between Train and Test GMMs", fontsize=20)

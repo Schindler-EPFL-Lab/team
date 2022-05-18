@@ -5,13 +5,12 @@ from learning_from_demo.demonstration_player import DemonstrationPlayer
 from learning_from_demo.trajectory import Trajectory
 
 # Create object for parsing command-line options
-parser = argparse.ArgumentParser(
-    description="Playback a saved robot trajectory."
-)
+parser = argparse.ArgumentParser(description="Playback a saved robot trajectory.")
 
 # Add argument which takes the url to be used for the communication
-parser.add_argument("--url", type=str, required=True, help="Url address to send "
-                                                           "requests to")
+parser.add_argument(
+    "--url", type=str, required=True, help="Url address to send " "requests to"
+)
 # Add argument which takes the file destination path to be used for data storing
 parser.add_argument("--demo_path", type=str, required=True, help="Demonstration path")
 

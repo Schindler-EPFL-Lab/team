@@ -142,7 +142,7 @@ class ProbabilisticEncoding:
 
     @staticmethod
     def _js_metric(
-        gmm_p: GaussianMixture, gmm_q: GaussianMixture, n_samples: int = 10**5
+        gmm_p: GaussianMixture, gmm_q: GaussianMixture, n_samples: int = 10 ** 5
     ) -> float:
         """
         Calculates the Jensen-Shannon divergence metric

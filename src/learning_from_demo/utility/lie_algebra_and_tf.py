@@ -15,11 +15,15 @@ def quaternion_matrix(quaternion: list):
         return np.identity(4)
     q *= math.sqrt(2.0 / nq)
     q = np.outer(q, q)
-    return np.array((
-        (1.0-q[1, 1]-q[2, 2],     q[0, 1]-q[2, 3],     q[0, 2]+q[1, 3], 0.0),
-        (q[0, 1]+q[2, 3], 1.0-q[0, 0]-q[2, 2],     q[1, 2]-q[0, 3], 0.0),
-        (q[0, 2]-q[1, 3],     q[1, 2]+q[0, 3], 1.0-q[0, 0]-q[1, 1], 0.0),
-        (0.0,                 0.0,                 0.0, 1.0)), dtype=np.float64)
+    return np.array(
+        (
+            (1.0 - q[1, 1] - q[2, 2], q[0, 1] - q[2, 3], q[0, 2] + q[1, 3], 0.0),
+            (q[0, 1] + q[2, 3], 1.0 - q[0, 0] - q[2, 2], q[1, 2] - q[0, 3], 0.0),
+            (q[0, 2] - q[1, 3], q[1, 2] + q[0, 3], 1.0 - q[0, 0] - q[1, 1], 0.0),
+            (0.0, 0.0, 0.0, 1.0),
+        ),
+        dtype=np.float64,
+    )
 
 
 def se3_inverse(p: np.ndarray) -> np.ndarray:
@@ -32,8 +36,7 @@ def se3_inverse(p: np.ndarray) -> np.ndarray:
     return se3(r_inv, t_inv)
 
 
-def se3(r: np.ndarray = np.eye(3),
-        t: np.ndarray = np.array([0, 0, 0])) -> np.ndarray:
+def se3(r: np.ndarray = np.eye(3), t: np.ndarray = np.array([0, 0, 0])) -> np.ndarray:
     """
     :param r: SO(3) rotation matrix
     :param t: 3x1 translation vector
