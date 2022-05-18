@@ -69,6 +69,14 @@ class TrajectoryBase(ABC):
         selected_waypoint.append(self._joint_to_string(self.get_joints_at_index(-1)))
         return "\n".join(selected_waypoint)
 
+    def flip_trajectory(self) -> np.ndarray:
+        """
+        Flips the trajectory array along the time axis
+
+        :return: flipped trajectory array
+        """
+        return np.flip(self._trajectory, axis=0)
+
     @staticmethod
     def _joint_to_string(joints: np.ndarray) -> str:
         """
