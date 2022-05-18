@@ -66,6 +66,7 @@ class TrajectoryBase(ABC):
             if self._target_is_eligible(joints, current_pose, tol_diff):
                 selected_waypoint.append(self._joint_to_string(joints))
                 current_pose = joints
+        selected_waypoint.append(self._joint_to_string(self.get_joints_at_index(-1)))
         return "\n".join(selected_waypoint)
 
     @staticmethod
