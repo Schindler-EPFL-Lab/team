@@ -7,7 +7,8 @@ def main():
             "dvc",
             "get",
             "git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/arco-datasets",
-            "demonstrations/door_opening/door_opening_lp_1.json",
+            "arco_control/learning_from_demonstrations/door_opening"
+            "/door_opening_lp_1.json",
             "-o",
             "demonstrations/door_opening/door_opening_lp_1.json",
         ]
@@ -18,7 +19,8 @@ def main():
             "dvc",
             "get",
             "git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/arco-datasets",
-            "demonstrations/door_opening/door_opening_lp_2.json",
+            "arco_control/learning_from_demonstrations/door_opening"
+            "/door_opening_lp_2.json",
             "-o",
             "demonstrations/door_opening/door_opening_lp_2.json",
         ]
@@ -29,7 +31,8 @@ def main():
             "dvc",
             "get",
             "git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/arco-datasets",
-            "demonstrations/door_opening/door_opening_lp_3.json",
+            "arco_control/learning_from_demonstrations/door_opening"
+            "/door_opening_lp_3.json",
             "-o",
             "demonstrations/door_opening/door_opening_lp_3.json",
         ]

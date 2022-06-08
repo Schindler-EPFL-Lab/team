@@ -8,12 +8,15 @@ from learning_from_demo.gaussian_mixture_regression import GMR
 from learning_from_demo.dynamical_movement_primitives import DynamicMovementPrimitives
 from learning_from_demo.aligned_trajectories import AlignedTrajectories
 from learning_from_demo.utility.dmp_visualization import plotting
+import load_example_data as data_loader
 
 
 if __name__ == "__main__":
 
+    # load example data
+    data_loader.main()
     data_dir = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), "demonstrations/app_simple",
+        os.path.dirname(os.path.dirname(__file__)), "demonstrations/door_opening",
     )
     trajectories = AlignedTrajectories.load_dataset_and_preprocess(data_dir)
     pe = ProbabilisticEncoding(
