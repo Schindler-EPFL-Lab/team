@@ -1,4 +1,4 @@
 [core]
     remote = azure
 ['remote "azure"']
-    url = azure://learningbydemonstration
+    url = azure://arcodatasets
