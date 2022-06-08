@@ -1,3 +1,6 @@
+import json
+import os
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -59,6 +62,7 @@ class DynamicMovementPrimitives:
         goal_joints: np.ndarray,
         initial_joints: np.ndarray,
         search_space: Optional[list[tuple[int, int]]] = None,
+        dmp_parameters: Optional[tuple[np.ndarray, int]] = None,
     ) -> None:
 
         if search_space is None:
@@ -98,10 +102,74 @@ class DynamicMovementPrimitives:
         self.z_history = np.zeros((self._len_demo, self._nb_joints, 2))
         self.x_history = np.zeros((self._len_demo, self._nb_joints, 2))
         self.v_history = np.zeros((self._len_demo, self._nb_joints, 2))
-        # run optimization
-        self._search_space = search_space
-        self._set_goal(goal=goal_joints, y0=initial_joints)
-        self._optimize_dmp_params()
+
+        if dmp_parameters is None:
+            # run optimization
+            self._search_space = search_space
+            self._set_goal(goal=goal_joints, y0=initial_joints)
+            self._optimize_dmp_params()
+        else:
+            self.set_alpha_z_and_n_rfs(dmp_parameters[0], dmp_parameters[1])
+
+    @classmethod
+    def load_dmp(
+        cls, dir_path: Path, g_joints: np.ndarray, i_joints: np.ndarray
+    ) -> "DynamicMovementPrimitives":
+        """
+        Creates an DynamicMovementPrimitives loaded from a dmp param file.
+
+        :param dir_path: path of the directory containing the data to load
+        :param g_joints: goal robot joints
+        :param i_joints: initial robot joints
+        :return: DynamicMovementPrimitives with the loaded parameters
+        """
+        regression_path = Path.joinpath(dir_path, "regression.npy")
+        if not regression_path.exists():
+            raise RuntimeError("The specified filepath does not exist!")
+        reg = np.load(str(regression_path))
+        parameters_path = Path.joinpath(dir_path, "dmp_parameters.json")
+        if not parameters_path.exists():
+            raise RuntimeError("The specified path does not exist!")
+        with open(parameters_path, "r") as f:
+            data = json.load(f)
+        c_order = data["c_order"]
+        alpha_z = np.array(data["alpha_z"])
+        n_rfs = data["n_rfs"]
+        return cls(
+            reg,
+            c_order,
+            g_joints,
+            i_joints,
+            dmp_parameters=(alpha_z, n_rfs),
+        )
+
+    def save_dmp(self, dir_path: Path) -> None:
+        """
+        Saves dmp parameters. If the destination folder doesn't exist it creates it.
+
+        :param dir_path: path to the directory where the data will be saved
+        """
+
+        # create the parent folder if it does not exist
+        if not os.path.exists(dir_path):
+            try:
+                dir_path.mkdir()
+            except FileNotFoundError:
+                raise FileNotFoundError(
+                    "Parent folder does not exists, please check the "
+                    "consistency of the provided path!"
+                )
+
+        file_path = dir_path.joinpath("dmp_parameters.json")
+        if os.path.exists(file_path):
+            raise FileExistsError("Not allowed to override an existing file!")
+        data = {
+            "c_order": 1,
+            "alpha_z": self._alpha_z.tolist(),
+            "n_rfs": int(self._n_rfs),
+        }
+        with open(file_path, "w") as f:
+            json.dump(data, f)
 
     def set_alpha_z_and_n_rfs(self, alpha_z: np.ndarray, n_rfs: int) -> None:
         """
@@ -152,9 +220,19 @@ class DynamicMovementPrimitives:
         self._s = 1
 
     def set_alpha_z(self, alpha_z: np.ndarray) -> None:
+        """
+        Sets alpha_z array value
+
+        :param alpha_z: critically damped coefficient array to set
+        """
         self.set_alpha_z_and_n_rfs(alpha_z, self._n_rfs)
 
     def set_n_rfs(self, n_rfs: int) -> None:
+        """
+        Sets n_rfs value
+
+        :param n_rfs: number of basis function to use
+        """
         self.set_alpha_z_and_n_rfs(self._alpha_z, n_rfs)
 
     def _error_with(self, alpha_z: np.ndarray, n_rbfs: int) -> float:

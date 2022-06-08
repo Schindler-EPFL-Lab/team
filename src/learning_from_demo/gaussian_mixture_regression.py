@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 import numpy as np
 from gmr import GMM
 
@@ -50,3 +53,24 @@ class GMR:
         # stack time vector with predictions
         y_predicted_mean = np.hstack((x1, y_predicted_mean))
         return y_predicted_mean
+
+    def save_regression_data(self, dir_path: Path) -> None:
+        """
+        Saves regression function data. If the destination folder doesn't exist it
+        creates it.
+
+        :param dir_path: path to the directory where the data will be saved
+        """
+        # create the parent folder if it does not exist
+        if not os.path.exists(dir_path):
+            try:
+                dir_path.mkdir()
+            except FileNotFoundError:
+                raise FileNotFoundError(
+                    "Parent folder does not exists, please check the "
+                    "consistency of the provided path!"
+                )
+        file_path = dir_path.joinpath("regression.npy")
+        if os.path.exists(file_path):
+            raise FileExistsError("Not allowed to override an existing file!")
+        np.save(str(file_path), self.prediction)

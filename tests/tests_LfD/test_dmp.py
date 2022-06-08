@@ -1,5 +1,8 @@
+import json
 import unittest
 import os
+import shutil
+from pathlib import Path
 
 import numpy as np
 
@@ -11,7 +14,7 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
     def _create_dmp():
 
         # standard data file to perform tests
-        filename = "regression_line.npy"
+        filename = "regression.npy"
         file_dir = os.path.join(os.path.dirname(__file__), "dmp_data")
         filename_path = os.path.join(file_dir, filename)
         regression = np.load(filename_path)
@@ -360,14 +363,14 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
 
         # check the dmp parameters optimized to track a line over a small search space
         regression = np.array(
-                [
-                    [0, 0, 0, 0, 0, 0, 0],
-                    [0.01, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
-                    [0.02, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-                    [0.03, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15],
-                    [0.04, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
-                ]
-            )
+            [
+                [0, 0, 0, 0, 0, 0, 0],
+                [0.01, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
+                [0.02, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                [0.03, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15],
+                [0.04, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
+            ]
+        )
         dmp = DynamicMovementPrimitives(
             regression_fct=regression,
             c_order=1,
@@ -378,3 +381,33 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         dmp.compute_joint_dynamics(goal=regression[-1, 1:], y_init=regression[0, 1:])
         np.testing.assert_equal(dmp._alpha_z, 3 * np.ones(dmp._nb_joints))
         self.assertEqual(dmp._n_rfs, 2)
+
+    def test_parameters_loading(self):
+
+        # check that the dmp parameters are loaded correctly
+        path = Path(
+            os.path.join(os.path.dirname(__file__), "dmp_data")
+        )
+        dmp = DynamicMovementPrimitives.load_dmp(
+            dir_path=path, g_joints=np.ones(6), i_joints=np.ones(6)
+        )
+        alpha_z = dmp._alpha_z
+        n_rfs = dmp._n_rfs
+        np.testing.assert_equal(alpha_z, 12 * np.ones(dmp._nb_joints))
+        self.assertEqual(n_rfs, 180)
+
+    def test_parameters_saving(self):
+
+        dmp = self._create_dmp()
+        # specify the parameters to save
+        dmp.set_alpha_z_and_n_rfs(alpha_z=np.ones([dmp._nb_joints]), n_rfs=10)
+        store_path = Path(
+            os.path.join(os.path.dirname(__file__), "saved_data")
+        )
+        dmp.save_dmp(dir_path=store_path)
+        with open(store_path.joinpath("dmp_parameters.json"), 'r') as f:
+            data = json.load(f)
+        # check that the parameters have been saved correctly
+        np.testing.assert_equal(data["alpha_z"], np.ones([dmp._nb_joints]))
+        self.assertEqual(data["n_rfs"], 10)
+        shutil.rmtree(store_path)
