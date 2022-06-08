@@ -7,7 +7,8 @@ def main():
             "dvc",
             "get",
             "git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/arco-datasets",
-            "demonstrations/approaching/approaching_amk_1.json",
+            "arco_control/learning_from_demonstrations/approaching/"
+            "approaching_amk_1.json",
             "-o",
             "tests/tests_LfD/data/approaching_amk_1.json",
         ]
@@ -18,7 +19,8 @@ def main():
             "dvc",
             "get",
             "git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/arco-datasets",
-            "demonstrations/approaching/approaching_mm_1.json",
+            "arco_control/learning_from_demonstrations/approaching/"
+            "approaching_mm_1.json",
             "-o",
             "tests/tests_LfD/data/approaching_mm_1.json",
         ]
@@ -29,7 +31,8 @@ def main():
             "dvc",
             "get",
             "git@ssh.dev.azure.com:v3/devsdb/CRD-NT_ARCO/arco-datasets",
-            "demonstrations/approaching/approaching_lp_1.json",
+            "arco_control/learning_from_demonstrations/approaching/"
+            "approaching_lp_1.json",
             "-o",
             "tests/tests_LfD/data/approaching_lp_1.json",
         ]

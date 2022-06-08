@@ -42,7 +42,7 @@ jobs:
     - task: Cache@2
       displayName: Cache Anaconda
       inputs:
-        key: 'version4 | conda | "$(Agent.OS)" | requirements.txt'
+        key: 'version1 | conda | "$(Agent.OS)" | setup.cfg'
         path: $(CONDA)/envs
         cacheHitVar: CONDA_CACHE_RESTORED
 
@@ -55,8 +55,8 @@ jobs:
 
     - script: |
         call activate unittest
-        pip install -r requirements.txt
-      displayName: "Install requirements pip"
+        pip install dvc[azure]==2.9.3
+      displayName: "Install DVC"
       condition: eq(variables.CONDA_CACHE_RESTORED, 'false')
 
     - task: PowerShell@2
