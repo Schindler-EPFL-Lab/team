@@ -31,14 +31,14 @@ class TrajectoryBase(ABC):
     def __len__(self) -> int:
         return len(self._trajectory)
 
-    def rms_cumulative_error(self, other_trajectory: TrajectoryBase) -> float:
+    def rms_error(self, other_trajectory: TrajectoryBase) -> float:
         """
-        Compute the root squared cumulative error along the motion between the
+        Compute the root mean squared error along the motion between the
         trajectory to track and the executed trajectory
 
         :param other_trajectory: trajectory to track, input to the joint position
                                  controller
-        :return: the cumulative error along the trajectory
+        :return: the rms error along the trajectory
         """
 
         error = 0
@@ -46,7 +46,7 @@ class TrajectoryBase(ABC):
             error += np.linalg.norm(
                 self.get_joints_at_index(i) - other_trajectory.get_joints_at_index(i)
             )
-        return error
+        return error / len(self.joints)
 
     def joints_to_string(self, tol_diff: int = 1) -> str:
         """
