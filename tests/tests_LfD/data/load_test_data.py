@@ -10,7 +10,7 @@ def main():
             "arco_control/learning_from_demonstrations/approaching/"
             "approaching_amk_1.json",
             "-o",
-            "tests/tests_LfD/data/approaching_amk_1.json",
+            "approaching_amk_1.json",
         ]
     )
 
@@ -22,7 +22,7 @@ def main():
             "arco_control/learning_from_demonstrations/approaching/"
             "approaching_mm_1.json",
             "-o",
-            "tests/tests_LfD/data/approaching_mm_1.json",
+            "approaching_mm_1.json",
         ]
     )
 
@@ -34,7 +34,7 @@ def main():
             "arco_control/learning_from_demonstrations/approaching/"
             "approaching_lp_1.json",
             "-o",
-            "tests/tests_LfD/data/approaching_lp_1.json",
+            "approaching_lp_1.json",
         ]
     )
 
