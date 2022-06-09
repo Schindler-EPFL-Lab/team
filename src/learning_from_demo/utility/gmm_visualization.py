@@ -11,7 +11,7 @@ def plot_gmm(
     gmm: ProbabilisticEncoding,
     x_query: Optional[np.ndarray] = None,
     prediction: Optional[np.ndarray] = None,
-):
+) -> None:
     """
     Plots obtained with GMM fitting
 
@@ -55,7 +55,42 @@ def plot_gmm(
         plt.show()
 
 
-def plot_js_distance(gmm_js: ProbabilisticEncoding):
+def plot_confidence(x: np.ndarray, y: np.ndarray, prediction: np.ndarray) -> None:
+    """
+    Plots the +-2std confidence interval around the regression line. Gives a visual
+    intuition of the spacial correlation across demonstrations.
+
+    :param x: time vector
+    :param y: joint trajectories
+    :param prediction: predicted regression line
+    """
+    for i in range(np.shape(y)[2]):
+        plt.figure(figsize=(8, 6))
+        expected_std = y[:, :, i].std(axis=0)
+        expected_mean = prediction[:, i + 1]
+
+        for j in range(np.shape(y)[0] - 1):
+            plt.plot(x, y[j, :, i], c="k", alpha=0.2)
+
+        plt.plot(x, y[-1, :, i], c="k", alpha=0.2, label="demonstrations")
+        plt.plot(x, expected_mean, c="k", lw=2, label="regression")
+        plt.fill_between(
+            x,
+            expected_mean - 1.96 * expected_std,
+            expected_mean + 1.96 * expected_std,
+            color="r",
+            alpha=0.5,
+            label=r"2$\sigma$",
+        )
+
+        plt.xlabel("Time [s]", fontsize=14)
+        plt.ylabel("Joint angle [deg]", fontsize=14)
+        plt.legend(fontsize=14)
+        plt.title(f"Confidence interval on joint {i + 1}", fontsize=20)
+    plt.show()
+
+
+def plot_js_distance(gmm_js: ProbabilisticEncoding) -> None:
     """
     Plots the mean and the std of the JS distance over the range of GMM components
 
@@ -84,7 +119,7 @@ def plot_js_distance(gmm_js: ProbabilisticEncoding):
     plt.show()
 
 
-def draw_ellipse(position, covariance, ax=None, **kwargs):
+def draw_ellipse(position, covariance, ax=None, **kwargs) -> None:
     """
     Draw an ellipse with a given position and covariance
 
