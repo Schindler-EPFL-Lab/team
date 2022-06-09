@@ -161,9 +161,7 @@ class DynamicMovementPrimitives:
         threshold = 0.05 * max_velocity
         vel = self._yd_demo[:, 2]
         idx = np.argwhere(np.abs(vel) > threshold)
-        motion_duration = float(self.timestamp[idx[-1]] - self.timestamp[idx[0]])
-        motion_onset = self.timestamp[idx[0]]
-        return motion_onset + motion_duration
+        return float(self.timestamp[idx[-1]])
 
     def _compute_f_target(self, G) -> np.ndarray:
         """
