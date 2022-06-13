@@ -1,4 +1,3 @@
-from __future__ import annotations
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -31,7 +30,7 @@ class TrajectoryBase(ABC):
     def __len__(self) -> int:
         return len(self._trajectory)
 
-    def rms_error(self, other_trajectory: TrajectoryBase) -> float:
+    def rms_error(self, other_trajectory: "TrajectoryBase") -> float:
         """
         Compute the root mean squared error along the motion between the
         trajectory to track and the executed trajectory

@@ -1,4 +1,5 @@
 import numpy as np
+from skopt import gp_minimize
 
 from learning_from_demo.dmp_trajectory import DmpTrajectory
 
@@ -23,22 +24,37 @@ class DynamicMovementPrimitives:
     )
     regression = GMR(trajectories, pe)
     dmp = DynamicMovementPrimitives(
-        regression_fct=regression.prediction,
-        alpha_z=alpha_z,
-        n_rfs=10,
+        regression_fct=regression,
         c_order=1,
     )
-    dmp.compute_joint_dynamics(goal, y_init)
     ```
 
     :param regression_fct: regression function extracted from dataset
-    :param alpha_z: coefficients for critically damped dynamics
-    :param n_rfs: number of basis functions to approximate the forcing term
     :param c_order: order of the dynamical system
+    :param goal_joints: goal robot joints
+    :param initial_joints: initial robot joints
     """
 
+    _alpha_z: np.ndarray
+    _beta_z: np.ndarray
+    _alpha_g: np.ndarray
+    _alpha_x: np.ndarray
+    _alpha_v: np.ndarray
+    _beta_v: np.ndarray
+    _n_rfs: int
+    _c: np.ndarray
+    _c_d: np.ndarray
+    _D: np.ndarray
+    psi_history: np.ndarray
+    w_history: np.ndarray
+
     def __init__(
-        self, regression_fct: np.ndarray, alpha_z: np.ndarray, n_rfs: int, c_order: int
+        self,
+        regression_fct: np.ndarray,
+        c_order: int,
+        goal_joints: np.ndarray,
+        initial_joints: np.ndarray,
+        search_space: list[tuple[int, int]] = [(5, 30), (50, 200)],
     ) -> None:
 
         self.sampling_rate = 1 / (regression_fct[1, 0] - regression_fct[0, 0])
@@ -47,21 +63,13 @@ class DynamicMovementPrimitives:
         self.timestamp = regression_fct[:, 0]
         self._y_demo = regression_fct[:, 1:]
         self._yd_demo, self._ydd_demo = self._compute_derivatives()
+        self._regression_trajectory = DmpTrajectory(regression_fct[:, 1:])
         # demonstration data
         self._len_demo, self._nb_joints = np.shape(self._y_demo)
         self.T = np.stack((self._y_demo, self._yd_demo, self._ydd_demo), axis=-1)
-        # coefficients for critically damped dynamics
-        self._alpha_z = alpha_z
-        self._beta_z = alpha_z / 4
-        self._alpha_g = alpha_z / 6
-        self._alpha_x = alpha_z / 3
-        self._alpha_v = alpha_z
-        self._beta_v = alpha_z / 4
         # general parameters
         self._tau = self._estimate_time_constant()
-        self._n_rfs = n_rfs
         self._c_order = c_order
-        self._c, self._c_d, self._D = self._rbf_kernels()
         # initialize the state variables
         self._z = np.zeros(self._nb_joints)
         self._y = np.zeros(self._nb_joints)
@@ -72,30 +80,158 @@ class DynamicMovementPrimitives:
         self._xd = np.zeros(self._nb_joints)
         self._vd = np.zeros(self._nb_joints)
         self._ydd = np.zeros(self._nb_joints)
+        self._y0 = np.zeros(self._nb_joints)
         # the goal state
         self._G = np.zeros(self._nb_joints)
         self._g = np.zeros(self._nb_joints)
         self._gd = np.zeros(self._nb_joints)
         self._s = 1
-        # learn weights of the target forcing term
-        self._batch_fit()
         # joint dynamics variable
         self.y = np.zeros((self._len_demo, self._nb_joints, 3))
         # initialize some variables for plotting
         self.z_history = np.zeros((self._len_demo, self._nb_joints, 2))
         self.x_history = np.zeros((self._len_demo, self._nb_joints, 2))
         self.v_history = np.zeros((self._len_demo, self._nb_joints, 2))
+        # run optimization
+        self._search_space = search_space
+        self._set_goal(goal=goal_joints, y0=initial_joints)
+        self._optimize_dmp_params()
+
+    def set_alpha_z_and_n_rfs(self, alpha_z: np.ndarray, n_rfs: int) -> None:
+        """
+        Sets the alpha_z coefficient and the number of radial basis functions used to
+        approximate the system forcing term. Then, updates all the quantities that are
+        dependent on those variables.
+
+        :param alpha_z: coefficient for critically damped system
+        :param n_rfs: number of radial basis functions
+        """
+        # coefficients for critically damped dynamics
+        self._alpha_z = alpha_z
+        self._beta_z = alpha_z / 4
+        self._alpha_g = alpha_z / 6
+        self._alpha_x = alpha_z / 3
+        self._alpha_v = alpha_z
+        self._beta_v = alpha_z / 4
+        # number of radial basis functions
+        self._n_rfs = n_rfs
+        self._c, self._c_d, self._D = self._rbf_kernels()
+        # learn weights of the target forcing term
+        self._batch_fit()
+        # variables for plotting
         self.psi_history = np.zeros((self._len_demo, self._nb_joints, self._n_rfs))
         self.w_history = np.zeros((self._len_demo, self._nb_joints, self._n_rfs))
 
-    def compute_joint_dynamics(self, goal, y_init) -> DmpTrajectory:
+    def _refresh_states(self) -> None:
+        """
+        Refreshes the states of the system to reset it to the starting point of the
+        trajectory evolution.
+
+        """
+        # initialize the state variables
+        self._z = np.zeros(self._nb_joints)
+        self._y = np.zeros(self._nb_joints)
+        self._x = np.zeros(self._nb_joints)
+        self._v = np.zeros(self._nb_joints)
+        self._zd = np.zeros(self._nb_joints)
+        self._yd = np.zeros(self._nb_joints)
+        self._xd = np.zeros(self._nb_joints)
+        self._vd = np.zeros(self._nb_joints)
+        self._ydd = np.zeros(self._nb_joints)
+        self._y0 = np.zeros(self._nb_joints)
+        # the goal state
+        self._G = np.zeros(self._nb_joints)
+        self._g = np.zeros(self._nb_joints)
+        self._gd = np.zeros(self._nb_joints)
+        self._s = 1
+
+    def set_alpha_z(self, alpha_z: np.ndarray) -> None:
+        self.set_alpha_z_and_n_rfs(alpha_z, self._n_rfs)
+
+    def set_n_rfs(self, n_rfs: int) -> None:
+        self.set_alpha_z_and_n_rfs(self._alpha_z, n_rfs)
+
+    def _error_with(self, alpha_z: np.ndarray, n_rbfs: int) -> float:
+        """
+        Computes the error with the provided combination of coefficients. The error is
+        given by the sum of the root mean squared tracking error with respect to the
+        regression function and the distance of the trajectory endpoint with respect to
+        the goal reference.
+
+        :param alpha_z: alpha_z candidate value
+        :param n_rbfs: number of basis functions candidate value
+        :return: the error with the candidate values combination
+        """
+        self.set_alpha_z_and_n_rfs(alpha_z, n_rbfs)
+        dmp_trajectory = self.compute_joint_dynamics(goal=self._G, y_init=self._y0)
+        rms_error = dmp_trajectory.rms_error(self._regression_trajectory)
+        final_error = np.linalg.norm(dmp_trajectory.joints[-1] - self._G)
+        self._refresh_states()
+        return rms_error + final_error
+
+    def _objective_fct(self, x: list[int]):
+        """
+        Defines the objective function to evaluate at each method query point.
+        The argument x should contain 2 integers (1 alpha_z and 1 n_rfs values) if the
+        user wishes to constrain each joint to have the same value for alpha_z, or 7
+        integers (6 alpha_z and 1 n_rfs values) if the user wants to optimize the value
+        of alpha_z for each joint separately. If the argument has a different
+        dimensionality, then a RuntimeError is raised addressing the issue.
+
+        :param x: list containing tuples of each dimension search space bounds
+        :return: the objective function value
+        """
+        # optimization scenario where alpha_z is equal for all joints -> 1j+1n_rfs
+        if len(x) == 2:
+            alpha_eval = x[0] * np.ones(6)
+            n_rbfs_eval = x[1]
+        # optimization scenario where alpha_z is optimized for each joint -> 6j+1n_rfs
+        elif len(x) == 7:
+            alpha_eval = np.array(x[:-1])
+            n_rbfs_eval = x[-1]
+        else:
+            raise RuntimeError(
+                f"\nThe search space has the wrong dimensionality!\n"
+                f"Argument should have 2 dimensions if we wish to "
+                f"constraint equal alpha_z values for each joint or 7 "
+                f"dimensions if we wish to optimize alpha_z for each "
+                f"joint separately.\nArgument dimension is {len(x)}."
+            )
+        return self._error_with(alpha_eval, n_rbfs_eval)
+
+    def _optimize_dmp_params(self) -> None:
+        """
+        Optimizes the parameters by minimising the objective function and sets them.
+
+        """
+        res = gp_minimize(
+            self._objective_fct,  # the function to minimize
+            self._search_space,  # the bounds on each dimension of x
+            acq_func="EI",  # the acquisition function
+            n_calls=25,  # the number of evaluations of f
+        )
+        if len(res.x) == 2:
+            alpha_z = res.x[0] * np.ones(6)
+            n_rfs = res.x[1]
+        elif len(res.x) == 7:
+            alpha_z = np.array(res.x[:-1])
+            n_rfs = res.x[-1]
+        else:
+            raise RuntimeError(
+                "Problem with the optimization process, check the result"
+                "dimensionality!"
+            )
+        self.set_alpha_z_and_n_rfs(alpha_z, n_rfs)
+
+    def compute_joint_dynamics(
+        self, goal: np.ndarray, y_init: np.ndarray
+    ) -> DmpTrajectory:
         """
         Runs all the steps to compute the joint angles dynamics
 
         :param goal: target goal to reach
         :param y_init: initial joint angles position
-        :return: the dmp trajectory featuring the joint angles evolution, to run on the
-                 robot and achieve the target goal
+        :return: the dmp trajectory featuring the joint angles evolution
         """
         # set goal
         self._set_goal(goal=goal, y0=y_init)
@@ -293,6 +429,7 @@ class DynamicMovementPrimitives:
         )
         self._G = goal
         self._x = np.ones(self._nb_joints)
+        self._y0 = y0
         self._y = y0
         if self._c_order == 0:
             self._g = self._G
