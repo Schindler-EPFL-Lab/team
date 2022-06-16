@@ -15,12 +15,14 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         file_dir = os.path.join(os.path.dirname(__file__), "dmp_data")
         filename_path = os.path.join(file_dir, filename)
         regression = np.load(filename_path)
-        return DynamicMovementPrimitives(
+        dmp= DynamicMovementPrimitives(
             regression_fct=regression,
-            alpha_z=18 * np.array([1, 1, 1, 1, 1, 1]),
-            n_rfs=30,
             c_order=1,
+            goal_joints=regression[0, 1:],
+            initial_joints=regression[-1, 1:]
         )
+        dmp.set_alpha_z_and_n_rfs(alpha_z=18 * np.array([1, 1, 1, 1, 1, 1]), n_rfs=30)
+        return dmp
 
     def test_dmp_time_constant(self):
 
@@ -340,10 +342,11 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
                     [0.03, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
                 ]
             ),
-            alpha_z=1.8 * np.array([1, 1, 1, 1, 1, 1]),
-            n_rfs=2,
             c_order=1,
+            goal_joints=np.array([0.2, 0.2, 0.2, 0.2, 0.2, 0.2]),
+            initial_joints=np.array([0, 0, 0, 0, 0, 0]),
         )
+        dmp.set_alpha_z_and_n_rfs(alpha_z=1.8 * np.array([1, 1, 1, 1, 1, 1]), n_rfs=2)
         _ = dmp.compute_joint_dynamics(
             goal=np.array([0.2, 0.2, 0.2, 0.2, 0.2, 0.2]),
             y_init=np.array([0, 0, 0, 0, 0, 0]),
