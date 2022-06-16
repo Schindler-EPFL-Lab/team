@@ -1,6 +1,8 @@
 from typing import Optional
+import math
 
 import numpy as np
+from scipy import stats
 from sklearn.mixture import GaussianMixture
 from sklearn.model_selection import train_test_split
 
@@ -132,13 +134,45 @@ class ProbabilisticEncoding:
             self.results.append(np.mean(dist))
             self.results_std.append(np.std(dist))
 
-        # identify minimum in the JS distance corresponding to best nb_components
-        min_idx = np.argmin(self.results)
-        self.nb_comp_js = self.n_components_range[min_idx]
-
+        # identify statistically significant best GMM nb_components
+        self.nb_comp_js = self._statistically_significant_component()
         return self._gmm_fitting(
             nb_components=self.nb_comp_js, random_state=random_state
         )
+
+    def _statistically_significant_component(self) -> int:
+        """
+        Compares the JS metric mean results and associated standard deviation to
+        statistically infer the best number of components to pick.
+
+        Alternative hypothesis: the min JS mean distance is smaller than all the others
+                                JS mean distances
+        Null hypothesis: the min JS mean distance is not smaller than all the others JS
+                         mean distances
+
+        We use z-test to perform the hypothesis test.
+        alpha is 0.05, corresponding to a 5% chance the results occurred at random.
+        If the observed p-value is less than alpha, then the null hypothesis is rejected
+        and the results are statistically significant.
+
+        :return: the number of GMM components to consider
+        """
+        alpha = 0.05
+        min_mean_idx = np.argmin(self.results)
+        n_components = self.n_components_range[min_mean_idx]
+        min_js_mean = self.results[min_mean_idx]
+        js_std = self.results_std[min_mean_idx]
+        for idx in range(len(self.results)):
+            if idx != min_mean_idx:
+                z_score = (min_js_mean - self.results[idx]) / (
+                    js_std / math.sqrt(self._iterations)
+                )
+                p_value = stats.norm.sf(abs(z_score))
+                if p_value < alpha:
+                    continue
+                elif self.results_std[idx] < js_std:
+                    n_components = self.n_components_range[idx]
+        return n_components
 
     @staticmethod
     def _js_metric(
