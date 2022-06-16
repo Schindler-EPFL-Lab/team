@@ -15,11 +15,11 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         file_dir = os.path.join(os.path.dirname(__file__), "dmp_data")
         filename_path = os.path.join(file_dir, filename)
         regression = np.load(filename_path)
-        dmp= DynamicMovementPrimitives(
+        dmp = DynamicMovementPrimitives(
             regression_fct=regression,
             c_order=1,
             goal_joints=regression[0, 1:],
-            initial_joints=regression[-1, 1:]
+            initial_joints=regression[-1, 1:],
         )
         dmp.set_alpha_z_and_n_rfs(alpha_z=18 * np.array([1, 1, 1, 1, 1, 1]), n_rfs=30)
         return dmp

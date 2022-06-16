@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 from skopt import gp_minimize
 
@@ -26,6 +28,8 @@ class DynamicMovementPrimitives:
     dmp = DynamicMovementPrimitives(
         regression_fct=regression,
         c_order=1,
+        goal_joints=goal_joints,
+        initial_joints=initial_joints,
     )
     ```
 
@@ -54,9 +58,11 @@ class DynamicMovementPrimitives:
         c_order: int,
         goal_joints: np.ndarray,
         initial_joints: np.ndarray,
-        search_space: list[tuple[int, int]] = [(5, 30), (50, 200)],
+        search_space: Optional[list[tuple[int, int]]] = None,
     ) -> None:
 
+        if search_space is None:
+            search_space = [(5, 30), (50, 200)]
         self.sampling_rate = 1 / (regression_fct[1, 0] - regression_fct[0, 0])
         self.dt = regression_fct[1, 0] - regression_fct[0, 0]
         # extract information
@@ -122,10 +128,10 @@ class DynamicMovementPrimitives:
         self.psi_history = np.zeros((self._len_demo, self._nb_joints, self._n_rfs))
         self.w_history = np.zeros((self._len_demo, self._nb_joints, self._n_rfs))
 
-    def _refresh_states(self) -> None:
+    def _reset_state(self) -> None:
         """
-        Refreshes the states of the system to reset it to the starting point of the
-        trajectory evolution.
+        Resets the internal states of the system to the starting point of the trajectory
+        evolution.
 
         """
         # initialize the state variables
@@ -166,19 +172,18 @@ class DynamicMovementPrimitives:
         dmp_trajectory = self.compute_joint_dynamics(goal=self._G, y_init=self._y0)
         rms_error = dmp_trajectory.rms_error(self._regression_trajectory)
         final_error = np.linalg.norm(dmp_trajectory.joints[-1] - self._G)
-        self._refresh_states()
         return rms_error + final_error
 
     def _objective_fct(self, x: list[int]):
         """
         Defines the objective function to evaluate at each method query point.
-        The argument x should contain 2 integers (1 alpha_z and 1 n_rfs values) if the
-        user wishes to constrain each joint to have the same value for alpha_z, or 7
-        integers (6 alpha_z and 1 n_rfs values) if the user wants to optimize the value
-        of alpha_z for each joint separately. If the argument has a different
-        dimensionality, then a RuntimeError is raised addressing the issue.
 
         :param x: list containing tuples of each dimension search space bounds
+        :raises RuntimeError: x should contain 2 integers (1 alpha_z and 1 n_rfs values)
+        if the  user wishes to constrain each joint to have the same value for alpha_z,
+        or 7 integers (6 alpha_z and 1 n_rfs values) if the user wants to optimize the
+        value of alpha_z for each joint separately. If the argument has a different
+        dimensionality, then a RuntimeError is raised addressing the issue.
         :return: the objective function value
         """
         # optimization scenario where alpha_z is equal for all joints -> 1j+1n_rfs
@@ -227,34 +232,17 @@ class DynamicMovementPrimitives:
         self, goal: np.ndarray, y_init: np.ndarray
     ) -> DmpTrajectory:
         """
-        Runs all the steps to compute the joint angles dynamics
+        Runs the dynamic movement primitives approach with the learnt basis function
+        weights to compute the joint angles dynamics from the initial robot joint angles
+        to the target goal
 
         :param goal: target goal to reach
         :param y_init: initial joint angles position
         :return: the dmp trajectory featuring the joint angles evolution
         """
+        self._reset_state()
         # set goal
         self._set_goal(goal=goal, y0=y_init)
-        # dynamic movement primitives
-        joints_dynamics = self._run_fit()
-        joint_angles = joints_dynamics[:, :, 0]
-        return DmpTrajectory(joint_angles)
-
-    def _run_fit(self) -> np.ndarray:
-        """
-        Runs the dynamic movement primitives approach with the learnt basis function
-        weights to compute the joint angles dynamics from the initial robot joint angles
-        to the target goal
-
-        :return: the joint angles dynamics as an array of shape
-                (timestamps x nb_joints x dynamics)
-                where dynamics is of length 3 and the indices 0, 1, 2 describe
-                respectively the joint angles positions, the joint angular velocities
-                and the joint angular accelerations
-        """
-        self._g = self._y
-        self._z = np.zeros(self._nb_joints)
-
         # run dynamic movement primitives
         for i in range(self._len_demo):
             # compute joint dynamics
@@ -265,8 +253,7 @@ class DynamicMovementPrimitives:
             self.v_history[i] = np.transpose([self._v, self._vd])
             self.psi_history[i] = self._psi
             self.w_history[i] = self._w
-
-        return self.y
+        return DmpTrajectory(self.y[:, :, 0])
 
     def _compute_derivatives(self) -> tuple[np.ndarray, np.ndarray]:
         """
@@ -433,6 +420,8 @@ class DynamicMovementPrimitives:
         self._y = y0
         if self._c_order == 0:
             self._g = self._G
+        else:
+            self._g = self._y
 
     def _update_internal_states(self) -> None:
         """
