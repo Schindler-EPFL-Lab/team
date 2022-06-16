@@ -355,3 +355,26 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         np.testing.assert_almost_equal(
             dmp.y[-1, :, 0], np.array([0.2, 0.2, 0.2, 0.2, 0.2, 0.2]), decimal=2,
         )
+
+    def test_optimal_paramaters(self):
+
+        # check the dmp parameters optimized to track a line over a small search space
+        regression = np.array(
+                [
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0.01, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
+                    [0.02, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                    [0.03, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15],
+                    [0.04, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
+                ]
+            )
+        dmp = DynamicMovementPrimitives(
+            regression_fct=regression,
+            c_order=1,
+            goal_joints=regression[-1, 1:],
+            initial_joints=regression[0, 1:],
+            search_space=[(2, 4), (2, 4)],
+        )
+        dmp.compute_joint_dynamics(goal=regression[-1, 1:], y_init=regression[0, 1:])
+        np.testing.assert_equal(dmp._alpha_z, 3 * np.ones(dmp._nb_joints))
+        self.assertEqual(dmp._n_rfs, 2)
