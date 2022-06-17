@@ -150,26 +150,31 @@ class ProbabilisticEncoding:
         Null hypothesis: the min JS mean distance is not smaller than all the others JS
                          mean distances
 
-        We use z-test to perform the hypothesis test.
-        alpha is 0.05, corresponding to a 5% chance the results occurred at random.
-        If the observed p-value is less than alpha, then the null hypothesis is rejected
-        and the results are statistically significant.
+        We use the z-test to perform the hypothesis test. alpha is 0.05, corresponding
+        to a 5% chance the results occurred at random.If the observed p-value is less
+        than alpha, then the null hypothesis is rejected and the results are
+        statistically significant.
 
         :return: the number of GMM components to consider
         """
         alpha = 0.05
+        # select index corresponding to min value
         min_mean_idx = np.argmin(self.results)
         n_components = self.n_components_range[min_mean_idx]
         min_js_mean = self.results[min_mean_idx]
         js_std = self.results_std[min_mean_idx]
         for idx in range(len(self.results)):
             if idx != min_mean_idx:
+                # compute z-score value
                 z_score = (min_js_mean - self.results[idx]) / (
                     js_std / math.sqrt(self._iterations)
                 )
+                # compute p_value
                 p_value = stats.norm.sf(abs(z_score))
                 if p_value < alpha:
+                    # the null hypothesis is rejected
                     continue
+                # the null hypothesis is not rejected
                 elif self.results_std[idx] < js_std:
                     n_components = self.n_components_range[idx]
         return n_components
