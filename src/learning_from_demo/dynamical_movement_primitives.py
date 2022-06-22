@@ -1,5 +1,4 @@
 import json
-import os
 from pathlib import Path
 from typing import Optional
 
@@ -36,7 +35,7 @@ class DynamicMovementPrimitives:
     )
     ```
 
-    :param regression_fct: regression function extracted from dataset
+    :param regression: regression function extracted from dataset
     :param c_order: order of the dynamical system
     :param goal_joints: goal robot joints
     :param initial_joints: initial robot joints
@@ -57,7 +56,7 @@ class DynamicMovementPrimitives:
 
     def __init__(
         self,
-        regression_fct: np.ndarray,
+        regression: np.ndarray,
         c_order: int,
         goal_joints: np.ndarray,
         initial_joints: np.ndarray,
@@ -67,13 +66,14 @@ class DynamicMovementPrimitives:
 
         if search_space is None:
             search_space = [(5, 30), (50, 200)]
-        self.sampling_rate = 1 / (regression_fct[1, 0] - regression_fct[0, 0])
-        self.dt = regression_fct[1, 0] - regression_fct[0, 0]
+        self.sampling_rate = 1 / (regression[1, 0] - regression[0, 0])
+        self.dt = regression[1, 0] - regression[0, 0]
+        self.regression = regression
         # extract information
-        self.timestamp = regression_fct[:, 0]
-        self._y_demo = regression_fct[:, 1:]
+        self.timestamp = regression[:, 0]
+        self._y_demo = regression[:, 1:]
         self._yd_demo, self._ydd_demo = self._compute_derivatives()
-        self._regression_trajectory = DmpTrajectory(regression_fct[:, 1:])
+        self._regression_trajectory = DmpTrajectory(regression[:, 1:])
         # demonstration data
         self._len_demo, self._nb_joints = np.shape(self._y_demo)
         self.T = np.stack((self._y_demo, self._yd_demo, self._ydd_demo), axis=-1)
@@ -116,20 +116,24 @@ class DynamicMovementPrimitives:
         cls, dir_path: Path, g_joints: np.ndarray, i_joints: np.ndarray
     ) -> "DynamicMovementPrimitives":
         """
-        Creates an DynamicMovementPrimitives loaded from a dmp param file.
+        Creates an DynamicMovementPrimitives with parameters loaded from a dmp param
+        file and regression information loaded from a regression file.
 
         :param dir_path: path of the directory containing the data to load
         :param g_joints: goal robot joints
         :param i_joints: initial robot joints
         :return: DynamicMovementPrimitives with the loaded parameters
         """
+
+        # load regression data
         regression_path = Path.joinpath(dir_path, "regression.npy")
         if not regression_path.exists():
-            raise RuntimeError("The specified filepath does not exist!")
+            raise RuntimeError("regression.npy does not exist!")
         reg = np.load(str(regression_path))
+        # load dmp parameters
         parameters_path = Path.joinpath(dir_path, "dmp_parameters.json")
         if not parameters_path.exists():
-            raise RuntimeError("The specified path does not exist!")
+            raise RuntimeError("dmp_parameters,json does not exist!")
         with open(parameters_path, "r") as f:
             data = json.load(f)
         c_order = data["c_order"]
@@ -145,13 +149,15 @@ class DynamicMovementPrimitives:
 
     def save_dmp(self, dir_path: Path) -> None:
         """
-        Saves dmp parameters. If the destination folder doesn't exist it creates it.
+        Saves dmp information in a zip file. The file contains both the dmp parameters
+        and the regression function used to learn the forcing term. If the destination
+        folder doesn't exist it creates it.
 
         :param dir_path: path to the directory where the data will be saved
         """
 
         # create the parent folder if it does not exist
-        if not os.path.exists(dir_path):
+        if not dir_path.exists():
             try:
                 dir_path.mkdir()
             except FileNotFoundError:
@@ -159,16 +165,21 @@ class DynamicMovementPrimitives:
                     "Parent folder does not exists, please check the "
                     "consistency of the provided path!"
                 )
-
-        file_path = dir_path.joinpath("dmp_parameters.json")
-        if os.path.exists(file_path):
+        # save regression function to file
+        regression_path = dir_path.joinpath("regression.npy")
+        if regression_path.exists():
+            raise FileExistsError("Not allowed to override an existing file!")
+        np.save(str(regression_path), self.regression)
+        # save dmp parameters to file
+        dmp_param_path = dir_path.joinpath("dmp_parameters.json")
+        if dmp_param_path.exists():
             raise FileExistsError("Not allowed to override an existing file!")
         data = {
             "c_order": 1,
             "alpha_z": self._alpha_z.tolist(),
             "n_rfs": int(self._n_rfs),
         }
-        with open(file_path, "w") as f:
+        with open(dmp_param_path, "w") as f:
             json.dump(data, f)
 
     def set_alpha_z_and_n_rfs(self, alpha_z: np.ndarray, n_rfs: int) -> None:

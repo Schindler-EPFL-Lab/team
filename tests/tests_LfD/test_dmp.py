@@ -19,7 +19,7 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         filename_path = os.path.join(file_dir, filename)
         regression = np.load(filename_path)
         dmp = DynamicMovementPrimitives(
-            regression_fct=regression,
+            regression=regression,
             c_order=1,
             goal_joints=regression[0, 1:],
             initial_joints=regression[-1, 1:],
@@ -337,7 +337,7 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         # manually generated regression line to track, the method coefficients have been
         # tuned accordingly. If test fails, check that the method has not been changed
         dmp = DynamicMovementPrimitives(
-            regression_fct=np.array(
+            regression=np.array(
                 [
                     [0, 0, 0, 0, 0, 0, 0],
                     [0.01, 0, 0, 0, 0, 0, 0],
@@ -372,7 +372,7 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
             ]
         )
         dmp = DynamicMovementPrimitives(
-            regression_fct=regression,
+            regression=regression,
             c_order=1,
             goal_joints=regression[-1, 1:],
             initial_joints=regression[0, 1:],
@@ -385,9 +385,7 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
     def test_parameters_loading(self):
 
         # check that the dmp parameters are loaded correctly
-        path = Path(
-            os.path.join(os.path.dirname(__file__), "dmp_data")
-        )
+        path = Path(os.path.join(os.path.dirname(__file__), "dmp_data"))
         dmp = DynamicMovementPrimitives.load_dmp(
             dir_path=path, g_joints=np.ones(6), i_joints=np.ones(6)
         )
@@ -396,18 +394,33 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         np.testing.assert_equal(alpha_z, 12 * np.ones(dmp._nb_joints))
         self.assertEqual(n_rfs, 180)
 
-    def test_parameters_saving(self):
+    def test_information_saving(self):
 
         dmp = self._create_dmp()
-        # specify the parameters to save
+        # specify the dmp parameters to save
         dmp.set_alpha_z_and_n_rfs(alpha_z=np.ones([dmp._nb_joints]), n_rfs=10)
-        store_path = Path(
-            os.path.join(os.path.dirname(__file__), "saved_data")
+        # specify the regression function to save
+        dmp.regression = np.array(
+            [[0, 1, 1, 1, 1, 1, 1], [0.01, 2, 2, 2, 2, 2, 2], [0.02, 3, 3, 3, 3, 3, 3]]
         )
+        store_path = Path(os.path.join(os.path.dirname(__file__), "saved_data"))
         dmp.save_dmp(dir_path=store_path)
-        with open(store_path.joinpath("dmp_parameters.json"), 'r') as f:
+        with open(store_path.joinpath("dmp_parameters.json"), "r") as f:
             data = json.load(f)
-        # check that the parameters have been saved correctly
+        # check that the dmp parameters have been saved correctly
         np.testing.assert_equal(data["alpha_z"], np.ones([dmp._nb_joints]))
         self.assertEqual(data["n_rfs"], 10)
+        # check that regression function has been saved correctly
+        regression_path = store_path.joinpath("regression.npy")
+        data = np.load(str(regression_path))
+        np.testing.assert_equal(
+            data,
+            np.array(
+                [
+                    [0, 1, 1, 1, 1, 1, 1],
+                    [0.01, 2, 2, 2, 2, 2, 2],
+                    [0.02, 3, 3, 3, 3, 3, 3],
+                ]
+            ),
+        )
         shutil.rmtree(store_path)
