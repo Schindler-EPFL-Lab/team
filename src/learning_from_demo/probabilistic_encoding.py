@@ -164,19 +164,21 @@ class ProbabilisticEncoding:
         min_js_mean = self.results[min_mean_idx]
         js_std = self.results_std[min_mean_idx]
         for idx in range(len(self.results)):
-            if idx != min_mean_idx:
-                # compute z-score value
-                z_score = (min_js_mean - self.results[idx]) / (
-                    js_std / math.sqrt(self._iterations)
-                )
-                # compute p_value
-                p_value = stats.norm.sf(abs(z_score))
-                if p_value < alpha:
-                    # the null hypothesis is rejected
-                    continue
-                # the null hypothesis is not rejected
-                elif self.results_std[idx] < js_std:
-                    n_components = self.n_components_range[idx]
+            if idx == min_mean_idx:
+                continue
+            # compute z-score value
+            # Explaination of the formula for ztest with distributions.
+            # http://homework.uoregon.edu/pub/class/es202/ztest.html#:~:text=The%20simplest%20way%20to%20compare,is%20via%20the%20Z%2Dtest.&text=The%20error%20in%20the%20mean,mean%20value%20for%20that%20population.
+            # noqa
+            denom = (
+                (js_std * js_std) + (self.results_std[idx] * self.results_std[idx])
+            ) / self._iterations
+            z_score = (min_js_mean - self.results[idx]) / math.sqrt(denom)
+            # compute p_value
+            p_value = stats.norm.sf(abs(z_score))
+            # the null hypothesis is not rejected
+            if p_value > alpha and self.results_std[idx] < js_std:
+                n_components = self.n_components_range[idx]
         return n_components
 
     @staticmethod
