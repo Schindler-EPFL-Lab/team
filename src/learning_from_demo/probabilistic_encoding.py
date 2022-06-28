@@ -142,8 +142,8 @@ class ProbabilisticEncoding:
 
     def _statistically_significant_component(self) -> int:
         """
-        Compares the JS metric mean results and associated standard deviation to
-        statistically infer the best number of components to pick.
+        Compares the JS metric mean [self.results] and associated standard deviation
+        [self.results_std] to statistically infer the best number of components to pick.
 
         Alternative hypothesis: the min JS mean distance is smaller than all the others
                                 JS mean distances
@@ -151,7 +151,7 @@ class ProbabilisticEncoding:
                          mean distances
 
         We use the z-test to perform the hypothesis test. alpha is 0.05, corresponding
-        to a 5% chance the results occurred at random.If the observed p-value is less
+        to a 5% chance the results occurred at random. If the observed p-value is less
         than alpha, then the null hypothesis is rejected and the results are
         statistically significant.
 
