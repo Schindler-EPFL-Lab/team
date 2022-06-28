@@ -157,13 +157,12 @@ class ProbabilisticEncoding:
 
         :return: the number of GMM components to consider
         """
-        alpha = 0.05
         # select index corresponding to min value
         min_mean_idx = np.argmin(self.results)
         n_components = self.n_components_range[min_mean_idx]
         min_js_mean = self.results[min_mean_idx]
         js_std = self.results_std[min_mean_idx]
-        for idx in range(len(self.results)):
+        for idx, (mean, std) in enumerate(zip(self.results, self.results_std)):
             if idx == min_mean_idx:
                 continue
             # compute z-score value
@@ -171,13 +170,13 @@ class ProbabilisticEncoding:
             # http://homework.uoregon.edu/pub/class/es202/ztest.html#:~:text=The%20simplest%20way%20to%20compare,is%20via%20the%20Z%2Dtest.&text=The%20error%20in%20the%20mean,mean%20value%20for%20that%20population.
             # noqa
             denom = (
-                (js_std * js_std) + (self.results_std[idx] * self.results_std[idx])
+                (js_std * js_std) + (std * std)
             ) / self._iterations
-            z_score = (min_js_mean - self.results[idx]) / math.sqrt(denom)
+            z_score = (min_js_mean - mean) / math.sqrt(denom)
             # compute p_value
             p_value = stats.norm.sf(abs(z_score))
-            # the null hypothesis is not rejected
-            if p_value > alpha and self.results_std[idx] < js_std:
+            # the null hypothesis is not rejected, alpha = 0.05
+            if p_value > 0.05 and std < js_std:
                 n_components = self.n_components_range[idx]
         return n_components
 
