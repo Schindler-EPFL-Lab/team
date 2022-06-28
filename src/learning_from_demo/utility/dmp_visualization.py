@@ -20,7 +20,7 @@ def plotting(dmp: DynamicMovementPrimitives) -> None:
         # plot position, velocity, acceleration vs.target
         axs[0, 0].plot(time, dmp.y[:, i, 0], label="output")
         axs[0, 0].plot(time, dmp.T[:, i, 0], label="regression")
-        axs[0, 0].plot(time[-1], dmp._G[i], color='green', marker='o', markersize=6)
+        axs[0, 0].plot(time[-1], dmp._G[i], color="green", marker="o", markersize=6)
         axs[0, 0].set_title("y", fontsize=20)
         axs[0, 0].set_ylabel("Joint angles [$deg$]", fontsize=14)
         axs[0, 0].set_xlabel("Time [s]", fontsize=14)

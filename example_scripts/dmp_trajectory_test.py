@@ -40,5 +40,6 @@ if __name__ == "__main__":
     dmp.save_dmp(dir_path=store_path)
     text = dmp_traj.joints_to_string()
     rws = RWS("https://localhost:8881")
-    rws.upload_text_file_to_controller(text_data=text,
-                                       filename="right_rail_cleaning.txt")
+    rws.upload_text_file_to_controller(
+        text_data=text, filename="right_rail_cleaning.txt"
+    )

@@ -139,13 +139,7 @@ class DynamicMovementPrimitives:
         c_order = data["c_order"]
         alpha_z = np.array(data["alpha_z"])
         n_rfs = data["n_rfs"]
-        return cls(
-            reg,
-            c_order,
-            g_joints,
-            i_joints,
-            dmp_parameters=(alpha_z, n_rfs),
-        )
+        return cls(reg, c_order, g_joints, i_joints, dmp_parameters=(alpha_z, n_rfs),)
 
     def save_dmp(self, dir_path: Path) -> None:
         """
