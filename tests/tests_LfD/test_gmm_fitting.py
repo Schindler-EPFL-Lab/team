@@ -34,6 +34,20 @@ class ProbabilisticEncodingTest(unittest.TestCase):
         for i, norm in enumerate([217, 80, 50, 281, 58]):
             self.assertEqual(int(np.linalg.norm(pe.gmm.covariances_[i])), norm)
 
+    def test_nb_gmm_components(self):
+
+        # dummy data
+        data_3 = np.array([0.4, 0.2, 0.3, 0.35, 0.25, 0.33, 0.8])
+        data_4 = np.array([0.3, 0.25, 0.28, 0.27, 0.26, 0.29, 0.26])
+        data_5 = np.array([0.3, 0.23, 0.35, 0.20, 0.17, 0.25, 0.34])
+        _, pe = self._create_trajectory_and_prob_encoding()
+        pe.results = [np.mean(data_3), np.mean(data_4), np.mean(data_5)]
+        pe.results_std = [np.std(data_3), np.std(data_4), np.std(data_5)]
+        pe.n_components_range = range(3, 6)
+        pe._iterations = 7
+        nb_comp_js = pe._statistically_significant_component()
+        self.assertEqual(nb_comp_js, 4)
+
     def test_gmr_implementation(self):
 
         traj, pe = self._create_trajectory_and_prob_encoding()
