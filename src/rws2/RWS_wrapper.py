@@ -65,7 +65,7 @@ class RwsWrapper:
         self.robot.stop_RAPID()
         self.set_RAPID_variable(var, "FALSE")
 
-    def move_robot_linearly(self, pose: str) -> None:
+    def move_robot_linearly(self, pose: str, is_blocking: bool = True) -> None:
         """
         Loads the RAPID program linear_move.pgf (can be found in abb_controller_scripts)
         and sets the new value of the RAPID variable [pose]. Then it moves linearly to
@@ -73,6 +73,7 @@ class RwsWrapper:
 
        :param pose: string containing a list of list with the following robot
        information
+       :param is_blocking: option to have the program waiting for the motion end
         [
         [x, y, z],
         [q1, q2, q3, q4],
@@ -87,5 +88,5 @@ class RwsWrapper:
         self.set_RAPID_variable(variable_name="pose", new_value=pose)
         self.robot.motors_on()
         self.robot.start_RAPID(pp_to_reset=True)
-        while self.robot.is_running():
+        while self.robot.is_running() and is_blocking:
             pass
