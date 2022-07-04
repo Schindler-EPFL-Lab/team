@@ -67,8 +67,9 @@ class RwsWrapper:
 
     def move_robot_linearly(self, pose: str) -> None:
         """
-        Loads the RAPID program linear_move.pgf and sets the new value of the RAPID
-        variable [pose]. Then it moves linearly to the defined pose.
+        Loads the RAPID program linear_move.pgf (can be found in abb_controller_scripts)
+        and sets the new value of the RAPID variable [pose]. Then it moves linearly to
+        the defined pose.
 
        :param pose: string containing a list of list with the following robot
        information
