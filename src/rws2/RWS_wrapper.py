@@ -1,4 +1,5 @@
 from typing import Union
+import time
 
 from rws2 import RWS2
 
@@ -63,3 +64,27 @@ class RwsWrapper:
         self.robot.wait_for_rapid()
         self.robot.stop_RAPID()
         self.set_RAPID_variable(var, "FALSE")
+
+    def move_robot_linearly(self, pose: str) -> None:
+        """
+        Loads the RAPID program linear_move.pgf and sets the new value of the RAPID
+        variable [pose]. Then it moves linearly to the defined pose.
+
+       :param pose: string containing a list of list with the following robot
+       information
+        [
+        [x, y, z],
+        [q1, q2, q3, q4],
+        [cf1, cf4, cf6, cfx],
+        [9e9, 9e9, 9e9, 9e9, 9e9, 9e9],
+        ]
+       """
+        self.robot.upload_program_to_controller(
+            prog_path="data/rapid_programs/linear_move/linear_move.pgf"
+        )
+        time.sleep(1)
+        self.set_RAPID_variable(variable_name="pose", new_value=pose)
+        self.robot.motors_on()
+        self.robot.start_RAPID(pp_to_reset=True)
+        while self.robot.is_running():
+            pass
