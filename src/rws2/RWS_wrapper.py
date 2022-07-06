@@ -90,3 +90,20 @@ class RwsWrapper:
         self.robot.start_RAPID(pp_to_reset=True)
         while self.robot.is_running() and is_blocking:
             pass
+
+    def execute_trajectory(self, is_blocking: bool = True) -> None:
+        """
+        Executes the dmp trajectory previously saved in the controller
+
+        :param is_blocking: option to have the program waiting for the motion end
+        """
+        self.robot.upload_program_to_controller(
+            prog_path="data/rapid_programs/joint_control_from_textfile/"
+            "joint_control_from_textfile.pgf"
+        )
+        time.sleep(1)
+        self.robot.motors_on()
+        self.robot.start_RAPID(pp_to_reset=True)
+        while self.robot.is_running() and is_blocking:
+            pass
+        self.robot.motors_off()
