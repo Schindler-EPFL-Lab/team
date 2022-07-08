@@ -1,8 +1,9 @@
 from typing import Optional
+
 import numpy as np
 
-from rws2.RWS_wrapper import RwsWrapper
 from learning_from_demo.trajectory import Trajectory
+from rws2.RWS_wrapper import RwsWrapper
 
 
 class DemonstrationPlayer:
@@ -39,6 +40,7 @@ class DemonstrationPlayer:
 
         :return: the distance between the two vectors
         """
+        assert self.next_target is not None
         distance = np.linalg.norm(self.next_target - self.current_pose)
         return distance
 
@@ -69,6 +71,7 @@ class DemonstrationPlayer:
         :return: string of a list of lists containing the joint positions (degrees) and
         the external axis
         """
+        assert self.next_target is not None
         joint_list = self.next_target.tolist()
         ext_axis_list = [9e9, 9e9, 9e9, 9e9, 9e9, 9e9]
         target = str([joint_list, ext_axis_list])

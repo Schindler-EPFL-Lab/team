@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-def create_default_dict() -> dict:
+def create_default_dict() -> dict[str, list]:
     """
     Creates default dictionary to store trajectory demonstration.
 

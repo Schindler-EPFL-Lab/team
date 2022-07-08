@@ -1,5 +1,5 @@
-from typing import Union
 import time
+from typing import Union
 
 from rws2 import RWS2
 

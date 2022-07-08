@@ -2,12 +2,11 @@ import ast
 import json
 import math
 import os
-from typing import Union, Optional
+from typing import Optional, Union
 
 import xmltodict
+from requests import Response, Session
 from requests.auth import HTTPBasicAuth
-from requests import Session, Response
-
 from rws2.utility.logger import log
 
 
