@@ -7,3 +7,4 @@ demonstrations/approaching
 !trajectory_data/*.json
 *egg-info
 *__pycache__*
+./tmp

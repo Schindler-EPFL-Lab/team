@@ -4,9 +4,9 @@ from timeit import default_timer as timer
 
 import keyboard
 
-from rws2.RWS_wrapper import RwsWrapper
-from learning_from_demo.demonstration_recorder import DemonstrationRecorder
+from learning_from_demo.recorders.demonstration_recorder import DemonstrationRecorder
 from learning_from_demo.utility.handling_data import create_default_dict
+from rws2.RWS_wrapper import RwsWrapper
 
 # Create object for parsing command-line options
 parser = argparse.ArgumentParser(
@@ -39,7 +39,8 @@ if os.path.splitext(args.dest_path)[1] != ".json":
     exit()
 
 try:
-    record = DemonstrationRecorder(path_to_store_demo=args.dest_path)
+    record = DemonstrationRecorder(data_path=args.dest_path)
+
     rws = RwsWrapper(args.url)
     data = create_default_dict()
     var = "ready_flag"

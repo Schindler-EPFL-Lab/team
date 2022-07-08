@@ -2,9 +2,9 @@ import argparse
 import os.path
 from timeit import default_timer as timer
 
-from rws2.RWS2 import RWS
-from learning_from_demo.demonstration_recorder import DemonstrationRecorder
+from learning_from_demo.recorders.demonstration_recorder import DemonstrationRecorder
 from learning_from_demo.utility.handling_data import create_default_dict
+from rws2.RWS2 import RWS
 
 # Create object for parsing command-line options
 parser = argparse.ArgumentParser(
@@ -39,7 +39,9 @@ if os.path.splitext(args.dest_path)[1] != ".json":
 
 def main():
     try:
-        record = DemonstrationRecorder(path_to_store_demo=args.dest_path)
+
+        record = DemonstrationRecorder(data_path=args.dest_path)
+
         rws_robot = RWS(args.url)
         data = create_default_dict()
         # wait for the RAPID program to start
