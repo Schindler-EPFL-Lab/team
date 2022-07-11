@@ -1,4 +1,3 @@
-import time
 from timeit import default_timer as timer
 
 from learning_from_demo.recorders.demonstration_recorder import DemonstrationRecorder
@@ -55,9 +54,8 @@ class RecordTask:
 
     def terminate(self):
         self._running = False
-        self.record.rws.set_RAPID_variable("ready_flag", "FALSE")
+        self.record.stop_and_save_recording()
 
-    def run(self, n):
+    def run(self, n: int):
         while self._running:
             self.record.record()
-            time.sleep(0.1)
