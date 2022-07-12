@@ -48,10 +48,8 @@ class ProbabilisticEncoding:
         self.trajectories = trajectories.aligned_trajectories.reshape(
             -1, self._nb_features
         )
-        # search space range
-        self.n_components_range = []
         # js distances dictionary
-        self.results = {}
+        self.js_metric_results = {}
         # chosen number of components
         self.nb_comp_js = 0
         # number of components selection
@@ -114,12 +112,14 @@ class ProbabilisticEncoding:
                 "min_nb_components not smaller than 2"
             )
         # search space range
-        self.n_components_range = range(min_nb_components, max_nb_components)
+        n_components_range = range(min_nb_components, max_nb_components)
+        # clear js_metric_results
+        self.js_metric_results = {}
         # loop over range
-        for n in self.n_components_range:
-            dist = np.empty(self._iterations)
+        for n in n_components_range:
+            dist = []
             # loop over number runs
-            for i in range(self._iterations):
+            for _ in range(self._iterations):
                 train, test = train_test_split(
                     self.trajectories, test_size=0.5, random_state=random_state
                 )
@@ -127,20 +127,20 @@ class ProbabilisticEncoding:
                 gmm_train = GaussianMixture(n, random_state=random_state).fit(train)
                 gmm_test = GaussianMixture(n, random_state=random_state).fit(test)
                 # compute the JS distance between the two datasets
-                dist[i] = self._js_metric(gmm_train, gmm_test)
+                dist.append(self._js_metric(gmm_train, gmm_test))
 
-            self.results[n] = dist
+            self.js_metric_results[n] = dist
 
         # identify statistically significant best GMM nb_components
-        self.nb_comp_js = self._statistically_significant_component()
+        self.nb_comp_js = self._statistically_significant_component(min_nb_components)
         return self._gmm_fitting(
             nb_components=self.nb_comp_js, random_state=random_state
         )
 
-    def _statistically_significant_component(self) -> int:
+    def _statistically_significant_component(self, min_nb_components) -> int:
         """
-        Compares the JS metric samples [self.results] to statistically infer the best
-        number of components to pick.
+        Compares the JS metric samples [self.js_metric_results] to statistically infer
+        the best number of components to pick.
 
         Alternative hypothesis: the min JS mean distance is smaller than all the others
                                 JS mean distances
@@ -152,18 +152,19 @@ class ProbabilisticEncoding:
         p-value is less than alpha, then the null hypothesis is rejected and the
         observations are statistically significant.
 
+        :param min_nb_components: min components number to define range of search space
         :return: the number of GMM components to consider
         """
         # samples mean and std lists
         means = []
         stds = []
-        for r_v in self.results.values():
+        for r_v in self.js_metric_results.values():
             means.append(np.mean(r_v))
             stds.append(np.std(r_v))
         # select index corresponding to min value
         min_mean_idx = np.argmin(np.array(means))
-        n_components = self.n_components_range[min_mean_idx]
-        min_mean_sample = self.results[n_components]
+        n_components = min_nb_components + min_mean_idx
+        min_mean_sample = self.js_metric_results[n_components]
         js_std = stds[min_mean_idx]
         for idx, std in enumerate(stds):
             if idx == min_mean_idx:
@@ -174,13 +175,14 @@ class ProbabilisticEncoding:
             # noqa
             _, p_value = stats.ttest_ind(
                 min_mean_sample,
-                self.results[self.n_components_range[idx]],
+                self.js_metric_results[min_nb_components + idx],
                 equal_var=False,
-                alternative="less"
+                alternative="less",
             )
             # the null hypothesis is not rejected, alpha = 0.05
             if p_value > 0.05 and std < js_std:
-                n_components = self.n_components_range[idx]
+                n_components = min_nb_components + idx
+                js_std = stds[idx]
         return n_components
 
     @staticmethod

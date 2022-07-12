@@ -96,16 +96,16 @@ def plot_js_distance(gmm_js: ProbabilisticEncoding) -> None:
 
     :param gmm_js: the GMM fittings over the data in the range of GMM components
     """
-    min_idx = np.argmin(gmm_js.results)
+    min_idx = np.argmin(gmm_js.js_metric_results)
     plt.errorbar(
         gmm_js.n_components_range,
-        gmm_js.results,
+        gmm_js.js_metric_results,
         yerr=gmm_js.results_std,
         label="data mean and std",
     )
     plt.plot(
         gmm_js.nb_comp_js,
-        gmm_js.results[min_idx],
+        gmm_js.js_metric_results[min_idx],
         "o",
         c="r",
         markersize=10,
