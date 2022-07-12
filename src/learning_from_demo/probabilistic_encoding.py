@@ -1,5 +1,4 @@
 from typing import Optional
-import math
 
 import numpy as np
 from scipy import stats
@@ -51,9 +50,8 @@ class ProbabilisticEncoding:
         )
         # search space range
         self.n_components_range = []
-        # runs for standard deviation
-        self.results = []
-        self.results_std = []
+        # js distances dictionary
+        self.results = {}
         # chosen number of components
         self.nb_comp_js = 0
         # number of components selection
@@ -119,9 +117,9 @@ class ProbabilisticEncoding:
         self.n_components_range = range(min_nb_components, max_nb_components)
         # loop over range
         for n in self.n_components_range:
-            dist = []
+            dist = np.empty(self._iterations)
             # loop over number runs
-            for _ in range(self._iterations):
+            for i in range(self._iterations):
                 train, test = train_test_split(
                     self.trajectories, test_size=0.5, random_state=random_state
                 )
@@ -129,10 +127,9 @@ class ProbabilisticEncoding:
                 gmm_train = GaussianMixture(n, random_state=random_state).fit(train)
                 gmm_test = GaussianMixture(n, random_state=random_state).fit(test)
                 # compute the JS distance between the two datasets
-                dist.append(self._js_metric(gmm_train, gmm_test))
+                dist[i] = self._js_metric(gmm_train, gmm_test)
 
-            self.results.append(np.mean(dist))
-            self.results_std.append(np.std(dist))
+            self.results[n] = dist
 
         # identify statistically significant best GMM nb_components
         self.nb_comp_js = self._statistically_significant_component()
@@ -142,39 +139,45 @@ class ProbabilisticEncoding:
 
     def _statistically_significant_component(self) -> int:
         """
-        Compares the JS metric mean [self.results] and associated standard deviation
-        [self.results_std] to statistically infer the best number of components to pick.
+        Compares the JS metric samples [self.results] to statistically infer the best
+        number of components to pick.
 
         Alternative hypothesis: the min JS mean distance is smaller than all the others
                                 JS mean distances
         Null hypothesis: the min JS mean distance is not smaller than all the others JS
                          mean distances
 
-        We use the z-test to perform the hypothesis test. alpha is 0.05, corresponding
-        to a 5% chance the results occurred at random. If the observed p-value is less
-        than alpha, then the null hypothesis is rejected and the results are
-        statistically significant.
+        We use the Welch-test to perform the hypothesis test. alpha is 0.05,
+        corresponding to a 5% chance the results occurred at random. If the observed
+        p-value is less than alpha, then the null hypothesis is rejected and the
+        observations are statistically significant.
 
         :return: the number of GMM components to consider
         """
+        # samples mean and std lists
+        means = []
+        stds = []
+        for r_v in self.results.values():
+            means.append(np.mean(r_v))
+            stds.append(np.std(r_v))
         # select index corresponding to min value
-        min_mean_idx = np.argmin(self.results)
+        min_mean_idx = np.argmin(np.array(means))
         n_components = self.n_components_range[min_mean_idx]
-        min_js_mean = self.results[min_mean_idx]
-        js_std = self.results_std[min_mean_idx]
-        for idx, (mean, std) in enumerate(zip(self.results, self.results_std)):
+        min_mean_sample = self.results[n_components]
+        js_std = stds[min_mean_idx]
+        for idx, std in enumerate(stds):
             if idx == min_mean_idx:
                 continue
-            # compute z-score value
-            # Explaination of the formula for ztest with distributions.
+            # compute p-value
+            # Explanation of the formula for Welch test with distributions.
             # http://homework.uoregon.edu/pub/class/es202/ztest.html#:~:text=The%20simplest%20way%20to%20compare,is%20via%20the%20Z%2Dtest.&text=The%20error%20in%20the%20mean,mean%20value%20for%20that%20population.
             # noqa
-            denom = (
-                (js_std * js_std) + (std * std)
-            ) / self._iterations
-            z_score = (min_js_mean - mean) / math.sqrt(denom)
-            # compute p_value
-            p_value = stats.norm.sf(abs(z_score))
+            _, p_value = stats.ttest_ind(
+                min_mean_sample,
+                self.results[self.n_components_range[idx]],
+                equal_var=False,
+                alternative="less"
+            )
             # the null hypothesis is not rejected, alpha = 0.05
             if p_value > 0.05 and std < js_std:
                 n_components = self.n_components_range[idx]
