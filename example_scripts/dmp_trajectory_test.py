@@ -23,7 +23,7 @@ if __name__ == "__main__":
         trajectories, max_nb_components=10, min_nb_components=4, iterations=20
     )
     plot_gmm(pe)
-    plot_js_distance(pe)
+    plot_js_distance(pe, max_nb_components=10, min_nb_components=4)
     regression = GMR(trajectories, pe)
     # retrieve target goal (goal from camera, initial joints from robot)
     target = np.array([-58, 60, -41, -79, -61, 67.7])

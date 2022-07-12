@@ -132,12 +132,12 @@ class ProbabilisticEncoding:
             self.js_metric_results[n] = dist
 
         # identify statistically significant best GMM nb_components
-        self.nb_comp_js = self._statistically_significant_component(min_nb_components)
+        self.nb_comp_js = self._statistically_significant_component()
         return self._gmm_fitting(
             nb_components=self.nb_comp_js, random_state=random_state
         )
 
-    def _statistically_significant_component(self, min_nb_components) -> int:
+    def _statistically_significant_component(self) -> int:
         """
         Compares the JS metric samples [self.js_metric_results] to statistically infer
         the best number of components to pick.
@@ -152,38 +152,43 @@ class ProbabilisticEncoding:
         p-value is less than alpha, then the null hypothesis is rejected and the
         observations are statistically significant.
 
-        :param min_nb_components: min components number to define range of search space
         :return: the number of GMM components to consider
         """
-        # samples mean and std lists
-        means = []
-        stds = []
-        for r_v in self.js_metric_results.values():
-            means.append(np.mean(r_v))
-            stds.append(np.std(r_v))
-        # select index corresponding to min value
-        min_mean_idx = np.argmin(np.array(means))
-        n_components = min_nb_components + min_mean_idx
-        min_mean_sample = self.js_metric_results[n_components]
-        js_std = stds[min_mean_idx]
-        for idx, std in enumerate(stds):
-            if idx == min_mean_idx:
+
+        key_min_mean = None
+        # initialized to highest value it can get
+        min_mean = 1
+        min_std = None
+
+        # Convert all in struct that you can use
+        for key, value in self.js_metric_results.items():
+            mean = np.mean(value)
+            std = np.std(value)
+            if key_min_mean is None or mean < min_mean:
+                key_min_mean = key
+                min_mean = mean
+                min_std = std
+            self.js_metric_results[key] = (value, mean, std)
+
+        best_n_components = key_min_mean
+        for key, (value, mean, std) in self.js_metric_results.items():
+            if key == key_min_mean:
                 continue
             # compute p-value
             # Explanation of the formula for Welch test with distributions.
             # http://homework.uoregon.edu/pub/class/es202/ztest.html#:~:text=The%20simplest%20way%20to%20compare,is%20via%20the%20Z%2Dtest.&text=The%20error%20in%20the%20mean,mean%20value%20for%20that%20population.
             # noqa
             _, p_value = stats.ttest_ind(
-                min_mean_sample,
-                self.js_metric_results[min_nb_components + idx],
+                self.js_metric_results[key_min_mean][0],
+                value,
                 equal_var=False,
                 alternative="less",
             )
             # the null hypothesis is not rejected, alpha = 0.05
-            if p_value > 0.05 and std < js_std:
-                n_components = min_nb_components + idx
-                js_std = stds[idx]
-        return n_components
+            if p_value > 0.05 and std < min_std:
+                best_n_components = key
+                min_std = std
+        return best_n_components
 
     @staticmethod
     def _js_metric(

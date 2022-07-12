@@ -90,22 +90,29 @@ def plot_confidence(x: np.ndarray, y: np.ndarray, prediction: np.ndarray) -> Non
     plt.show()
 
 
-def plot_js_distance(gmm_js: ProbabilisticEncoding) -> None:
+def plot_js_distance(
+    gmm_js: ProbabilisticEncoding, min_nb_components: int, max_nb_components: int
+) -> None:
     """
     Plots the mean and the std of the JS distance over the range of GMM components
 
     :param gmm_js: the GMM fittings over the data in the range of GMM components
+    :param min_nb_components: minimum number of GMM components allowed to model the data
+    :param max_nb_components: maximum number of GMM components allowed to model the data
     """
-    min_idx = np.argmin(gmm_js.js_metric_results)
+    n_components_range = range(min_nb_components, max_nb_components)
+    means = []
+    stds = []
+    for key, (value, mean, std) in gmm_js.js_metric_results.items():
+        means.append(mean)
+        stds.append(std)
+
     plt.errorbar(
-        gmm_js.n_components_range,
-        gmm_js.js_metric_results,
-        yerr=gmm_js.results_std,
-        label="data mean and std",
+        n_components_range, means, yerr=stds, label="data mean and std",
     )
     plt.plot(
         gmm_js.nb_comp_js,
-        gmm_js.js_metric_results[min_idx],
+        gmm_js.js_metric_results[gmm_js.nb_comp_js][1],
         "o",
         c="r",
         markersize=10,
@@ -113,7 +120,7 @@ def plot_js_distance(gmm_js: ProbabilisticEncoding) -> None:
     )
     plt.legend()
     plt.title("Distance between Train and Test GMMs", fontsize=20)
-    plt.xticks(gmm_js.n_components_range)
+    plt.xticks(n_components_range)
     plt.xlabel("Number of components", fontsize=16)
     plt.ylabel("Distance", fontsize=16)
     plt.show()

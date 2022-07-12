@@ -43,7 +43,7 @@ class ProbabilisticEncodingTest(unittest.TestCase):
         _, pe = self._create_trajectory_and_prob_encoding()
         pe.js_metric_results = {3: data_3, 4: data_4, 5: data_5}
         pe._iterations = 7
-        nb_comp_js = pe._statistically_significant_component(3)
+        nb_comp_js = pe._statistically_significant_component()
         self.assertEqual(nb_comp_js, 4)
 
     def test_gmr_implementation(self):
