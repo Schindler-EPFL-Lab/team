@@ -156,18 +156,15 @@ class ProbabilisticEncoding:
         """
 
         key_min_mean = None
-        # initialized to highest value it can get
+        # min_mean initialized to highest value it can get
         min_mean = 1
-        min_std = None
 
-        # Convert all in struct that you can use
         for key, value in self.js_metric_results.items():
             mean = np.mean(value)
             std = np.std(value)
             if key_min_mean is None or mean < min_mean:
                 key_min_mean = key
                 min_mean = mean
-                min_std = std
             self.js_metric_results[key] = (value, mean, std)
 
         best_n_components = key_min_mean
@@ -185,9 +182,8 @@ class ProbabilisticEncoding:
                 alternative="less",
             )
             # the null hypothesis is not rejected, alpha = 0.05
-            if p_value > 0.05 and std < min_std:
+            if p_value > 0.05 and std < self.js_metric_results[best_n_components][2]:
                 best_n_components = key
-                min_std = std
         return best_n_components
 
     @staticmethod
