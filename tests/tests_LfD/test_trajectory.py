@@ -146,3 +146,12 @@ class TrajectoriesTest(unittest.TestCase):
             "[110.0, 120.0, 130.0, 140.0, 150.0, 160.0]",
         )
         self.trajectory.flip_trajectory()
+
+    def test_rms_error(self):
+        # test that the correct computation of rms
+        first_traj = Trajectory(np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]))
+        second_traj = Trajectory(np.array([[0, 1, 1, 0, 0, 0, 0, 0, 0, 0]]))
+        rms_joints = first_traj.rms_error(second_traj)
+        self.assertEqual(rms_joints, np.sqrt(2))
+        rms_same_traj = second_traj.rms_error(second_traj)
+        self.assertEqual(rms_same_traj, 0)

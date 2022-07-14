@@ -30,7 +30,7 @@ class TrajectoryBase(ABC):
     def __len__(self) -> int:
         return len(self._trajectory)
 
-    def mse_error(self, other_trajectory: "TrajectoryBase") -> float:
+    def rms_error(self, other_trajectory: "TrajectoryBase") -> float:
         """
         Compute the mean squared error along the motion between the trajectory to track
         and the executed trajectory
@@ -45,7 +45,7 @@ class TrajectoryBase(ABC):
             error += np.linalg.norm(
                 self.get_joints_at_index(i) - other_trajectory.get_joints_at_index(i)
             )
-        return error / len(self.joints)
+        return error / np.sqrt(len(self.joints))
 
     def joints_to_string(self, tol_diff: int = 1) -> str:
         """

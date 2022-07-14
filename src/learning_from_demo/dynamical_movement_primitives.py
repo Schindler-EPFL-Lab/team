@@ -253,7 +253,7 @@ class DynamicMovementPrimitives:
         """
         self.set_alpha_z_and_n_rfs(alpha_z, n_rbfs)
         dmp_trajectory = self.compute_joint_dynamics(goal=self._G, y_init=self._y0)
-        mse_error = dmp_trajectory.mse_error(self._regression_trajectory)
+        mse_error = dmp_trajectory.rms_error(self._regression_trajectory)
         final_error = np.linalg.norm(dmp_trajectory.joints[-1] - self._G)
         return mse_error + final_error
 
