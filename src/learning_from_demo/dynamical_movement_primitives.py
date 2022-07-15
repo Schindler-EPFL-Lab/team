@@ -139,9 +139,15 @@ class DynamicMovementPrimitives:
         c_order = data["c_order"]
         alpha_z = np.array(data["alpha_z"])
         n_rfs = data["n_rfs"]
-        return cls(reg, c_order, g_joints, i_joints, dmp_parameters=(alpha_z, n_rfs),)
+        return cls(
+            reg,
+            c_order,
+            g_joints,
+            i_joints,
+            dmp_parameters=(alpha_z, n_rfs),
+        )
 
-    def save_dmp(self, dir_path: Path) -> None:
+    def save_dmp(self, dir_path: Path, exist_ok: bool = False) -> None:
         """
         Saves dmp information in a zip file. The file contains both the dmp parameters
         and the regression function used to learn the forcing term. If the destination
@@ -161,12 +167,12 @@ class DynamicMovementPrimitives:
                 )
         # save regression function to file
         regression_path = dir_path.joinpath("regression.npy")
-        if regression_path.exists():
+        if regression_path.exists() and not exist_ok:
             raise FileExistsError("Not allowed to override an existing file!")
         np.save(str(regression_path), self.regression)
         # save dmp parameters to file
         dmp_param_path = dir_path.joinpath("dmp_parameters.json")
-        if dmp_param_path.exists():
+        if dmp_param_path.exists() and not exist_ok:
             raise FileExistsError("Not allowed to override an existing file!")
         data = {
             "c_order": 1,
@@ -376,7 +382,7 @@ class DynamicMovementPrimitives:
         :param G: the goal reference target
         :return: the target forcing term
         """
-        f_target = self._ydd_demo * self._tau ** 2 - self._alpha_z * (
+        f_target = self._ydd_demo * self._tau**2 - self._alpha_z * (
             self._beta_z * (G - self._y_demo) - self._yd_demo * self._tau
         )
         return f_target
@@ -470,13 +476,13 @@ class DynamicMovementPrimitives:
         )
         # close form locally weighted regression to determine weights
         if self._c_order == 1:
-            self._sx2 = np.sum(((V ** 2) * np.ones((1, self._n_rfs))) * PSI, axis=0)
+            self._sx2 = np.sum(((V**2) * np.ones((1, self._n_rfs))) * PSI, axis=0)
             self._sxtd = np.sum(
                 ((V * f_target) * np.ones((1, self._n_rfs))) * PSI, axis=0
             )
 
         else:
-            self._sx2 = sum(((X ** 2) * np.ones(1, self._n_rfs)) * PSI, 1)
+            self._sx2 = sum(((X**2) * np.ones(1, self._n_rfs)) * PSI, 1)
             self._sxtd = sum(((X * f_target) * np.ones(1, self._n_rfs)) * PSI, 1)
 
         # compute the weights
