@@ -137,6 +137,52 @@ class ProbabilisticEncoding:
             nb_components=self.nb_comp_js, random_state=random_state
         )
 
+    def compute_scores_bic_criterion(
+        self,
+        max_nb_components: int,
+        min_nb_components: int,
+    ) -> dict[str, list]:
+        """
+        Computes the BIC criterion for the range of GMM components.
+
+        :param min_nb_components: min components number to define range of search space
+        :param max_nb_components: max components number to define range of search space
+        :return: the BIC scores
+        """
+        # check valid range for number components
+        if (
+            max_nb_components <= min_nb_components
+            or max_nb_components < 2
+            or min_nb_components < 2
+        ):
+            raise RuntimeError(
+                "Invalid range for search space! max_nb_components must "
+                "be larger or equal to min_nb_components and "
+                "min_nb_components not smaller than 2"
+            )
+        # search space range
+        n_components_range = range(min_nb_components, max_nb_components)
+        # clear bic_scores
+        bic_scores = {}
+        # loop over range
+        mean_components = []
+        std_components = []
+        for n in n_components_range:
+            scores_component = []
+            # loop over number runs
+            for _ in range(self._iterations):
+                # fit GMM
+                gmm_fit = GaussianMixture(n).fit(self.trajectories)
+                # compute the JS distance between the two datasets
+                scores_component.append(gmm_fit.bic(self.trajectories))
+
+            mean_components.append(np.mean(scores_component))
+            std_components.append(np.std(scores_component))
+        bic_scores["means"] = mean_components
+        bic_scores["stds"] = std_components
+
+        return bic_scores
+
     def _statistically_significant_component(self) -> int:
         """
         Compares the JS metric samples [self.js_metric_results] to statistically infer
