@@ -232,6 +232,29 @@ class ProbabilisticEncoding:
                 best_n_components = key
         return best_n_components
 
+    def count_collapsed_gmm(self, gmm: GaussianMixture) -> int:
+        """
+        Counts how many GMM components have collapsed on single or few datapoints
+        during EM. The reference covariance [ref_cov] is built with a diagonal matrix
+        whose entries are 1% of the motion magnitude along the respective axis.
+
+        :param gmm: GMM fit of the data
+        :return: the number of degenerated GMM components
+        """
+
+        d_time = self.length_demo / 100
+        d_joints = (
+            np.max(self.trajectories, axis=0) - np.min(self.trajectories, axis=0)
+        ) / 100
+        ref_cov = np.array([[d_joints, 0],
+                            [0, d_time]])
+        epsilon = np.linalg.norm(ref_cov)
+        nb_collapsed = 0
+        for gc in gmm.covariances_:
+            if np.linalg.norm(gc) < epsilon:
+                nb_collapsed += 1
+        return nb_collapsed
+
     @staticmethod
     def _js_metric(
         gmm_p: GaussianMixture, gmm_q: GaussianMixture, n_samples: int = 10 ** 5
@@ -244,6 +267,7 @@ class ProbabilisticEncoding:
         :param n_samples: number of samples extracted from the distribution
         :return: the JS metric of the configuration
         """
+
         # sampled datapoints from distribution
         x = gmm_p.sample(n_samples)[0]
         # weighted log probabilities for each sample with fitting gmm_p
