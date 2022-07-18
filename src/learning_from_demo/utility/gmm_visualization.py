@@ -126,6 +126,25 @@ def plot_js_distance(
     plt.show()
 
 
+def plot_bic_scores(bic_scores: dict[str, list]) -> None:
+    """
+    Plots the bic score mean and standard deviation for each number of GMM components
+
+    :param bic_scores: dictionary with BIC score means and standard deviations per
+    each number of GMM components
+    """
+
+    nb_values = len(bic_scores["means"])
+    plt.figure(figsize=(8, 6))
+    plt.errorbar(range(2, nb_values + 2), bic_scores["means"], bic_scores["stds"],
+                 label="BIC mean and std")
+    plt.legend(fontsize=14)
+    plt.title("Bic score statistics per model", fontsize=20)
+    plt.xlabel("Number of components", fontsize=16)
+    plt.ylabel("Score", fontsize=16)
+    plt.show()
+
+
 def draw_ellipse(position, covariance, ax=None, **kwargs) -> None:
     """
     Draw an ellipse with a given position and covariance
