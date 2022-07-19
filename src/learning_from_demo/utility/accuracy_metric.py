@@ -1,6 +1,5 @@
 import json
 import numpy as np
-import os
 from pathlib import Path
 
 from rws2.RWS2 import RWS
@@ -137,9 +136,7 @@ def endpoint_joint_accuracy(rws: RWS, goal_j: np.ndarray) -> float:
 def save_model_performance(
     dir_path: Path,
     rws: RWS,
-    init_joints: np.ndarray,
     goal_joints: np.ndarray,
-    trajectory: np.ndarray,
     exist_ok: bool = False,
 ) -> None:
     """
@@ -147,11 +144,10 @@ def save_model_performance(
 
     :param dir_path: directory path to store data
     :param rws:  RWS object to interface with the robot controller
-    :param init_joints: initial robot joints
-    :param goal_joints: goal joints reference
-    :param trajectory: robot trajectory
+    :param goal_joints: robot goal target joints
     :param exist_ok: boolean to allow file override
     """
+
     # create the parent folder if it does not exist
     if not dir_path.exists():
         try:
@@ -161,23 +157,16 @@ def save_model_performance(
                 "Parent folder does not exists, please check the "
                 "consistency of the provided path!"
             )
-    # Count files in destination folder
-    nb_demonstrations = len(list(Path(dir_path).rglob(".")))
     # save model performance info to file
-    model_perf_path = dir_path.joinpath(f"{nb_demonstrations + 1}").joinpath(
+    model_perf_path = dir_path.joinpath(
         "model_performance.json"
     )
     if model_perf_path.exists() and not exist_ok:
         raise FileExistsError("Not allowed to override an existing file!")
-    else:
-        os.makedirs(model_perf_path.parent, exist_ok=True)
     data = {
         "pos_error": endpoint_position_accuracy(rws),
         "ori_error": endpoint_orientation_accuracy(rws),
         "j_error": endpoint_joint_accuracy(rws, goal_joints),
-        "starting_j": init_joints.tolist(),
-        "goal_j": goal_joints.tolist(),
-        "trajectory": trajectory.tolist(),
     }
     with open(model_perf_path, "w") as f:
         json.dump(data, f)
