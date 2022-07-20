@@ -1,6 +1,8 @@
 import time
 from typing import Union
 
+import numpy as np
+
 from rws2 import RWS2
 
 
@@ -91,10 +93,11 @@ class RwsWrapper:
         while self.robot.is_running() and is_blocking:
             pass
 
-    def execute_trajectory(self, is_blocking: bool = True) -> None:
+    def execute_trajectory(self, goal_j: np.ndarray, is_blocking: bool = True) -> None:
         """
         Executes the dmp trajectory previously saved in the controller
 
+        :param goal_j: target goal joints
         :param is_blocking: option to have the program waiting for the motion end
         """
         self.robot.upload_program_to_controller(
@@ -102,6 +105,8 @@ class RwsWrapper:
             "joint_control_from_textfile.pgf"
         )
         time.sleep(1)
+        goal = str([goal_j.tolist(), [9E+9, 9E+9, 9E+9, 9E+9, 9E+9, 9E+9]])
+        self.set_RAPID_variable(variable_name="joint_target", new_value=goal)
         self.robot.motors_on()
         self.robot.start_RAPID(pp_to_reset=True)
         while self.robot.is_running() and is_blocking:
