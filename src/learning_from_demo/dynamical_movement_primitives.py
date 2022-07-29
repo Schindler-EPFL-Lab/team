@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 import numpy as np
+from scipy.optimize import OptimizeResult
 from skopt import gp_minimize
 
 from learning_from_demo.dmp_trajectory import DmpTrajectory
@@ -293,6 +294,27 @@ class DynamicMovementPrimitives:
             )
         return self._error_with(alpha_eval, n_rbfs_eval)
 
+    @staticmethod
+    def _stop_at_convergence(res: OptimizeResult) -> bool:
+        """
+        Stops the optimizer when it evaluates the same point 5 straight times. Expected
+        improvement doesn't move the evaluation point and so it means that the method
+        has converged.
+
+        :param res: optimizer result
+        :return: boolean that if True stops the optimizer
+        """
+
+        nb_occurrences = 0
+        reference = res.x_iters[-1]
+        # loop backward on the list of evaluation points
+        for pos in res.x_iters[::-1]:
+            if pos == reference:
+                nb_occurrences = nb_occurrences + 1
+            else:
+                break
+        return nb_occurrences > 4
+
     def _optimize_dmp_params(self) -> None:
         """
         Optimizes the parameters by minimising the objective function and sets them.
@@ -302,7 +324,8 @@ class DynamicMovementPrimitives:
             self._objective_fct,  # the function to minimize
             self._search_space,  # the bounds on each dimension of x
             acq_func="EI",  # the acquisition function
-            n_calls=25,  # the number of evaluations of f
+            n_calls=100,  # the number of evaluations of f
+            callback=self._stop_at_convergence # stop optimizer at convergence
         )
         if len(res.x) == 2:
             alpha_z = res.x[0] * np.ones(6)
