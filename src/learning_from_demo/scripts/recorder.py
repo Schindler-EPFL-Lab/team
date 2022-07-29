@@ -1,5 +1,4 @@
 import argparse
-import os.path
 from timeit import default_timer as timer
 
 import keyboard
@@ -30,12 +29,6 @@ args = parser.parse_args()
 if not args.url or not args.dest_path:
     print("No all the necessary parameters have been given.")
     print("For help type --help")
-    exit()
-
-# Check if the given file has json extension
-if os.path.splitext(args.dest_path)[1] != ".json":
-    print("The given file is not of correct file format.")
-    print("Only .json files are accepted")
     exit()
 
 try:
