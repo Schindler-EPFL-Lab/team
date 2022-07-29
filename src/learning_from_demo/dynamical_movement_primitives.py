@@ -297,7 +297,7 @@ class DynamicMovementPrimitives:
     @staticmethod
     def _stop_at_convergence(res: OptimizeResult) -> bool:
         """
-        Stops the optimizer when it evaluates the same point 5 straight times. Expected
+        Stops the optimizer when it evaluates the same point 2 straight times. Expected
         improvement doesn't move the evaluation point and so it means that the method
         has converged.
 
@@ -313,7 +313,7 @@ class DynamicMovementPrimitives:
                 nb_occurrences = nb_occurrences + 1
             else:
                 break
-        return nb_occurrences > 4
+        return nb_occurrences > 1
 
     def _optimize_dmp_params(self) -> None:
         """
@@ -324,8 +324,7 @@ class DynamicMovementPrimitives:
             self._objective_fct,  # the function to minimize
             self._search_space,  # the bounds on each dimension of x
             acq_func="EI",  # the acquisition function
-            n_calls=100,  # the number of evaluations of f
-            callback=self._stop_at_convergence # stop optimizer at convergence
+            callback=self._stop_at_convergence  # stop optimizer at convergence
         )
         if len(res.x) == 2:
             alpha_z = res.x[0] * np.ones(6)
