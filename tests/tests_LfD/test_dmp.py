@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 import numpy as np
+from scipy.optimize import OptimizeResult
 
 from learning_from_demo.dynamical_movement_primitives import DynamicMovementPrimitives
 
@@ -424,3 +425,10 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
             ),
         )
         shutil.rmtree(store_path)
+
+    def test_optimizer_stopping_criterion(self):
+
+        dmp = self._create_dmp()
+        res = OptimizeResult()
+        res.x_iters = [[1, 2], [1, 2], [1, 2], [1, 2], [1, 2]]
+        self.assertTrue(dmp._stop_at_convergence(res))
