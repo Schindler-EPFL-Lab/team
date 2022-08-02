@@ -360,7 +360,7 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
             dmp.y[-1, :, 0], np.array([0.2, 0.2, 0.2, 0.2, 0.2, 0.2]), decimal=2,
         )
 
-    def test_optimal_paramaters(self):
+    def test_optimal_parameters(self):
 
         # check the dmp parameters optimized to track a line over a small search space
         regression = np.array(
@@ -377,11 +377,12 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
             c_order=1,
             goal_joints=regression[-1, 1:],
             initial_joints=regression[0, 1:],
-            search_space=[(2, 4), (2, 4)],
+            search_space=[(2, 10), (2, 10)],
         )
         dmp.compute_joint_dynamics(goal=regression[-1, 1:], y_init=regression[0, 1:])
-        np.testing.assert_equal(dmp._alpha_z, 3 * np.ones(dmp._nb_joints))
-        self.assertEqual(dmp._n_rfs, 2)
+        self.assertAlmostEqual(
+            dmp._error_with(dmp._alpha_z, dmp._n_rfs), 0.091, places=3
+        )
 
     def test_parameters_loading(self):
 
@@ -430,5 +431,5 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
 
         dmp = self._create_dmp()
         res = OptimizeResult()
-        res.x_iters = [[1, 2], [1, 2], [1, 2], [1, 2], [1, 2]]
+        res.x_iters = [[3, 2], [1, 2], [1, 3], [1, 2], [1, 2]]
         self.assertTrue(dmp._stop_at_convergence(res))
