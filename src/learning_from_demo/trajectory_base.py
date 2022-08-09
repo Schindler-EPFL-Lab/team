@@ -32,12 +32,12 @@ class TrajectoryBase(ABC):
 
     def rms_error(self, other_trajectory: "TrajectoryBase") -> float:
         """
-        Compute the mean squared error along the motion between the trajectory to track
-        and the executed trajectory
+        Compute the root mean squared error along the motion between the trajectory to
+        track and the executed trajectory
 
         :param other_trajectory: trajectory to track, input to the joint position
                                  controller
-        :return: the mse error along the trajectory
+        :return: the rms error along the trajectory
         """
 
         error = 0
