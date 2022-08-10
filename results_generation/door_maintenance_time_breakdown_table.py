@@ -7,7 +7,8 @@ from results_generation_utils import compute_average_duration, time_breakdown
 if __name__ == "__main__":
 
     bpu_data_dir = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), "demonstrations/brush_picking_up",
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "arco-datasets/arco_control/learning_from_demonstrations/brush_picking_up",
     )
     bpu_average_dur = compute_average_duration(bpu_data_dir)
     (
@@ -19,7 +20,8 @@ if __name__ == "__main__":
     ) = time_breakdown(bpu_data_dir, runs=10)
 
     do_data_dir = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), "demonstrations/door_opening",
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "arco-datasets/arco_control/learning_from_demonstrations/door_opening",
     )
     do_average_dur = compute_average_duration(do_data_dir)
     (
@@ -31,7 +33,8 @@ if __name__ == "__main__":
     ) = time_breakdown(do_data_dir, runs=10)
 
     cr_data_dir = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), "demonstrations/rail_cleaning",
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "arco-datasets/arco_control/learning_from_demonstrations/rail_cleaning",
     )
     cr_average_dur = compute_average_duration(cr_data_dir)
     (
@@ -43,7 +46,8 @@ if __name__ == "__main__":
     ) = time_breakdown(cr_data_dir, runs=10)
 
     db_data_dir = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), "demonstrations/brush_homing",
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "arco-datasets/arco_control/learning_from_demonstrations/brush_homing",
     )
     db_average_dur = compute_average_duration(db_data_dir)
     (
@@ -55,7 +59,8 @@ if __name__ == "__main__":
     ) = time_breakdown(db_data_dir, runs=10)
 
     dc_data_dir = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), "demonstrations/door_closing",
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "arco-datasets/arco_control/learning_from_demonstrations/door_closing",
     )
     dc_average_dur = compute_average_duration(dc_data_dir)
     (

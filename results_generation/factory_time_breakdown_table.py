@@ -8,8 +8,9 @@ from results_generation_utils import compute_average_duration, time_breakdown
 if __name__ == "__main__":
 
     drill_data_dir = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        "Ebikon_07_21_2022/Ebikon_07_21_2022/drill/demonstrations",
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "arco-datasets/arco_control/Ebikon_07_21_2022/Ebikon_07_21_2022/drill/"
+        "demonstrations",
     )
     drill_average_dur = compute_average_duration(drill_data_dir)
     (
@@ -21,8 +22,9 @@ if __name__ == "__main__":
     ) = time_breakdown(drill_data_dir, runs=30)
 
     avoid_data_dir = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        "Ebikon_07_21_2022/Ebikon_07_21_2022/Timo_avoid/demonstrations",
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "arco-datasets/arco_control/Ebikon_07_21_2022/Ebikon_07_21_2022/Timo_avoid/"
+        "demonstrations",
     )
     avoid_average_dur = compute_average_duration(avoid_data_dir)
     (
@@ -34,8 +36,9 @@ if __name__ == "__main__":
     ) = time_breakdown(avoid_data_dir, runs=30)
 
     diff_data_dir = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        "Ebikon_07_21_2022/Ebikon_07_21_2022/TIMO_difficult/demonstrations",
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "arco-datasets/arco_control/Ebikon_07_21_2022/Ebikon_07_21_2022/TIMO_difficult/"
+        "demonstrations",
     )
     diff_average_dur = compute_average_duration(diff_data_dir)
     (
@@ -47,8 +50,9 @@ if __name__ == "__main__":
     ) = time_breakdown(diff_data_dir, runs=30)
 
     collab_data_dir = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        "Ebikon_07_21_2022/Ebikon_07_21_2022/TIMO_collab/demonstrations",
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "arco-datasets/arco_control/Ebikon_07_21_2022/Ebikon_07_21_2022/TIMO_collab/"
+        "demonstrations",
     )
     collab_average_dur = compute_average_duration(collab_data_dir)
     (
@@ -184,5 +188,5 @@ if __name__ == "__main__":
         r"\end{tabular}"
     )
 
-    with open('factory_tasks.tex', 'w') as f:
+    with open("factory_tasks.tex", "w") as f:
         f.write(text_file)
