@@ -1,60 +1,8 @@
 import os
-import time
 
 import numpy as np
 
-from learning_from_demo.aligned_trajectories import AlignedTrajectories
-from learning_from_demo.dynamical_movement_primitives import DynamicMovementPrimitives
-from learning_from_demo.gaussian_mixture_regression import GMR
-from learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
-from learning_from_demo.trajectory import Trajectory
-from learning_from_demo.utility.handling_data import get_demo_files
-
-
-def compute_average_duration(data_dir: str) -> list:
-
-    files_paths = get_demo_files(data_dir)
-    average_dur = []
-    for file_path in files_paths:
-        traj = Trajectory.from_file(file_path)
-        average_dur.append(traj.timestamps[-1])
-    return average_dur
-
-
-def time_breakdown(data_dir: str,) -> tuple[list, list, list, list, list]:
-
-    prep_time = []
-    encod_time = []
-    bo_time = []
-    traj_time = []
-    total_time = []
-    for i in range(10):
-        t_start = time.time()
-        trajectories = AlignedTrajectories.load_dataset_and_preprocess(data_dir)
-        prep_time.append(time.time() - t_start)
-        t_start_2 = time.time()
-        pe = ProbabilisticEncoding(
-            trajectories, max_nb_components=10, min_nb_components=3, iterations=10
-        )
-        regression = GMR(trajectories, pe)
-        encod_time.append(time.time() - t_start_2)
-        target = regression.prediction[-1, 1:]
-        initial_state = regression.prediction[0, 1:]
-        t_start_3 = time.time()
-        dmp = DynamicMovementPrimitives(
-            regression=regression.prediction,
-            c_order=1,
-            initial_joints=initial_state,
-            goal_joints=target,
-        )
-        bo_time.append(time.time() - t_start_3)
-        t_start_4 = time.time()
-        _ = dmp.compute_joint_dynamics(goal=target, y_init=initial_state)
-        traj_time.append(time.time() - t_start_4)
-        total_time.append(time.time() - t_start)
-
-    return prep_time, encod_time, bo_time, traj_time, total_time
-
+from results_generation_utils import compute_average_duration, time_breakdown
 
 if __name__ == "__main__":
 
@@ -68,7 +16,7 @@ if __name__ == "__main__":
         bpu_bo_time,
         bpu_traj_time,
         bpu_total_time,
-    ) = time_breakdown(bpu_data_dir)
+    ) = time_breakdown(bpu_data_dir, runs=10)
 
     do_data_dir = os.path.join(
         os.path.dirname(os.path.dirname(__file__)), "demonstrations/door_opening",
@@ -80,7 +28,7 @@ if __name__ == "__main__":
         do_bo_time,
         do_traj_time,
         do_total_time,
-    ) = time_breakdown(do_data_dir)
+    ) = time_breakdown(do_data_dir, runs=10)
 
     cr_data_dir = os.path.join(
         os.path.dirname(os.path.dirname(__file__)), "demonstrations/rail_cleaning",
@@ -92,7 +40,7 @@ if __name__ == "__main__":
         cr_bo_time,
         cr_traj_time,
         cr_total_time,
-    ) = time_breakdown(cr_data_dir)
+    ) = time_breakdown(cr_data_dir, runs=10)
 
     db_data_dir = os.path.join(
         os.path.dirname(os.path.dirname(__file__)), "demonstrations/brush_homing",
@@ -104,7 +52,7 @@ if __name__ == "__main__":
         db_bo_time,
         db_traj_time,
         db_total_time,
-    ) = time_breakdown(db_data_dir)
+    ) = time_breakdown(db_data_dir, runs=10)
 
     dc_data_dir = os.path.join(
         os.path.dirname(os.path.dirname(__file__)), "demonstrations/door_closing",
@@ -116,7 +64,7 @@ if __name__ == "__main__":
         dc_bo_time,
         dc_traj_time,
         dc_total_time,
-    ) = time_breakdown(dc_data_dir)
+    ) = time_breakdown(dc_data_dir, runs=10)
 
     text_file = (
         r"\begin{tabular}{l  c  c  c  c  c} "
