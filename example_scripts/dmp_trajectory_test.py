@@ -2,14 +2,14 @@ import os
 from pathlib import Path
 
 import numpy as np
-
-from learning_from_demo.aligned_trajectories import AlignedTrajectories
-from learning_from_demo.dynamical_movement_primitives import DynamicMovementPrimitives
-from learning_from_demo.gaussian_mixture_regression import GMR
-from learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
-from learning_from_demo.utility.dmp_visualization import plotting
-from learning_from_demo.utility.gmm_visualization import plot_gmm, plot_js_distance
 from rws2.RWS2 import RWS
+
+from team.aligned_trajectories import AlignedTrajectories
+from team.dynamical_movement_primitives import DynamicMovementPrimitives
+from team.gaussian_mixture_regression import GMR
+from team.probabilistic_encoding import ProbabilisticEncoding
+from team.utility.dmp_visualization import plotting
+from team.utility.gmm_visualization import plot_gmm, plot_js_distance
 
 if __name__ == "__main__":
 

@@ -1,9 +1,10 @@
 import json
-import numpy as np
 from pathlib import Path
 
+import numpy as np
 from rws2.RWS2 import RWS
-from learning_from_demo.utility.lie_algebra_and_tf import quaternion_matrix, se3_inverse
+
+from team.utility.lie_algebra_and_tf import quaternion_matrix, se3_inverse
 
 
 def endpoint_accuracy(rws: RWS) -> float:
@@ -158,9 +159,7 @@ def save_model_performance(
                 "consistency of the provided path!"
             )
     # save model performance info to file
-    model_perf_path = dir_path.joinpath(
-        "model_performance.json"
-    )
+    model_perf_path = dir_path.joinpath("model_performance.json")
     if model_perf_path.exists() and not exist_ok:
         raise FileExistsError("Not allowed to override an existing file!")
     data = {

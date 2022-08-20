@@ -2,12 +2,12 @@ import json
 import os
 from pathlib import Path
 
-from learning_from_demo.utility.handling_data import (
+from team.utility.handling_data import (
     check_data_timestamps,
     check_nan_values,
     create_default_dict,
 )
-from learning_from_demo.utility.logger import log
+from team.utility.logger import log
 
 
 class DemonstrationRecorder:

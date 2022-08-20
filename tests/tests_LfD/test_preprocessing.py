@@ -4,8 +4,8 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from learning_from_demo.aligned_trajectories import AlignedTrajectories
-from learning_from_demo.data_preprocessing import DataPreprocessing
+from team.aligned_trajectories import AlignedTrajectories
+from team.data_preprocessing import DataPreprocessing
 
 
 class PreprocessTest(unittest.TestCase):

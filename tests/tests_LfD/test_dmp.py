@@ -1,13 +1,13 @@
 import json
-import unittest
 import os
 import shutil
+import unittest
 from pathlib import Path
 
 import numpy as np
 from scipy.optimize import OptimizeResult
 
-from learning_from_demo.dynamical_movement_primitives import DynamicMovementPrimitives
+from team.dynamical_movement_primitives import DynamicMovementPrimitives
 
 
 class DynamicalMovementPrimitivesTest(unittest.TestCase):
@@ -357,7 +357,9 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         )
         # test that the last combination of joint angles corresponds to the target one
         np.testing.assert_almost_equal(
-            dmp.y[-1, :, 0], np.array([0.2, 0.2, 0.2, 0.2, 0.2, 0.2]), decimal=2,
+            dmp.y[-1, :, 0],
+            np.array([0.2, 0.2, 0.2, 0.2, 0.2, 0.2]),
+            decimal=2,
         )
 
     def test_parameters_loading(self):

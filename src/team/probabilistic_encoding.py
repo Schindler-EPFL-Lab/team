@@ -5,7 +5,7 @@ from scipy import stats
 from sklearn.mixture import GaussianMixture
 from sklearn.model_selection import train_test_split
 
-from learning_from_demo.aligned_trajectories import AlignedTrajectories
+from team.aligned_trajectories import AlignedTrajectories
 
 
 class ProbabilisticEncoding:
@@ -246,8 +246,7 @@ class ProbabilisticEncoding:
         d_joints = (
             np.max(self.trajectories, axis=0) - np.min(self.trajectories, axis=0)
         ) / 100
-        ref_cov = np.array([[d_joints, 0],
-                            [0, d_time]])
+        ref_cov = np.array([[d_joints, 0], [0, d_time]])
         epsilon = np.linalg.norm(ref_cov)
         nb_collapsed = 0
         for gc in gmm.covariances_:
@@ -257,7 +256,7 @@ class ProbabilisticEncoding:
 
     @staticmethod
     def _js_metric(
-        gmm_p: GaussianMixture, gmm_q: GaussianMixture, n_samples: int = 10 ** 5
+        gmm_p: GaussianMixture, gmm_q: GaussianMixture, n_samples: int = 10**5
     ) -> float:
         """
         Calculates the Jensen-Shannon divergence metric

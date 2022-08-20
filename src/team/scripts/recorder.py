@@ -2,10 +2,10 @@ import argparse
 from timeit import default_timer as timer
 
 import keyboard
-
-from learning_from_demo.recorders.demonstration_recorder import DemonstrationRecorder
-from learning_from_demo.utility.handling_data import create_default_dict
 from rws2.RWS_wrapper import RwsWrapper
+
+from team.recorders.demonstration_recorder import DemonstrationRecorder
+from team.utility.handling_data import create_default_dict
 
 # Create object for parsing command-line options
 parser = argparse.ArgumentParser(

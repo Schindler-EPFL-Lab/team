@@ -1,10 +1,10 @@
-import unittest
 import os
+import unittest
 
 import numpy as np
 
-from learning_from_demo.aligned_trajectories import AlignedTrajectories
-from learning_from_demo.trajectory import Trajectory
+from team.aligned_trajectories import AlignedTrajectories
+from team.trajectory import Trajectory
 
 
 class TrajectoriesTest(unittest.TestCase):

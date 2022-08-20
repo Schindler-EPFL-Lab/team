@@ -6,7 +6,7 @@ import numpy as np
 from scipy.optimize import OptimizeResult
 from skopt import gp_minimize
 
-from learning_from_demo.dmp_trajectory import DmpTrajectory
+from team.dmp_trajectory import DmpTrajectory
 
 
 class DynamicMovementPrimitives:
@@ -324,7 +324,7 @@ class DynamicMovementPrimitives:
             self._objective_fct,  # the function to minimize
             self._search_space,  # the bounds on each dimension of x
             acq_func="EI",  # the acquisition function
-            callback=self._stop_at_convergence  # stop optimizer at convergence
+            callback=self._stop_at_convergence,  # stop optimizer at convergence
         )
         if len(res.x) == 2:
             alpha_z = res.x[0] * np.ones(6)

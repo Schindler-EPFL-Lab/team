@@ -1,10 +1,10 @@
 from typing import Optional
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.patches import Ellipse
 
-from learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
+from team.probabilistic_encoding import ProbabilisticEncoding
 
 
 def plot_gmm(
@@ -40,8 +40,8 @@ def plot_gmm(
         for pos, covar, w in zip(
             gmm.gmm.means_, gmm.gmm.covariances_, gmm.gmm.weights_
         ):
-            covar = covar[0:i + 1:i, 0:i + 1:i]
-            pos = pos[0:i + 1:i]
+            covar = covar[0 : i + 1 : i, 0 : i + 1 : i]
+            pos = pos[0 : i + 1 : i]
             draw_ellipse(pos, covar, alpha=w * w_factor)
         if x_query is not None and prediction is not None:
             plt.plot(
@@ -108,7 +108,10 @@ def plot_js_distance(
         stds.append(std)
 
     plt.errorbar(
-        n_components_range, means, yerr=stds, label="data mean and std",
+        n_components_range,
+        means,
+        yerr=stds,
+        label="data mean and std",
     )
     plt.plot(
         gmm_js.nb_comp_js,
@@ -136,8 +139,12 @@ def plot_bic_scores(bic_scores: dict[str, list]) -> None:
 
     nb_values = len(bic_scores["means"])
     plt.figure(figsize=(8, 6))
-    plt.errorbar(range(2, nb_values + 2), bic_scores["means"], bic_scores["stds"],
-                 label="BIC mean and std")
+    plt.errorbar(
+        range(2, nb_values + 2),
+        bic_scores["means"],
+        bic_scores["stds"],
+        label="BIC mean and std",
+    )
     plt.legend(fontsize=14)
     plt.title("Bic score statistics per model", fontsize=20)
     plt.xlabel("Number of components", fontsize=16)

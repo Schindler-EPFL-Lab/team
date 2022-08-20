@@ -1,9 +1,9 @@
 from typing import Optional
 
 import numpy as np
-
-from learning_from_demo.trajectory import Trajectory
 from rws2.RWS_wrapper import RwsWrapper
+
+from team.trajectory import Trajectory
 
 
 class DemonstrationPlayer:

@@ -1,7 +1,8 @@
 from timeit import default_timer as timer
 
-from learning_from_demo.recorders.demonstration_recorder import DemonstrationRecorder
 from rws2.RWS_wrapper import RwsWrapper
+
+from team.recorders.demonstration_recorder import DemonstrationRecorder
 
 
 class LeadDemonstrationRecorder(DemonstrationRecorder):

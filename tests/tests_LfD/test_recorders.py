@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from learning_from_demo.recorders.demonstration_recorder import DemonstrationRecorder
+from team.recorders.demonstration_recorder import DemonstrationRecorder
 
 
 class RecordersTest(unittest.TestCase):

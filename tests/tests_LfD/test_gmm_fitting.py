@@ -3,9 +3,9 @@ from pathlib import Path
 
 import numpy as np
 
-from learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
-from learning_from_demo.aligned_trajectories import AlignedTrajectories
-from learning_from_demo.gaussian_mixture_regression import GMR
+from team.aligned_trajectories import AlignedTrajectories
+from team.gaussian_mixture_regression import GMR
+from team.probabilistic_encoding import ProbabilisticEncoding
 
 
 class ProbabilisticEncodingTest(unittest.TestCase):

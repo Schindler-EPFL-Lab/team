@@ -1,11 +1,11 @@
 import time
 
-from learning_from_demo.aligned_trajectories import AlignedTrajectories
-from learning_from_demo.dynamical_movement_primitives import DynamicMovementPrimitives
-from learning_from_demo.gaussian_mixture_regression import GMR
-from learning_from_demo.probabilistic_encoding import ProbabilisticEncoding
-from learning_from_demo.trajectory import Trajectory
-from learning_from_demo.utility.handling_data import get_demo_files
+from team.aligned_trajectories import AlignedTrajectories
+from team.dynamical_movement_primitives import DynamicMovementPrimitives
+from team.gaussian_mixture_regression import GMR
+from team.probabilistic_encoding import ProbabilisticEncoding
+from team.trajectory import Trajectory
+from team.utility.handling_data import get_demo_files
 
 
 def compute_average_duration(data_dir: str) -> list:

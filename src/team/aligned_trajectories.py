@@ -1,7 +1,8 @@
 import numpy as np
-from learning_from_demo.data_preprocessing import DataPreprocessing
-from learning_from_demo.trajectory import Trajectory
-from learning_from_demo.utility.handling_data import get_demo_files
+
+from team.data_preprocessing import DataPreprocessing
+from team.trajectory import Trajectory
+from team.utility.handling_data import get_demo_files
 
 
 class AlignedTrajectories:

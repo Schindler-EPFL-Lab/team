@@ -1,8 +1,8 @@
 import argparse
 import os.path
 
-from learning_from_demo.demonstration_player import DemonstrationPlayer
-from learning_from_demo.trajectory import Trajectory
+from team.demonstration_player import DemonstrationPlayer
+from team.trajectory import Trajectory
 
 # Create object for parsing command-line options
 parser = argparse.ArgumentParser(description="Playback a saved robot trajectory.")

@@ -1,6 +1,6 @@
 import numpy as np
 
-from learning_from_demo.trajectory import TrajectoryBase
+from team.trajectory import TrajectoryBase
 
 
 class DmpTrajectory(TrajectoryBase):

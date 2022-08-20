@@ -1,7 +1,7 @@
 import os
 
-from learning_from_demo.demonstration_player import DemonstrationPlayer
-from learning_from_demo.trajectory import Trajectory
+from team.demonstration_player import DemonstrationPlayer
+from team.trajectory import Trajectory
 
 base_path = os.path.dirname(os.path.dirname(__file__))
 
