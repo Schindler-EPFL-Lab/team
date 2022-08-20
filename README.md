@@ -1,51 +1,40 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# TEAM: teach a robot arm to move
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+[![Build Status](https://dev.azure.com/devsdb/CRD-NT_ARCO/_apis/build/status/SchindlerReGIS.team?repoName=SchindlerReGIS%2Fteam&branchName=main)](https://dev.azure.com/devsdb/CRD-NT_ARCO/_build/latest?definitionId=1211&repoName=SchindlerReGIS%2Fteam&branchName=main)
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+TEAM is a parameter-free algorithm to learn motions from user demonstrations.
+This proposed method has been submitted to [ICRA2023](https://www.icra2023.org/) and the paper can be found on arXiv.
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+If you use this work please cite:
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
-# Robot Web Server 2
+> citation to come
 
-[![Build Status](https://dev.azure.com/devsdb/CRD-NT_ARCO/_apis/build/status/rws2?branchName=refs%2Fpull%2F12569%2Fmerge)](https://dev.azure.com/devsdb/CRD-NT_ARCO/_build/latest?definitionId=854&branchName=refs%2Fpull%2F12569%2Fmerge)
+## Build and Test
 
-This package provides code to interact with [ABB robot web service](https://developercenter.robotstudio.com/api/RWS?urls.primaryName=Introduction).
-Tested and developed for version `3HAC073675-001 Revision:D`.
+1. Install [flit](https://github.com/pypa/flit) with `pip install flit`.
+We use flit to package and install this repository.
+2. Clone/fork the repo from Github.
+3. Run `pip install -e .` in the root folder to install rws2 in editable mode (`pip install .` is enough if you do not plan to contribute).
 
-Code updated from [ABB Robot Web Service](https://github.com/prinsWindy/ABB-Robot-Machine-Vision/tree/master/RobotWebServices).
-# ARCO learning from demonstrations
+The library should then be installed and you should be able to call it in python with `import team`.
 
-[![Build Status](https://dev.azure.com/devsdb/CRD-NT_ARCO/_apis/build/status/arco-learning-by-demonstration)](https://dev.azure.com/devsdb/CRD-NT_ARCO/_apis/build/status/arco-learning-by-demonstration)
+## How to use the package
 
-This package provides the python code implementation of the learning from demonstrations framework.
-The learning algorithm follows the dynamic movement primitives approach, implemented with the work and 
-code of A. J. Ijspeert, J. Nakanishi, H. Hoffmann, P. Pastor, and S. Schaal, "Dynamical 
-movement primitives: Learning attractor models for motor behaviors," Neural Computationvol. 25, no. 2, pp. 328–373, 2013. doi: 10.1162/NECO_a_00393.
+See `notebook/pipeline.ipynb`.
 
+## License
 
-# Demonstration Data Collection
+This work is under the GNU AFFERO GENERAL PUBLIC LICENSE.
+If you would like to use this work under another LICENSE than this one, please contact us directly.
 
-Record and play back robot trajectory demonstration.
+## Contribute
 
-## Record data
+PR request on GitHub are welcome.
+We use [black](https://github.com/psf/black) for code formatting and [flake8](https://github.com/pycqa/flake8) for linting.
+Code that do not follow black formatting and follow flake8 linting will be rejected by the pipeline.
 
-Data recording is done by running the `recorder.py` script. \
-The data is recorded in the json format. \
-To stop the recording, press the `q` keyboard button.
-
-## Play recorded data
-
-To play a json file, use the script `player.py`.
+A standard git commit message consists of three parts, in order: a summary line, an optional bod.
+The parts are separated by a single empty line.
+The summary line is included in the short logs (git log --oneline, gitweb, Azure DevOps, email subject) and therefore should provide a short yet accurate description of the change.
+The summary line is a short description of the most important changes. The summary line must not exceed 50 characters, and must not be wrapped. The summary should be in the imperative tense.
+The body lines must not exceed 72 characters and can describe in more details what the commit does.
