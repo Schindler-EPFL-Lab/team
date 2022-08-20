@@ -163,8 +163,8 @@ def draw_ellipse(position, covariance, ax=None, **kwargs) -> None:
     ax = ax or plt.gca()
     # Convert covariance to principal axes
     if covariance.shape == (2, 2):
-        U, s, Vt = np.linalg.svd(covariance)
-        angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
+        u, s, _ = np.linalg.svd(covariance)
+        angle = np.degrees(np.arctan2(u[1, 0], u[0, 0]))
         width, height = 2 * np.sqrt(s)
     else:
         angle = 0

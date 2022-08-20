@@ -397,7 +397,7 @@ class DynamicMovementPrimitives:
         idx = np.argwhere(np.abs(vel) > threshold)
         return float(self.timestamp[idx[-1]])
 
-    def _compute_f_target(self, G) -> np.ndarray:
+    def _compute_f_target(self, g) -> np.ndarray:
         """
         Calculates the target forcing term from the second order differential equation
 
@@ -405,7 +405,7 @@ class DynamicMovementPrimitives:
         :return: the target forcing term
         """
         f_target = self._ydd_demo * self._tau**2 - self._alpha_z * (
-            self._beta_z * (G - self._y_demo) - self._yd_demo * self._tau
+            self._beta_z * (g - self._y_demo) - self._yd_demo * self._tau
         )
         return f_target
 
@@ -430,8 +430,8 @@ class DynamicMovementPrimitives:
 
         d = (np.diff(c, axis=0) * 0.55) ** 2
         # calculate basis functions covariance
-        D = 1 / np.vstack((d, d[-1]))
-        return c, c_d, D
+        cov = 1 / np.vstack((d, d[-1]))
+        return c, c_d, cov
 
     def _batch_fit(self) -> None:
         """
@@ -444,17 +444,17 @@ class DynamicMovementPrimitives:
         # set g as continuous variable to filter changes in goal target
         g = y0.copy()
         # initialize the hidden states
-        X = np.empty((np.shape(self._y_demo)))
-        V = np.empty((np.shape(self._y_demo)))
-        G = np.empty((np.shape(self._y_demo)))
+        x_states = np.empty((np.shape(self._y_demo)))
+        v_states = np.empty((np.shape(self._y_demo)))
+        g_states = np.empty((np.shape(self._y_demo)))
         x = np.ones(self._nb_joints)
         v = np.zeros(self._nb_joints)
         # loop over general demonstration length
         for i in range(self._len_demo):
             # store hidden states
-            X[i] = x
-            V[i] = v
-            G[i] = g
+            x_states[i] = x
+            v_states[i] = v
+            g_states[i] = g
             # compute hidden states
             if self._c_order == 1:
                 # prevent the forcing term f to create a discontinuity in acceleration
@@ -473,17 +473,17 @@ class DynamicMovementPrimitives:
         # the task target
         self._dG = goal - y0
         # the forcing term target
-        f_target = self._compute_f_target(G)
+        f_target = self._compute_f_target(g_states)
         # data reshaping
-        X = X.reshape((self._len_demo, self._nb_joints, 1))
-        V = V.reshape((self._len_demo, self._nb_joints, 1))
+        x_states = x_states.reshape((self._len_demo, self._nb_joints, 1))
+        v_states = v_states.reshape((self._len_demo, self._nb_joints, 1))
         f_target = f_target.reshape((self._len_demo, self._nb_joints, 1))
         # basis functions
-        PSI = np.exp(
+        psi = np.exp(
             -0.5
             * (
                 (
-                    (X * np.ones((1, self._n_rfs)))
+                    (x_states * np.ones((1, self._n_rfs)))
                     - np.transpose(
                         self._c.reshape((self._n_rfs, self._nb_joints, 1))
                         * np.ones((1, self._len_demo))
@@ -498,14 +498,16 @@ class DynamicMovementPrimitives:
         )
         # close form locally weighted regression to determine weights
         if self._c_order == 1:
-            self._sx2 = np.sum(((V**2) * np.ones((1, self._n_rfs))) * PSI, axis=0)
+            self._sx2 = np.sum(
+                ((v_states**2) * np.ones((1, self._n_rfs))) * psi, axis=0
+            )
             self._sxtd = np.sum(
-                ((V * f_target) * np.ones((1, self._n_rfs))) * PSI, axis=0
+                ((v_states * f_target) * np.ones((1, self._n_rfs))) * psi, axis=0
             )
 
         else:
-            self._sx2 = sum(((X**2) * np.ones(1, self._n_rfs)) * PSI, 1)
-            self._sxtd = sum(((X * f_target) * np.ones(1, self._n_rfs)) * PSI, 1)
+            self._sx2 = sum(((x_states**2) * np.ones(1, self._n_rfs)) * psi, 1)
+            self._sxtd = sum(((x_states * f_target) * np.ones(1, self._n_rfs)) * psi, 1)
 
         # compute the weights
         self._w = self._sxtd / (self._sx2 + 1.0e-10)
