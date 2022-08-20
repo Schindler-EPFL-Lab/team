@@ -29,6 +29,9 @@ jobs:
     vmImage: "windows-latest"
 
   steps:
+    - checkout: self
+    - checkout: git://CRD-NT_ARCO/rws2
+
     - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
       displayName: Add conda to PATH
 
@@ -45,7 +48,7 @@ jobs:
     - task: Cache@2
       displayName: Cache Anaconda
       inputs:
-        key: 'version1 | conda | "$(Agent.OS)" | pyproject.toml'
+        key: 'version1 | conda | "$(Agent.OS)" | arco-control/pyproject.toml'
         path: $(CONDA)/envs
         cacheHitVar: CONDA_CACHE_RESTORED
 
@@ -68,6 +71,7 @@ jobs:
         script: |
           conda run -n unittest dvc remote add --global -d azure azure://arcodatasets
           conda run -n unittest dvc remote modify --global azure connection_string $env:ARCODATASET_CONNECTION_STRING
+          cd arco-control
           conda run -n unittest python tests/tests_LfD/data/load_test_data.py
       env:
         ARCODATASET_CONNECTION_STRING: $(ARCODATASET_CONNECTION_STRING)
@@ -75,10 +79,18 @@ jobs:
 
     - script: |
         call activate unittest
+        cd rws2
+        pip install .
+      displayName: "Install rws2"
+
+    - script: |
+        call activate unittest
+        cd arco-control
         pip install -e .
       displayName: "Install arco-control"
 
     - script: |
         call activate unittest
+        cd arco-control
         python -m unittest discover tests
       displayName: "Run tests"
