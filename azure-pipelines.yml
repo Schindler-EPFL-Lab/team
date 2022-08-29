@@ -72,18 +72,6 @@ jobs:
       displayName: "Install DVC"
       condition: eq(variables.CONDA_CACHE_RESTORED, 'false')
 
-    - task: PowerShell@2
-      inputs:
-        targetType: "inline"
-        script: |
-          conda run -n unittest dvc remote add --global -d azure azure://arcodatasets
-          conda run -n unittest dvc remote modify --global azure connection_string $env:ARCODATASET_CONNECTION_STRING
-          cd team
-          conda run -n unittest python tests/tests_LfD/data/load_test_data.py
-      env:
-        ARCODATASET_CONNECTION_STRING: $(ARCODATASET_CONNECTION_STRING)
-      displayName: "Download data"
-
     - script: |
         call activate unittest
         cd rws2
