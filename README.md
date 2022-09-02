@@ -11,10 +11,12 @@ If you use this work please cite:
 
 ## Build and Test
 
-1. Install [flit](https://github.com/pypa/flit) with `pip install flit`.
+1. Intall [rws2](https://github.com/SchindlerReGIS/rws2).
+   It's the dependency needed to control an ABB robot for testing purpose.
+2. Install [flit](https://github.com/pypa/flit) with `pip install flit`.
 We use flit to package and install this repository.
-2. Clone/fork the repo from Github.
-3. Run `pip install -e .` in the root folder to install rws2 in editable mode (`pip install .` is enough if you do not plan to contribute).
+3. Clone/fork the repo from Github.
+4. Run `pip install -e .` in the root folder to install rws2 in editable mode (`pip install .` is enough if you do not plan to contribute).
 
 The library should then be installed and you should be able to call it in python with `import team`.
 
