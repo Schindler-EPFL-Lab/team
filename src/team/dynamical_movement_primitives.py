@@ -35,11 +35,6 @@ class DynamicMovementPrimitives:
         initial_joints=initial_joints,
     )
     ```
-
-    :param regression: regression function extracted from dataset
-    :param c_order: order of the dynamical system
-    :param goal_joints: goal robot joints
-    :param initial_joints: initial robot joints
     """
 
     _alpha_z: np.ndarray
@@ -59,14 +54,24 @@ class DynamicMovementPrimitives:
         self,
         regression: np.ndarray,
         c_order: int,
-        goal_joints: np.ndarray,
-        initial_joints: np.ndarray,
+        goal_joints: Optional[np.ndarray] = None,
+        initial_joints: Optional[np.ndarray] = None,
         search_space: Optional[list[tuple[int, int]]] = None,
         dmp_parameters: Optional[tuple[np.ndarray, int]] = None,
     ) -> None:
+        """input can be either goal_joints, initial_joints and search space the first
+        time, or use dmp_parameters when loading.
 
-        if search_space is None:
-            search_space = [(5, 30), (50, 200)]
+        :param regression: regression function extracted from dataset
+        :param c_order: order of the dynamical system
+        :param goal_joints: goal robot joints
+        :param initial_joints: initial robot joints
+        :param search_space: the search space for the bayesian optimization,
+               defaults to None
+        :param dmp_parameters: previously loaded DMP parameter of the object is read
+               from a file, defaults to None
+        """
+
         self.sampling_rate = 1 / (regression[1, 0] - regression[0, 0])
         self.dt = regression[1, 0] - regression[0, 0]
         self.regression = regression
@@ -105,7 +110,11 @@ class DynamicMovementPrimitives:
         self.v_history = np.zeros((self._len_demo, self._nb_joints, 2))
 
         if dmp_parameters is None:
+            assert goal_joints is not None
+            assert initial_joints is not None
             # run optimization
+            if search_space is None:
+                search_space = [(5, 30), (50, 200)]
             self._search_space = search_space
             self._set_goal(goal=goal_joints, y0=initial_joints)
             self._optimize_dmp_params()
@@ -113,16 +122,12 @@ class DynamicMovementPrimitives:
             self.set_alpha_z_and_n_rfs(dmp_parameters[0], dmp_parameters[1])
 
     @classmethod
-    def load_dmp(
-        cls, dir_path: Path, g_joints: np.ndarray, i_joints: np.ndarray
-    ) -> "DynamicMovementPrimitives":
+    def load_dmp(cls, dir_path: Path) -> "DynamicMovementPrimitives":
         """
         Creates an DynamicMovementPrimitives with parameters loaded from a dmp param
         file and regression information loaded from a regression file.
 
         :param dir_path: path of the directory containing the data to load
-        :param g_joints: goal robot joints
-        :param i_joints: initial robot joints
         :return: DynamicMovementPrimitives with the loaded parameters
         """
 
@@ -143,8 +148,6 @@ class DynamicMovementPrimitives:
         return cls(
             reg,
             c_order,
-            g_joints,
-            i_joints,
             dmp_parameters=(alpha_z, n_rfs),
         )
 
