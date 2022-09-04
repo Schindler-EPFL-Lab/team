@@ -366,9 +366,7 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
 
         # check that the dmp parameters are loaded correctly
         path = Path(os.path.join(os.path.dirname(__file__), "dmp_data"))
-        dmp = DynamicMovementPrimitives.load_dmp(
-            dir_path=path, g_joints=np.ones(6), i_joints=np.ones(6)
-        )
+        dmp = DynamicMovementPrimitives.load_dmp(dir_path=path)
         alpha_z = dmp._alpha_z
         n_rfs = dmp._n_rfs
         np.testing.assert_equal(alpha_z, 12 * np.ones(dmp._nb_joints))
