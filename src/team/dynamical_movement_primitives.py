@@ -307,8 +307,11 @@ class DynamicMovementPrimitives:
         :param res: optimizer result
         :return: boolean that if True stops the optimizer
         """
-        # compare last two evaluation points
-        return res.x_iters[-1] == res.x_iters[-2]
+        if len(res.x_iters) > 1:
+            # compare last two evaluation points
+            return res.x_iters[-1] == res.x_iters[-2]
+        else:
+            return False
 
     def _optimize_dmp_params(self) -> None:
         """
