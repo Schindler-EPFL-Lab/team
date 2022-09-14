@@ -307,16 +307,8 @@ class DynamicMovementPrimitives:
         :param res: optimizer result
         :return: boolean that if True stops the optimizer
         """
-
-        nb_occurrences = 0
-        reference = res.x_iters[-1]
-        # loop backward on the list of evaluation points
-        for pos in res.x_iters[::-1]:
-            if pos == reference:
-                nb_occurrences = nb_occurrences + 1
-            else:
-                break
-        return nb_occurrences > 1
+        # compare last two evaluation points
+        return res.x_iters[-1] == res.x_iters[-2]
 
     def _optimize_dmp_params(self) -> None:
         """
