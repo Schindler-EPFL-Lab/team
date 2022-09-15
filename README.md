@@ -2,12 +2,21 @@
 
 [![Build Status](https://dev.azure.com/devsdb/CRD-NT_ARCO/_apis/build/status/SchindlerReGIS.team?repoName=SchindlerReGIS%2Fteam&branchName=main)](https://dev.azure.com/devsdb/CRD-NT_ARCO/_build/latest?definitionId=1211&repoName=SchindlerReGIS%2Fteam&branchName=main)
 
+
+![ABB robot with a helmet](robot.jpg)
+![ABB robot with a helmet](flowchart.png)
+
 TEAM is a parameter-free algorithm to learn motions from user demonstrations.
 This proposed method has been submitted to [ICRA2023](https://www.icra2023.org/) and the paper can be found on arXiv.
 
 If you use this work please cite:
 
 > citation to come
+
+## License
+
+This work is under the GNU AFFERO GENERAL PUBLIC LICENSE.
+If you would like to use this work under another LICENSE than this one, please contact us directly.
 
 ## Build and Test
 
@@ -23,11 +32,6 @@ The library should then be installed and you should be able to call it in python
 ## How to use the package
 
 See `notebook/pipeline.ipynb`.
-
-## License
-
-This work is under the GNU AFFERO GENERAL PUBLIC LICENSE.
-If you would like to use this work under another LICENSE than this one, please contact us directly.
 
 ## Contribute
 
