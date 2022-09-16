@@ -15,7 +15,19 @@ If you use this work please cite:
 
 ## License
 
-This work is under the GNU AFFERO GENERAL PUBLIC LICENSE.
+Our objective is to share our results with the research community and produce reproducible science.
+We wish that those who benefit from our work do the same :)!
+
+Hence, this work is under the GNU AFFERO GENERAL PUBLIC LICENSE.
+AGPL is a free/open source software license.
+This doesn't mean the software is gratis; it means that you need to contact us as soon as you develop commercial activities distributing the software inside your product, or deploying it on a network without disclosing the source code of your own applications under the AGPL license.
+
+These activities include:
+
+* offering paid services to customers as an ASP.
+* serving robot control on the fly in the cloud or in a web application.
+* shipping _team_ with a closed source product.
+
 If you would like to use this work under another LICENSE than this one, please contact us directly.
 
 ## Build and Test
