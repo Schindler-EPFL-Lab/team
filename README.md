@@ -9,7 +9,7 @@
 ![ABB robot with a helmet](flowchart.png)
 
 TEAM is a parameter-free algorithm to learn motions from user demonstrations.
-This proposed method has been submitted to [ICRA2023](https://www.icra2023.org/) and the paper can be found on [arXiv](https://arxiv.org/abs/2209.06940).
+This proposed method has been submitted to [ICRA2023](https://www.icra2023.org/) and the pre-print can be found on [arXiv](https://arxiv.org/abs/2209.06940).
 
 If you use this work please cite:
 
