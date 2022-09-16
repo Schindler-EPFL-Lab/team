@@ -3,6 +3,8 @@
 [![Build Status](https://dev.azure.com/devsdb/CRD-NT_ARCO/_apis/build/status/SchindlerReGIS.team?repoName=SchindlerReGIS%2Fteam&branchName=main)](https://dev.azure.com/devsdb/CRD-NT_ARCO/_build/latest?definitionId=1211&repoName=SchindlerReGIS%2Fteam&branchName=main)
 
 
+![Schindler logo](logo.jpg)
+
 ![ABB robot with a helmet](robot.jpg)
 ![ABB robot with a helmet](flowchart.png)
 
