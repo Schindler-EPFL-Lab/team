@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 from dtaidistance import dtw, dtw_ndim
@@ -13,7 +15,7 @@ class DataPreprocessing:
     ```python
     dp = DataPreprocessing(traj_to_align, sampling_rate)
     # preprocessing
-    dp.preprocessing()
+    dp.preprocessing(window=10)
     ```
 
     :param traj_to_align: trajectories to align
@@ -27,16 +29,15 @@ class DataPreprocessing:
         self.reference = self.trajectories_to_align[self.reference_index]
         self._sampling_rate = sampling_rate
         # final output of the algorithm
-        self.aligned_and_padded_trajectories: list[Trajectory] = []
+        self.aligned_and_padded_trajectories = [self.reference]
 
     @staticmethod
-    def _extend_duplicates(traj: Trajectory, av_sampling: float) -> None:
+    def _extend_duplicates(traj: Trajectory) -> None:
         """
         Extends the timestamps of the duplicated values (i.e generates new datapoints
         from duplicated values with the same information but different timestamps)
 
         :param traj: the trajectory to extend
-        :param av_sampling: average sampling rate of the data
         """
 
         # No copy of the numpy array is done when converting to a DataFrame, and thus,
@@ -44,7 +45,7 @@ class DataPreprocessing:
         df = pd.DataFrame(traj.trajectory)
         for i, is_duplicated in enumerate(df.duplicated()):
             if is_duplicated:
-                df.iloc[i:, 0] = df.iloc[i:, 0] + (1 / av_sampling)
+                df.iloc[i:, 0] = df.iloc[i:, 0] + traj.period
 
     @staticmethod
     def _pad_to_same_length(trajectories: list[Trajectory]) -> None:
@@ -75,11 +76,13 @@ class DataPreprocessing:
         cumulative_dist = np.sum(ds, axis=1)
         return np.argwhere(cumulative_dist == np.min(cumulative_dist))[0][0]
 
-    def _align_data(self) -> None:
+    def _align_data(self, window: Optional[float] = None) -> None:
         """
         Aligns demonstrations with respect to the reference one using the dynamic
         time warping algorithm (DTW)
 
+        :param window: only allow for maximal shifts from the two diagonals smaller
+        than this number in seconds. Default to maximum.
         """
         # end effector position information considered
         tcp_ref = self.reference.tcp
@@ -87,22 +90,19 @@ class DataPreprocessing:
         for i, trajectory in enumerate(self.trajectories_to_align):
             if i == self.reference_index:
                 continue
-            _, paths = dtw_ndim.warping_paths(tcp_ref, trajectory.tcp)
-            # best matching transformation
-            path = dtw.best_path(paths)
-            aligned_path = [p[1] for p in path]
+
+            if window is not None:
+                # Convert windows in second to measurements.
+                window = int(window / max(trajectory.period, self.reference.period))
+
+            path = dtw_ndim.warping_path(
+                from_s=trajectory.tcp, to_s=tcp_ref, window=window, psi=2
+            )
+
+            aligned_path = [p[0] for p in path]
             # found transformation applied to original dataframe
             aligned_trajectory = Trajectory(trajectory.trajectory[aligned_path])
             self.aligned_and_padded_trajectories.append(aligned_trajectory)
-
-        # reference demonstration added
-        aligned_reference = self.reference
-        if path is not None:
-            aligned_reference_path = [p[0] for p in path]
-            aligned_reference = Trajectory(
-                self.reference.trajectory[aligned_reference_path]
-            )
-        self.aligned_and_padded_trajectories.append(aligned_reference)
 
     def _stretch_duplicates(self) -> None:
         """
@@ -112,7 +112,7 @@ class DataPreprocessing:
         """
         for traj in self.aligned_and_padded_trajectories:
             # extends dataframe with time increments
-            DataPreprocessing._extend_duplicates(traj, traj.average_sampling)
+            DataPreprocessing._extend_duplicates(traj)
 
     def _upsampling_padding(self) -> None:
         """
@@ -124,10 +124,13 @@ class DataPreprocessing:
             data.upsample(self._sampling_rate)
         self._pad_to_same_length(self.aligned_and_padded_trajectories)
 
-    def preprocessing(self) -> None:
+    def preprocessing(self, window: Optional[float] = None) -> None:
         """
         Runs all the preprocessing steps
+
+        :param window: only allow for maximal shifts from the two diagonals smaller
+        than this number in seconds. Default to maximum.
         """
-        self._align_data()
+        self._align_data(window=window)
         self._stretch_duplicates()
         self._upsampling_padding()

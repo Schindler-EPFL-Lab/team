@@ -63,8 +63,12 @@ class Trajectory(TrajectoryBase):
         return self._trajectory[:, :7]
 
     @property
-    def average_sampling(self) -> float:
-        return len(np.unique(self._trajectory, axis=0)) / self.timestamps[-1]
+    def period(self) -> float:
+        """Average time elapse between two measurements."""
+        average_time = (self.timestamps[-1] - self.timestamps[0]) / (
+            len(self.timestamps) - 1
+        )
+        return float(average_time)
 
     def upsample(self, des_freq: int) -> None:
         """

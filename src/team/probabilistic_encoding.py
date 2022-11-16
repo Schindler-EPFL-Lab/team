@@ -21,14 +21,6 @@ class ProbabilisticEncoding:
         trajectories, iterations=30, max_nb_components=10, min_nb_components=2
     )
     ```
-
-    :param trajectories: dataset with robot joint angle trajectories
-                         data has shape (nb_samples x demo_length x nb_joints + 1)
-                         the first column of each sample denotes the timestamp
-    :param iterations: runs to compute statistics over JS metric
-    :param min_nb_components: minimum number of GMM components allowed to model the data
-    :param max_nb_components: maximum number of GMM components allowed to model the data
-    :param random_state: reproducibility of GMM initialization for testing purposes
     """
 
     def __init__(
@@ -38,7 +30,19 @@ class ProbabilisticEncoding:
         min_nb_components: int = 2,
         max_nb_components: int = 10,
         random_state: Optional[int] = None,
+        shuffle: bool = True,
     ) -> None:
+        """
+        :param trajectories: dataset with robot joint angle trajectories
+            data has shape (nb_samples x demo_length x nb_joints + 1)
+            the first column of each sample denotes the timestamp
+        :param iterations: runs to compute statistics over JS metric
+        :param min_nb_components: minimum number of GMM components
+        :param max_nb_components: maximum number of GMM components
+        :param random_state: reproducibility of GMM initialization for testing purposes
+        :param shuffle: shuffle the train and test set while determining the best GMM
+            Set to False to have reproducible runs.
+        """
         self._iterations = iterations
         _, self.length_demo, self._nb_features = np.shape(
             trajectories.aligned_trajectories
@@ -57,6 +61,7 @@ class ProbabilisticEncoding:
             max_nb_components=max_nb_components,
             min_nb_components=min_nb_components,
             random_state=random_state,
+            shuffle=shuffle,
         )
 
     def _gmm_fitting(
@@ -89,6 +94,7 @@ class ProbabilisticEncoding:
         max_nb_components: int,
         min_nb_components: int,
         random_state: Optional[int] = None,
+        shuffle: bool = True,
     ) -> GaussianMixture:
         """
         Computes the Jensen-Shannon (JS) metric. The lesser is the JS-distance between
@@ -97,8 +103,9 @@ class ProbabilisticEncoding:
 
         :param min_nb_components: min components number to define range of search space.
         :param max_nb_components: max components number to define range of search space.
-        :param random_state: reproducibility of GMM initialization for testing purposes
-        :return: the best fitted GMM mixture on the data according to JS distance score
+        :param random_state: reproducibility of GMM initialization for testing purposes.
+        :param shuffle: shuffle the train and test set while determining the best GMM.
+        :return: the best fitted GMM mixture on the data according to JS distance score.
         """
         # check valid range for number components
         if (
@@ -121,7 +128,10 @@ class ProbabilisticEncoding:
             # loop over number runs
             for _ in range(self._iterations):
                 train, test = train_test_split(
-                    self.trajectories, test_size=0.5, random_state=random_state
+                    self.trajectories,
+                    test_size=0.5,
+                    random_state=random_state,
+                    shuffle=shuffle,
                 )
                 # fit over the train and test datasets
                 gmm_train = GaussianMixture(n, random_state=random_state).fit(train)

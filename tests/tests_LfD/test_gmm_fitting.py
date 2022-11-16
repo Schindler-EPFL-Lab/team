@@ -1,3 +1,4 @@
+import platform
 import unittest
 from pathlib import Path
 
@@ -9,6 +10,13 @@ from team.probabilistic_encoding import ProbabilisticEncoding
 
 
 class ProbabilisticEncodingTest(unittest.TestCase):
+    @staticmethod
+    def is_arm() -> bool:
+        # For some tests, being on ARM or X86 will change the value due floating point
+        # calculations. For example, This difference leads to different GMM even with
+        # no shuffle and the same random seed.
+        return platform.machine() == "aarch64" or platform.machine() == "armv7l"
+
     @staticmethod
     def _create_trajectory_and_prob_encoding() -> tuple[
         AlignedTrajectories, ProbabilisticEncoding
@@ -22,16 +30,20 @@ class ProbabilisticEncodingTest(unittest.TestCase):
             min_nb_components=2,
             iterations=1,
             random_state=0,
+            shuffle=False,
         )
         return trajectories, pe
 
     def test_probabilistic_encoding(self):
-
         _, pe = self._create_trajectory_and_prob_encoding()
         # check best number GMM components
-        self.assertEqual(pe.gmm.n_components, 5)
+        self.assertEqual(pe.gmm.n_components, 2)
+
+        if self.is_arm():
+            return
+
         # check norm of covariance matrices
-        for i, norm in enumerate([217, 80, 50, 281, 58]):
+        for i, norm in enumerate([634, 898]):
             self.assertEqual(int(np.linalg.norm(pe.gmm.covariances_[i])), norm)
 
     def test_nb_gmm_components(self):
@@ -48,19 +60,22 @@ class ProbabilisticEncodingTest(unittest.TestCase):
 
     def test_gmr_implementation(self):
 
+        if self.is_arm():
+            return
+
         traj, pe = self._create_trajectory_and_prob_encoding()
         # compute regression curve
-        regression = GMR(traj, pe)
+        regression = GMR(traj, pe, 0)
         # check prediction vector, first timestamp
         np.testing.assert_array_almost_equal(
             regression.prediction[0, :],
-            np.array([0.0, 0.43, -21.18, 68.83, 6.32, -49.99, -11.77]),
+            np.array([0.0, 0.4, -24.9, 73.3, 8.2, -49.8, -13.7]),
             decimal=1,
         )
 
         # check prediction vector, last timestamp
         np.testing.assert_array_almost_equal(
             regression.prediction[-1, :],
-            np.array([12.83, 19.76, 43.12, -5.45, 26.73, -44.88, -24.18]),
+            np.array([12.5, 19.3, 43.8, -6.8, 24.4, -43.7, -22.4]),
             decimal=1,
         )

@@ -155,3 +155,18 @@ class TrajectoriesTest(unittest.TestCase):
         self.assertEqual(rms_joints, np.sqrt(2))
         rms_same_traj = second_traj.rms_error(second_traj)
         self.assertEqual(rms_same_traj, 0)
+
+    def test_period(self):
+        self.trajectory.period
+        self.assertAlmostEqual(self.trajectory.period, 0.01, delta=0.002)
+
+        first_traj = Trajectory(
+            np.array(
+                [
+                    [0, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    [2, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                ]
+            )
+        )
+        self.assertAlmostEqual(first_traj.period, 1, delta=0.002)

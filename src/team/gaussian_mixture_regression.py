@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 from gmr import GMM
 
@@ -25,7 +27,10 @@ class GMR:
     """
 
     def __init__(
-        self, trajectories: AlignedTrajectories, prob_encoding: ProbabilisticEncoding
+        self,
+        trajectories: AlignedTrajectories,
+        prob_encoding: ProbabilisticEncoding,
+        random_state: Optional[int] = None,
     ) -> None:
         self._trajectories = trajectories
         self._gmm = GMM(
@@ -33,6 +38,7 @@ class GMR:
             priors=prob_encoding.gmm.weights_,
             means=prob_encoding.gmm.means_,
             covariances=np.array(prob_encoding.gmm.covariances_),
+            random_state=random_state,
         )
         self.prediction = self._predict_regression()
 
