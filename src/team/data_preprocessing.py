@@ -27,7 +27,7 @@ class DataPreprocessing:
         self.reference = self.trajectories_to_align[self.reference_index]
         self._sampling_rate = sampling_rate
         # final output of the algorithm
-        self.aligned_and_padded_trajectories: list[Trajectory] = []
+        self.aligned_and_padded_trajectories = [self.reference]
 
     @staticmethod
     def _extend_duplicates(traj: Trajectory, av_sampling: float) -> None:
@@ -87,22 +87,13 @@ class DataPreprocessing:
         for i, trajectory in enumerate(self.trajectories_to_align):
             if i == self.reference_index:
                 continue
-            _, paths = dtw_ndim.warping_paths(tcp_ref, trajectory.tcp)
-            # best matching transformation
-            path = dtw.best_path(paths)
-            aligned_path = [p[1] for p in path]
+            path = dtw_ndim.warping_path(
+                from_s=trajectory.tcp, to_s=tcp_ref, window=10, psi=2
+            )
+            aligned_path = [p[0] for p in path]
             # found transformation applied to original dataframe
             aligned_trajectory = Trajectory(trajectory.trajectory[aligned_path])
             self.aligned_and_padded_trajectories.append(aligned_trajectory)
-
-        # reference demonstration added
-        aligned_reference = self.reference
-        if path is not None:
-            aligned_reference_path = [p[0] for p in path]
-            aligned_reference = Trajectory(
-                self.reference.trajectory[aligned_reference_path]
-            )
-        self.aligned_and_padded_trajectories.append(aligned_reference)
 
     def _stretch_duplicates(self) -> None:
         """

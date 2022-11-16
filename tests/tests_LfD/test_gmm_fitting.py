@@ -26,12 +26,11 @@ class ProbabilisticEncodingTest(unittest.TestCase):
         return trajectories, pe
 
     def test_probabilistic_encoding(self):
-
         _, pe = self._create_trajectory_and_prob_encoding()
         # check best number GMM components
-        self.assertEqual(pe.gmm.n_components, 5)
+        self.assertEqual(pe.gmm.n_components, 3)
         # check norm of covariance matrices
-        for i, norm in enumerate([217, 80, 50, 281, 58]):
+        for i, norm in enumerate([333, 591, 5]):
             self.assertEqual(int(np.linalg.norm(pe.gmm.covariances_[i])), norm)
 
     def test_nb_gmm_components(self):
@@ -54,13 +53,13 @@ class ProbabilisticEncodingTest(unittest.TestCase):
         # check prediction vector, first timestamp
         np.testing.assert_array_almost_equal(
             regression.prediction[0, :],
-            np.array([0.0, 0.43, -21.18, 68.83, 6.32, -49.99, -11.77]),
+            np.array([0.0, 1.5, -20.8, 68.6, 8.4, -50.9, -12.9]),
             decimal=1,
         )
 
         # check prediction vector, last timestamp
         np.testing.assert_array_almost_equal(
             regression.prediction[-1, :],
-            np.array([12.83, 19.76, 43.12, -5.45, 26.73, -44.88, -24.18]),
+            np.array([10.3, 18.2, 39.4, 0.2, 22.7, -44.7, -20.3]),
             decimal=1,
         )
