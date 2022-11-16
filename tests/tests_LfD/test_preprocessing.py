@@ -10,7 +10,7 @@ from team.data_preprocessing import DataPreprocessing
 
 class PreprocessTest(unittest.TestCase):
     @classmethod
-    def setUpClass(cls) -> None:
+    def setUp(cls) -> None:
         cls.sampling_rate = 100
         base_path = pathlib.Path(__file__).parent.absolute()
         data_path = str(pathlib.Path(base_path, "data"))
@@ -27,12 +27,21 @@ class PreprocessTest(unittest.TestCase):
             traj_read_len.add(np.shape(traj.trajectory))
         self.assertEqual(traj_length, traj_read_len)
 
+    def test_align_data(self) -> None:
+        """Test that all aligned trajectories match the reference is length"""
+        self.dp._align_data(window=10)
+        lengths = [728, 974, 733]
+        for trajectory in self.dp.aligned_and_padded_trajectories:
+            self.assertTrue(len(trajectory) in lengths)
+
     def test_preprocessing_steps(self) -> None:
-        self.dp.preprocessing()
+        self.dp.preprocessing(window=10)
         aligned_traj = AlignedTrajectories.from_list_trajectories(
             self.dp.aligned_and_padded_trajectories
         )
         self.assertEqual(np.shape(aligned_traj.aligned_trajectories)[0], 3)
+
+        first_traj = self.dp.aligned_and_padded_trajectories[0]
         for trajectory in self.dp.aligned_and_padded_trajectories:
             data = pd.DataFrame(trajectory.trajectory)
             # test no duplicate rows remaining
@@ -42,5 +51,4 @@ class PreprocessTest(unittest.TestCase):
                 len(data) - 1, round(data.iloc[-1, 0] * self.sampling_rate)
             )
             # test padding
-            first_traj = self.dp.aligned_and_padded_trajectories[0]
-            self.assertEqual(np.shape(first_traj.trajectory)[0], 1285)
+            self.assertEqual(len(first_traj.trajectory), len(trajectory))

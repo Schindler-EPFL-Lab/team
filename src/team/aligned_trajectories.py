@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from team.data_preprocessing import DataPreprocessing
@@ -58,14 +60,18 @@ class AlignedTrajectories:
         return trajectories
 
     @classmethod
-    def load_dataset_and_preprocess(cls, data_path: str) -> "AlignedTrajectories":
+    def load_dataset_and_preprocess(
+        cls, data_path: str, window: Optional[float] = None
+    ) -> "AlignedTrajectories":
         """
         Loads data from dataset, preprocesses it and returns the aligned trajectories
 
         :param data_path: path to the dataset
+        :param window: only allow for maximal shifts from the two diagonals smaller
+        than this number in seconds. Default to maximum.
         :return: aligned trajectories
         """
         trajectories_list = AlignedTrajectories._load_data(data_path)
         dp = DataPreprocessing(trajectories_list, sampling_rate=100)
-        dp.preprocessing()
+        dp.preprocessing(window)
         return cls.from_list_trajectories(dp.aligned_and_padded_trajectories)
