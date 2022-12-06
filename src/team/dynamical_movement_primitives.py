@@ -391,9 +391,11 @@ class DynamicMovementPrimitives:
         """
         max_velocity = np.max(self._yd_demo)
         threshold = 0.05 * max_velocity
-        vel = self._yd_demo[:, 2]
-        idx = np.argwhere(np.abs(vel) > threshold)
-        return float(self.timestamp[idx[-1]])
+        # Get the index position with the first index being where the element is
+        # in self._yd_demo and the others being which joint it is.
+        idx = np.argwhere(np.abs(self._yd_demo) > threshold)
+        # Take the last element index.
+        return float(self.timestamp[idx[-1][0]])
 
     def _compute_f_target(self, g) -> np.ndarray:
         """
