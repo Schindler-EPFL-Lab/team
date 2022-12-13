@@ -19,7 +19,7 @@ dependencies = [
   "scikit-learn>=0.24.2",
   "gmr>=1.6.2",
   "numpy>=1.22.1",
-  "scikit-optimize>=0.9.0",
+  "scikit-optimize@git+https://github.com/MalcolmMielle/scikit-optimize.git",
   "tikzplotlib>=0.10.1",
   "rws2>=0.0.1",
 ]

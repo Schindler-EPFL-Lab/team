@@ -2,14 +2,13 @@
 
 [![Build Status](https://dev.azure.com/devsdb/CRD-NT_ARCO/_apis/build/status/SchindlerReGIS.team?repoName=SchindlerReGIS%2Fteam&branchName=main)](https://dev.azure.com/devsdb/CRD-NT_ARCO/_build/latest?definitionId=1211&repoName=SchindlerReGIS%2Fteam&branchName=main)
 
-
-![Schindler logo](logo.jpg)
+![Schindler logo](logo.jg)
 
 ![ABB robot with a helmet](robot.jpg)
 ![ABB robot with a helmet](flowchart.png)
 
 TEAM is a parameter-free algorithm to learn motions from user demonstrations.
-This proposed method has been submitted to [ICRA2023](https://www.icra2023.org/) and the pre-print can be found on [arXiv](https://arxiv.org/abs/2209.06940).
+A pre-print of the method can be found on [arXiv](https://arxiv.org/abs/2209.06940).
 
 If you use this work please cite:
 

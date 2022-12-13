@@ -4,11 +4,13 @@ import numpy as np
 from team.dynamical_movement_primitives import DynamicMovementPrimitives
 
 
-def plotting(dmp: DynamicMovementPrimitives) -> None:
+def plotting(dmp: DynamicMovementPrimitives, show: bool = True, to_file=None) -> None:
     """
     Generates the plots of the dynamic movement primitives fitting
 
     :param dmp: the dynamic movement primitives model
+    :param show: show the plot live
+    :param to_file: file to save image
     """
 
     len_demo, nb_joints = np.shape(dmp.T)[:-1]
@@ -16,7 +18,7 @@ def plotting(dmp: DynamicMovementPrimitives) -> None:
     time = dmp.dt * np.arange(len_demo)
     for i in range(nb_joints):
 
-        fig, axs = plt.subplots(3, 3, figsize=(15, 15))
+        _, axs = plt.subplots(3, 3, figsize=(15, 15))
         # plot position, velocity, acceleration vs.target
         axs[0, 0].plot(time, dmp.y[:, i, 0], label="output")
         axs[0, 0].plot(time, dmp.T[:, i, 0], label="regression")
@@ -62,4 +64,7 @@ def plotting(dmp: DynamicMovementPrimitives) -> None:
         plt.subplots_adjust(
             left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.5, hspace=0.5
         )
-    plt.show()
+    if show:
+        plt.show()
+    if to_file:
+        plt.savefig(to_file)
