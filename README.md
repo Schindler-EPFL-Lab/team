@@ -28,19 +28,18 @@ If you use this work please cite:
 ## License
 
 Our objective is to share our results with the research community and produce reproducible science.
-We wish that those who benefit from our work do the same :)!
+We wish that those who benefit from our work do the same :)
 
-Hence, this work is under the GNU AFFERO GENERAL PUBLIC LICENSE.
-AGPL is a free/open source software license.
-This doesn't mean the software is gratis; it means that you need to contact us as soon as you develop commercial activities distributing the software inside your product, or deploying it on a network without disclosing the source code of your own applications under the AGPL license.
+This package is licensed under the [Prosperity Public License 3.0 and the Parity Public License 7.0.0](LICENSE.md).
 
-These activities include:
+That means that this package is free to use for __non-commercial projects__---personal projects, public benefit projects, research, education, etc.
+If your project is commercial (even for internal use at your company), you have 30 days to try this package for free before you have to contact Schindler for a licensing fee.
+Furthermore, if you work on a non-commercial project, the Parity license means that this project is under a [maximal copyleft license](https://blueoakcouncil.org/copyleft).
+Taken from the license file:
 
-* offering paid services to customers as an ASP.
-* serving robot control on the fly in the cloud or in a web application.
-* shipping _team_ with a closed source product.
+> Contribute software you develop, operate, or analyze with this software, including changes or additions to this software. When in doubt, contribute.
 
-If you would like to use this work under another LICENSE than this one, please contact us directly.
+See the [License](LICENSE.md) file for all details.
 
 ## Build and Test
 
