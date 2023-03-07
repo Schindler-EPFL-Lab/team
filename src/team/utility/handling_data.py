@@ -99,4 +99,5 @@ def get_demo_files(demo_folder_path: str) -> list[str]:
     """
     files_paths = list(Path(demo_folder_path).rglob("*.json"))
     all_demonstration_files = [str(path) for path in files_paths]
+    all_demonstration_files.sort()
     return all_demonstration_files
