@@ -291,14 +291,17 @@ class ProbabilisticEncoding:
         log_q_y = gmm_q.score_samples(y)
         log_mix_y = np.logaddexp(log_p_y, log_q_y)
         # js divergence metric
-        js_distance = np.sqrt(
+        numerator = round(
             (
                 log_p_x.mean()
                 - (log_mix_x.mean() - np.log(2))
                 + log_q_y.mean()
                 - (log_mix_y.mean() - np.log(2))
-            )
-            / 2
+            ),
+            6,
         )
+        if numerator < 0:
+            raise RuntimeError("numerator of JS divergence is less than 0")
+        js_distance = np.sqrt(numerator / 2)
 
         return js_distance
