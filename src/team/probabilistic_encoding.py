@@ -6,6 +6,7 @@ from sklearn.mixture import GaussianMixture
 from sklearn.model_selection import train_test_split
 
 from team.aligned_trajectories import AlignedTrajectories
+from team.js_component import JSComponent
 
 
 class ProbabilisticEncoding:
@@ -53,7 +54,7 @@ class ProbabilisticEncoding:
             -1, self._nb_features
         )
         # js distances dictionary
-        self.js_metric_results = {}
+        self.js_metric_results: dict[int, JSComponent] = {}
         # chosen number of components
         self.nb_comp_js = 0
         # number of components selection
@@ -124,7 +125,7 @@ class ProbabilisticEncoding:
         self.js_metric_results = {}
         # loop over range
         for n in n_components_range:
-            dist = []
+            component = JSComponent(n)
             # loop over number runs
             for _ in range(self._iterations):
                 train, test = train_test_split(
@@ -137,9 +138,9 @@ class ProbabilisticEncoding:
                 gmm_train = GaussianMixture(n, random_state=random_state).fit(train)
                 gmm_test = GaussianMixture(n, random_state=random_state).fit(test)
                 # compute the JS distance between the two datasets
-                dist.append(self._js_metric(gmm_train, gmm_test))
+                component.append(self._js_metric(gmm_train, gmm_test))
 
-            self.js_metric_results[n] = dist
+            self.js_metric_results[n] = component
 
         # identify statistically significant best GMM nb_components
         self.nb_comp_js = self._statistically_significant_component()
@@ -211,36 +212,47 @@ class ProbabilisticEncoding:
         :return: the number of GMM components to consider
         """
 
-        key_min_mean = None
-        # min_mean initialized to highest value it can get
-        min_mean = 1
+        k_star_component: Optional[JSComponent] = None
 
-        for key, value in self.js_metric_results.items():
-            mean = np.mean(value)
-            std = np.std(value)
-            if key_min_mean is None or mean < min_mean:
-                key_min_mean = key
-                min_mean = mean
-            self.js_metric_results[key] = (value, mean, std)
+        for _, component in self.js_metric_results.items():
+            if k_star_component is None or component.mean < k_star_component.mean:
+                k_star_component = component
 
-        best_n_components = key_min_mean
-        for key, (value, mean, std) in self.js_metric_results.items():
-            if key == key_min_mean:
+        assert k_star_component is not None
+        for k_component, component in self.js_metric_results.items():
+            if k_component == k_star_component.component_nb:
                 continue
             # compute p-value
             # Explanation of the formula for Welch test with distributions.
             # http://homework.uoregon.edu/pub/class/es202/ztest.html#:~:text=The%20simplest%20way%20to%20compare,is%20via%20the%20Z%2Dtest.&text=The%20error%20in%20the%20mean,mean%20value%20for%20that%20population.
+            # Test if k is strictily greater than k*. The alternate hypothesis is k* < k
             # noqa
-            _, p_value = stats.ttest_ind(
-                self.js_metric_results[key_min_mean][0],
-                value,
+
+            _, p_value_greater = stats.ttest_ind(
+                component.values,
+                k_star_component.values,
                 equal_var=False,
-                alternative="less",
+                alternative="greater",
             )
-            # the null hypothesis is not rejected, alpha = 0.05
-            if p_value > 0.05 and std < self.js_metric_results[best_n_components][2]:
-                best_n_components = key
-        return best_n_components
+            if p_value_greater < 0.05:
+                # k is strictily greater than k* and we stop the process
+                continue
+
+            # Test if k* is strictily greater than k. The alternate hypothesis is k < k*
+            _, p_value_lesser = stats.ttest_ind(
+                k_star_component.values,
+                component.values,
+                equal_var=False,
+                alternative="greater",
+            )
+
+            if p_value_lesser < 0.05 or component.std < k_star_component.std:
+                # Etiher k* is strictily greater than k and k is more optiomal than k*
+                # or we cannot conclude on which component is best and we keep the one
+                # with the smallest standard deviation.
+                k_star_component = component
+
+        return k_star_component.component_nb
 
     def count_collapsed_gmm(self, gmm: GaussianMixture) -> int:
         """
