@@ -1,6 +1,7 @@
-name: Python tests and flake8
+name: Python tests and flake8.
 
 on:
+  pull_request:
   merge_group:
   workflow_dispatch:
 
