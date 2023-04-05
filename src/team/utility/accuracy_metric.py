@@ -4,7 +4,9 @@ from pathlib import Path
 import numpy as np
 from rws2.RWS2 import RWS
 
+from team.dmp_trajectory import DmpTrajectory
 from team.utility.lie_algebra_and_tf import quaternion_matrix, se3_inverse
+from team.utility.optimizer import Optimizer
 
 
 def endpoint_accuracy(rws: RWS) -> float:
@@ -132,6 +134,32 @@ def endpoint_joint_accuracy(rws: RWS, goal_j: np.ndarray) -> float:
     """
 
     return np.linalg.norm(goal_j - np.array(rws.get_joints_positions()))
+
+
+def gmcc_similarity_metric(reproduced_trajectory: DmpTrajectory,
+                           learned_trajectory: DmpTrajectory) -> float:
+    """
+    Computes the GMCC similarity metric between prediction and ground truth trajectory.
+    GMCC is a measure of how well a linear trasformation between 2 trajectories
+    can be mapped.
+    This similarity metric is invariant to and only to linear trasformations.
+    Paper arxiv url: https://arxiv.org/abs/1906.09802
+
+    :param reproduced_trajectory: trajectory based on task goal requirements
+    :param learned_trajectory:trajectory learned from the demonstrations dataset
+    :return: the GMCC similary metric value between prediction and ground truth
+    trajectory
+    """
+
+    regression = learned_trajectory.joints
+    reproduction = reproduced_trajectory.joints
+    matrix_A = Optimizer(regression, reproduction).find_optimum()
+    prediction = np.matmul(reproduction, matrix_A)
+    Y_overbar = np.mean(regression, axis=0)
+    denom = np.linalg.norm(regression - Y_overbar)
+    num = np.linalg.norm(prediction - Y_overbar)
+    gmcc = num / denom
+    return gmcc
 
 
 def save_model_performance(
