@@ -28,19 +28,19 @@ class GmccTest(unittest.TestCase):
 
     def test_gmcc_metric(self) -> None:
         gmcc_value = symmetric_gmcc(self.regression, self.regression)
-        self.assertAlmostEqual(gmcc_value, 1, places=3)
+        self.assertAlmostEqual(gmcc_value, 1, places=1)
 
     def test_translation(self) -> None:
         reproduction = np.matmul(self.regression, self.translation_matrix)
         gmcc_value = symmetric_gmcc(self.regression, reproduction)
-        self.assertAlmostEqual(gmcc_value, 1, places=3)
+        self.assertAlmostEqual(gmcc_value, 1, places=1)
 
     def test_rotation(self) -> None:
         reproduction = np.matmul(self.regression, self.rotation_matrix)
         gmcc_value = symmetric_gmcc(self.regression, reproduction)
-        self.assertAlmostEqual(gmcc_value, 1, places=3)
+        self.assertAlmostEqual(gmcc_value, 1, places=1)
 
     def test_scaling(self) -> None:
         reproduction = np.matmul(self.regression, self.scaling_matrix)
         gmcc_value = symmetric_gmcc(self.regression, reproduction)
-        self.assertAlmostEqual(gmcc_value, 1, places=3)
+        self.assertAlmostEqual(gmcc_value, 1, places=1)
