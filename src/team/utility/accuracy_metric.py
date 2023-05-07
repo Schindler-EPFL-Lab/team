@@ -140,24 +140,24 @@ def gmcc_similarity_metric(reproduced_trajectory: DmpTrajectory,
                            learned_trajectory: DmpTrajectory) -> float:
     """
     Computes the GMCC similarity metric between prediction and ground truth trajectory.
-    GMCC is a measure of how well a linear trasformation between 2 trajectories
+    GMCC is a measure of how well a linear transformation between 2 trajectories
     can be mapped.
-    This similarity metric is invariant to and only to linear trasformations.
+    This similarity metric is invariant to and only to linear transformations.
     Paper arxiv url: https://arxiv.org/abs/1906.09802
 
     :param reproduced_trajectory: trajectory based on task goal requirements
-    :param learned_trajectory:trajectory learned from the demonstrations dataset
+    :param learned_trajectory: trajectory learned from the demonstrations dataset
     :return: the GMCC similary metric value between prediction and ground truth
     trajectory
     """
 
     regression = learned_trajectory.joints
     reproduction = reproduced_trajectory.joints
-    matrix_A = Optimizer(regression, reproduction).find_optimum()
-    prediction = np.matmul(reproduction, matrix_A)
-    Y_overbar = np.mean(regression, axis=0)
-    denom = np.linalg.norm(regression - Y_overbar)
-    num = np.linalg.norm(prediction - Y_overbar)
+    matrix_h = Optimizer(regression, reproduction).find_optimum()
+    prediction = np.matmul(reproduction, matrix_h)
+    y_overbar = np.mean(regression, axis=0)
+    num = np.linalg.norm(prediction - y_overbar)
+    denom = np.linalg.norm(regression - y_overbar)
     gmcc = num / denom
     return gmcc
 
