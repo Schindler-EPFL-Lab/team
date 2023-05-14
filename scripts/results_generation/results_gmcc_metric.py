@@ -179,3 +179,49 @@ if __name__ == "__main__":
     reproduction_path = os.path.join(data_dir,
                                      "Timo_difficult/repro_far/demonstration_1.json")
     gmcc_value_td_f = get_gmcc_score(regression_path, reproduction_path)
+    # Drill data
+    drill = [gmcc_value_drill, gmcc_value_dr_f]
+    # Avoid data
+    avoid = [gmcc_value_ta, gmcc_value_ta_f]
+    # Parallel
+    parallel = [gmcc_value_td, gmcc_value_td_f]
+    # Collab
+    collab = [gmcc_value_tc, gmcc_value_tc_f]
+
+    text_file = (
+        r"\begin{tabular}{l  c  c  c  c } "
+        "\n "
+        r"\toprule "
+        "\n "
+        r"Task & F1 & F2 & F3 & F4 \\ [0.5ex] "
+        "\n "
+        r"\midrule "
+        "\n "
+        r"\makecell[l]{Name} & \makecell{Drill} & \makecell{Avoid} & "
+        r"\makecell{Parallel} & \makecell{Collaborative} "
+        r"\\ "
+        "\n"
+        r" \addlinespace[0.5em] "
+        " \n "
+        r"\makecell[l]{Average demonstration\\ duration [s]} "
+        f"& ${np.around(np.mean(drill), 3)}"
+        r"\pm"
+        f"{np.around(np.std(drill), 3)}$ &"
+        f" ${np.around(np.mean(avoid), 3)}"
+        r"\pm"
+        f"{np.around(np.std(avoid), 3)}$ &"
+        f" ${np.around(np.mean(parallel), 3)}"
+        r"\pm"
+        f"{np.around(np.std(parallel), 3)}$ &"
+        f" ${np.around(np.mean(collab), 3)}"
+        r"\pm"
+        f"{np.around(np.std(collab), 3)}$"
+        r"\\ "
+        "\n "
+        r" \bottomrule "
+        "\n "
+        r"\end{tabular}"
+    )
+
+    with open("gmcc_results.tex", "w") as f:
+        f.write(text_file)
