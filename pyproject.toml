@@ -22,6 +22,7 @@ dependencies = [
   "scikit-optimize@git+https://github.com/MalcolmMielle/scikit-optimize.git",
   "tikzplotlib>=0.10.1",
   "rws2>=0.0.1",
+  "spatialmath-python >= 1.1.8"
 ]
 
 [project.urls]
