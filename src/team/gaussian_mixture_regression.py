@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -5,6 +6,7 @@ from gmr import GMM
 
 from team.aligned_trajectories import AlignedTrajectories
 from team.probabilistic_encoding import ProbabilisticEncoding
+from team.utility.handling_data import save_json_dict
 
 
 class GMR:
@@ -56,3 +58,19 @@ class GMR:
         # stack time vector with predictions
         y_predicted_mean = np.hstack((x1, y_predicted_mean))
         return y_predicted_mean
+
+    def save_regression(self, dir_path: Path, exist_ok: bool = False) -> None:
+        """
+        Saves regression information in a json file.
+
+        :param dir_path: path to the directory where the data will be saved
+        :param exist_ok: boolean to allow file override
+        """
+
+        # define file path and data to store
+        file_path = dir_path.joinpath("regression.json")
+        joints = self.prediction[:, 1:]
+        data = {
+            "regression": joints.tolist(),
+        }
+        save_json_dict(file_path, data, exist_ok)
