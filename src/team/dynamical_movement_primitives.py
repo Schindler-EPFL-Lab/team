@@ -7,6 +7,7 @@ from scipy.optimize import OptimizeResult
 from skopt import gp_minimize
 
 from team.dmp_trajectory import DmpTrajectory
+from team.utility.handling_data import save_json_dict
 
 
 class DynamicMovementPrimitives:
@@ -153,38 +154,25 @@ class DynamicMovementPrimitives:
 
     def save_dmp(self, dir_path: Path, exist_ok: bool = False) -> None:
         """
-        Saves dmp information in a zip file. The file contains both the dmp parameters
-        and the regression function used to learn the forcing term. If the destination
-        folder doesn't exist it creates it.
+        Saves dmp information in a json file. The file contains both the dmp parameters
+        and the generated trajectory configuration.
 
         :param dir_path: path to the directory where the data will be saved
+        :param exist_ok: boolean to allow file override
         """
 
-        # create the parent folder if it does not exist
-        if not dir_path.exists():
-            try:
-                dir_path.mkdir()
-            except FileNotFoundError:
-                raise FileNotFoundError(
-                    "Parent folder does not exists, please check the "
-                    "consistency of the provided path!"
-                )
-        # save regression function to file
-        regression_path = dir_path.joinpath("regression.npy")
-        if regression_path.exists() and not exist_ok:
-            raise FileExistsError("Not allowed to override an existing file!")
-        np.save(str(regression_path), self.regression)
-        # save dmp parameters to file
-        dmp_param_path = dir_path.joinpath("dmp_parameters.json")
-        if dmp_param_path.exists() and not exist_ok:
-            raise FileExistsError("Not allowed to override an existing file!")
+        # define file path and data to store
+        dmp_info_path = dir_path.joinpath("dmp_data.json")
         data = {
             "c_order": 1,
             "alpha_z": self._alpha_z.tolist(),
             "n_rfs": int(self._n_rfs),
+            "starting_j": self._y0.tolist(),
+            "goal_j": self._G.tolist(),
+            "trajectory": self.dmp_trajectory.joints.tolist(),
         }
-        with open(dmp_param_path, "w") as f:
-            json.dump(data, f)
+        # save to file
+        save_json_dict(dmp_info_path, data, exist_ok)
 
     def set_alpha_z_and_n_rfs(self, alpha_z: np.ndarray, n_rfs: int) -> None:
         """
@@ -262,9 +250,9 @@ class DynamicMovementPrimitives:
         :return: the error with the candidate values combination
         """
         self.set_alpha_z_and_n_rfs(alpha_z, n_rbfs)
-        dmp_trajectory = self.compute_joint_dynamics(goal=self._G, y_init=self._y0)
-        rms_error = dmp_trajectory.rms_error(self._regression_trajectory)
-        final_error = np.linalg.norm(dmp_trajectory.joints[-1] - self._G)
+        self.dmp_trajectory = self.compute_joint_dynamics(goal=self._G, y_init=self._y0)
+        rms_error = self.dmp_trajectory.rms_error(self._regression_trajectory)
+        final_error = np.linalg.norm(self.dmp_trajectory.joints[-1] - self._G)
         return rms_error + final_error
 
     def _objective_fct(self, x: list[int]):

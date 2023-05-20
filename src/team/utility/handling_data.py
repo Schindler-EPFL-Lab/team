@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import numpy as np
@@ -101,3 +102,28 @@ def get_demo_files(demo_folder_path: str) -> list[str]:
     all_demonstration_files = [str(path) for path in files_paths]
     all_demonstration_files.sort()
     return all_demonstration_files
+
+
+def save_json_dict(file_path: Path, data: dict, exist_ok: bool = False) -> None:
+    """
+    Saves dictionary to json file. If the parent folder doesn't exist it creates it.
+
+    :param file_path: path to where the file will be saved
+    :param data: dictionary containing data to save
+    :param exist_ok: boolean to allow file override
+    """
+
+    # create the parent folder if it does not exist
+    dir_path = file_path.parent
+    if not dir_path.exists():
+        try:
+            dir_path.mkdir()
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                "Parent folder does not exists, please check the "
+                "consistency of the provided path!"
+            )
+    if file_path.exists() and not exist_ok:
+        raise FileExistsError("Not allowed to override an existing file!")
+    with open(file_path, "w") as f:
+        json.dump(data, f)
