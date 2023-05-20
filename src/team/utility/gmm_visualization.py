@@ -103,9 +103,9 @@ def plot_js_distance(
     n_components_range = range(min_nb_components, max_nb_components)
     means = []
     stds = []
-    for key, (value, mean, std) in gmm_js.js_metric_results.items():
-        means.append(mean)
-        stds.append(std)
+    for key, js_component in gmm_js.js_metric_results.items():
+        means.append(js_component.mean)
+        stds.append(js_component.std)
 
     plt.errorbar(
         n_components_range,
@@ -115,7 +115,7 @@ def plot_js_distance(
     )
     plt.plot(
         gmm_js.nb_comp_js,
-        gmm_js.js_metric_results[gmm_js.nb_comp_js][1],
+        gmm_js.js_metric_results[gmm_js.nb_comp_js].mean,
         "o",
         c="r",
         markersize=10,
