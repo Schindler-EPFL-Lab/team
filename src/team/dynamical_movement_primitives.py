@@ -125,27 +125,23 @@ class DynamicMovementPrimitives:
     @classmethod
     def load_dmp(cls, dir_path: Path) -> "DynamicMovementPrimitives":
         """
-        Creates an DynamicMovementPrimitives with parameters loaded from a dmp param
-        file and regression information loaded from a regression file.
+        Creates an DynamicMovementPrimitives with dmp parameters and regression loaded from a dmp data
+        file.
 
         :param dir_path: path of the directory containing the data to load
         :return: DynamicMovementPrimitives with the loaded parameters
         """
 
-        # load regression data
-        regression_path = Path.joinpath(dir_path, "regression.npy")
-        if not regression_path.exists():
-            raise RuntimeError("regression.npy does not exist!")
-        reg = np.load(str(regression_path))
-        # load dmp parameters
-        parameters_path = Path.joinpath(dir_path, "dmp_parameters.json")
-        if not parameters_path.exists():
-            raise RuntimeError("dmp_parameters,json does not exist!")
-        with open(parameters_path, "r") as f:
+        # load dmp data
+        data_path = Path.joinpath(dir_path, "dmp_data.json")
+        if not data_path.exists():
+            raise RuntimeError("dmp_data.json does not exist!")
+        with open(data_path, "r") as f:
             data = json.load(f)
         c_order = data["c_order"]
         alpha_z = np.array(data["alpha_z"])
         n_rfs = data["n_rfs"]
+        reg = np.array(data["regression"])
         return cls(
             reg,
             c_order,
