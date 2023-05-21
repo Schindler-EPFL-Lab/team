@@ -13,7 +13,6 @@ from team.dynamical_movement_primitives import DynamicMovementPrimitives
 class DynamicalMovementPrimitivesTest(unittest.TestCase):
     @staticmethod
     def _create_dmp():
-
         # standard data file to perform tests
         filename = "regression.npy"
         file_dir = os.path.join(os.path.dirname(__file__), "dmp_data")
@@ -24,8 +23,8 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
             c_order=1,
             goal_joints=regression[0, 1:],
             initial_joints=regression[-1, 1:],
+            dmp_parameters=(18 * np.array([1, 1, 1, 1, 1, 1]), 30),
         )
-        dmp.set_alpha_z_and_n_rfs(alpha_z=18 * np.array([1, 1, 1, 1, 1, 1]), n_rfs=30)
         return dmp
 
     def test_dmp_time_constant(self):
@@ -33,7 +32,6 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         self.assertEqual(dmp._tau, 7.21)
 
     def test_rbf_kernels(self):
-
         dmp = self._create_dmp()
         # test rbf kernel centers
         np.testing.assert_almost_equal(
@@ -115,7 +113,6 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         )
 
     def test_dmp_convergence(self):
-
         dmp = self._create_dmp()
         _ = dmp.compute_joint_dynamics(
             goal=np.array([20.874, 23.377, 25.108, 28.372, -53.129, -18.937]),
@@ -129,7 +126,6 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         )
 
     def test_convergence_to_dummy_data(self):
-
         # manually generated regression line to track, the method coefficients have been
         # tuned accordingly. If test fails, check that the method has not been changed
         dmp = DynamicMovementPrimitives(
@@ -158,7 +154,6 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         )
 
     def test_parameters_loading(self):
-
         # check that the dmp parameters are loaded correctly
         path = Path(os.path.join(os.path.dirname(__file__), "dmp_data"))
         dmp = DynamicMovementPrimitives.load_dmp(dir_path=path)
@@ -168,26 +163,28 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         self.assertEqual(n_rfs, 180)
 
     def test_information_saving(self):
-
-        dmp = self._create_dmp()
-        # specify the dmp parameters to save
-        dmp.set_alpha_z_and_n_rfs(alpha_z=np.ones([dmp._nb_joints]), n_rfs=10)
-        # specify the regression function to save
-        dmp.regression = np.array(
+        regression = np.array(
             [[0, 1, 1, 1, 1, 1, 1], [0.01, 2, 2, 2, 2, 2, 2], [0.02, 3, 3, 3, 3, 3, 3]]
         )
+        dmp = DynamicMovementPrimitives(
+            regression=regression,
+            c_order=1,
+            goal_joints=regression[0, 1:],
+            initial_joints=regression[-1, 1:],
+            dmp_parameters=(np.ones([6]), 10),
+        )
+        # specify the regression function to save
         store_path = Path(os.path.join(os.path.dirname(__file__), "saved_data"))
-        dmp.save_dmp(dir_path=store_path)
-        with open(store_path.joinpath("dmp_parameters.json"), "r") as f:
+        dmp.save_dmp(dir_path=store_path, exist_ok=True)
+        with open(store_path.joinpath("dmp_data.json"), "r") as f:
             data = json.load(f)
         # check that the dmp parameters have been saved correctly
         np.testing.assert_equal(data["alpha_z"], np.ones([dmp._nb_joints]))
         self.assertEqual(data["n_rfs"], 10)
         # check that regression function has been saved correctly
-        regression_path = store_path.joinpath("regression.npy")
-        data = np.load(str(regression_path))
+        regression = data["regression"]
         np.testing.assert_equal(
-            data,
+            regression,
             np.array(
                 [
                     [0, 1, 1, 1, 1, 1, 1],
@@ -199,7 +196,6 @@ class DynamicalMovementPrimitivesTest(unittest.TestCase):
         shutil.rmtree(store_path)
 
     def test_optimizer_stopping_criterion(self):
-
         dmp = self._create_dmp()
         res = OptimizeResult()
         res.x_iters = [[3, 2], [1, 2], [1, 3], [1, 2], [1, 2]]

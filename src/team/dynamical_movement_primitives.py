@@ -169,7 +169,7 @@ class DynamicMovementPrimitives:
             "n_rfs": int(self._n_rfs),
             "starting_j": self._y0.tolist(),
             "goal_j": self._G.tolist(),
-            "trajectory": self.dmp_trajectory.joints.tolist(),
+            "regression": self.regression.tolist(),
         }
         # save to file
         save_json_dict(dmp_info_path, data, exist_ok)
@@ -250,9 +250,9 @@ class DynamicMovementPrimitives:
         :return: the error with the candidate values combination
         """
         self.set_alpha_z_and_n_rfs(alpha_z, n_rbfs)
-        self.dmp_trajectory = self.compute_joint_dynamics(goal=self._G, y_init=self._y0)
-        rms_error = self.dmp_trajectory.rms_error(self._regression_trajectory)
-        final_error = np.linalg.norm(self.dmp_trajectory.joints[-1] - self._G)
+        dmp_trajectory = self.compute_joint_dynamics(goal=self._G, y_init=self._y0)
+        rms_error = dmp_trajectory.rms_error(self._regression_trajectory)
+        final_error = np.linalg.norm(dmp_trajectory.joints[-1] - self._G)
         return rms_error + final_error
 
     def _objective_fct(self, x: list[int]):
