@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from typing import Optional
+import warnings
 
 import numpy as np
 from scipy.optimize import OptimizeResult
@@ -123,25 +124,65 @@ class DynamicMovementPrimitives:
             self.set_alpha_z_and_n_rfs(dmp_parameters[0], dmp_parameters[1])
 
     @classmethod
+    def load(cls, dir_path: Path) -> "DynamicMovementPrimitives":
+        """Load data saved with `self.save_dmp()`
+
+        :param dir_path: folder where the data is saved
+        :return: DynamicMovementPrimitives with the loaded parameters
+        """
+        # Check if old format data
+        regression_path = Path.joinpath(dir_path, "regression.npy")
+        if regression_path.exists():
+            dmp = DynamicMovementPrimitives.load_dmp(dir_path)
+            dmp.save_dmp(dir_path)
+            return dmp
+
+        dmp_data_path = Path.joinpath(dir_path, "dmp_data.json")
+        with open(dmp_data_path, "r") as f:
+            data = json.load(f)
+        c_order = data["c_order"]
+        alpha_z = np.array(data["alpha_z"])
+        n_rfs = data["n_rfs"]
+        goal_j = np.array(data["goal_j"])
+        start_j = np.array(data["starting_j"])
+        regression = np.array(data["regression"])
+        return cls(
+            regression,
+            c_order,
+            dmp_parameters=(alpha_z, n_rfs),
+            goal_joints=goal_j,
+            initial_joints=start_j,
+        )
+
+    @classmethod
     def load_dmp(cls, dir_path: Path) -> "DynamicMovementPrimitives":
         """
-        Creates an DynamicMovementPrimitives with dmp parameters and regression loaded from a dmp data
-        file.
+        Creates an DynamicMovementPrimitives with parameters loaded from a dmp param
+        file and regression information loaded from a regression file.
 
         :param dir_path: path of the directory containing the data to load
         :return: DynamicMovementPrimitives with the loaded parameters
         """
 
-        # load dmp data
-        data_path = Path.joinpath(dir_path, "dmp_data.json")
-        if not data_path.exists():
-            raise RuntimeError("dmp_data.json does not exist!")
-        with open(data_path, "r") as f:
+        warnings.warn(
+            "Loading data this way is deprecated and should be changed to `load`",
+            DeprecationWarning,
+        )
+
+        # load regression data
+        regression_path = Path.joinpath(dir_path, "regression.npy")
+        if not regression_path.exists():
+            raise RuntimeError("regression.npy does not exist!")
+        reg = np.load(str(regression_path))
+        # load dmp parameters
+        parameters_path = Path.joinpath(dir_path, "dmp_parameters.json")
+        if not parameters_path.exists():
+            raise RuntimeError("dmp_parameters,json does not exist!")
+        with open(parameters_path, "r") as f:
             data = json.load(f)
         c_order = data["c_order"]
         alpha_z = np.array(data["alpha_z"])
         n_rfs = data["n_rfs"]
-        reg = np.array(data["regression"])
         return cls(
             reg,
             c_order,
