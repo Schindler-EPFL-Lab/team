@@ -4,7 +4,6 @@ from pathlib import Path
 import numpy as np
 from rws2.RWS2 import RWS
 
-from team.dmp_trajectory import DmpTrajectory
 from team.utility.lie_algebra_and_tf import quaternion_matrix, se3_inverse
 from team.utility.optimizer import Optimizer
 
@@ -136,8 +135,9 @@ def endpoint_joint_accuracy(rws: RWS, goal_j: np.ndarray) -> float:
     return np.linalg.norm(goal_j - np.array(rws.get_joints_positions()))
 
 
-def gmcc_similarity_metric(reproduced_trajectory: np.ndarray,
-                           learned_trajectory: np.ndarray) -> float:
+def gmcc_similarity_metric(
+    reproduced_trajectory: np.ndarray, learned_trajectory: np.ndarray
+) -> float:
     """
     Computes the GMCC similarity metric between prediction and ground truth trajectory.
     GMCC is a measure of how well a linear transformation between 2 trajectories
@@ -162,8 +162,9 @@ def gmcc_similarity_metric(reproduced_trajectory: np.ndarray,
     return gmcc
 
 
-def symmetric_gmcc(reproduced_trajectory: np.ndarray,
-                   learned_trajectory: np.ndarray) -> float:
+def symmetric_gmcc(
+    reproduced_trajectory: np.ndarray, learned_trajectory: np.ndarray
+) -> float:
     """
     Computes the symmetric GMCC similarity metric between prediction and
     ground truth trajectory.
@@ -172,8 +173,10 @@ def symmetric_gmcc(reproduced_trajectory: np.ndarray,
     :param learned_trajectory: trajectory learned from the demonstrations dataset
     :return: the symmetric GMCC similary metric
     """
-    return 0.5*(gmcc_similarity_metric(reproduced_trajectory, learned_trajectory)
-                + gmcc_similarity_metric(learned_trajectory, reproduced_trajectory))
+    return 0.5 * (
+        gmcc_similarity_metric(reproduced_trajectory, learned_trajectory)
+        + gmcc_similarity_metric(learned_trajectory, reproduced_trajectory)
+    )
 
 
 def save_model_performance(

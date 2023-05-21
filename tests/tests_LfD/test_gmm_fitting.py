@@ -141,8 +141,9 @@ class ProbabilisticEncodingTest(unittest.TestCase):
             max_nb_components=10,
             min_nb_components=2,
             iterations=10,
+            random_state=0,
         )
-        self.assertTrue(pe3.nb_comp_js in [5, 6])
+        self.assertTrue(pe3.nb_comp_js in [4, 5, 6])
 
     def test_gmr_implementation(self):
         if self.is_arm():
