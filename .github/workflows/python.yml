@@ -1,12 +1,13 @@
 name: Python tests and flake8
 
 on:
-  merge_group:
-    types: [checks_requested]
+  pull_request_review:
+    types: [submitted]
   workflow_dispatch:
 
 jobs:
   build-linux:
+    if: github.event.review.state == 'approved'
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
