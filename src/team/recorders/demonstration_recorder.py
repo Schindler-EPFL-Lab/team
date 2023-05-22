@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from pathlib import Path
 
@@ -7,7 +8,6 @@ from team.utility.handling_data import (
     check_nan_values,
     create_default_dict,
 )
-from team.utility.logger import log
 
 
 class DemonstrationRecorder:
@@ -55,7 +55,8 @@ class DemonstrationRecorder:
                 file.write(json.dumps(self.data))
             self.dest_path = self.next_filename
         except AssertionError as e:
-            log.error(e)
+            team_logger = logging.getLogger("team")
+            team_logger.error(e)
 
     def update(self, tmp_dict: dict) -> None:
         """
