@@ -51,7 +51,8 @@ class Optimizer:
 
         :return: optimum matrix
         """
-        result = least_squares(self._objective_function,
-                               self._to_vector(self.initial_matrix))
+        result = least_squares(
+            self._objective_function, self._to_vector(self.initial_matrix)
+        )
         result.x = self._to_matrix(result.x)
         return result.x
