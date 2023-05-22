@@ -58,7 +58,7 @@ class DataPreprocessing:
         """
         max_len = len(max(trajectories, key=len))
         for trajectory in trajectories:
-            trajectory.pad_end(max_len)
+            trajectory.pad_end_to(max_len)
 
     def select_reference_index(self) -> int:
         """
