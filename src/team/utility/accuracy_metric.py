@@ -158,6 +158,7 @@ def gmcc_similarity_metric(
     y_overbar = np.mean(regression, axis=0)
     num = np.linalg.norm(prediction - y_overbar)
     denom = np.linalg.norm(regression - y_overbar)
+    assert denom != 0
     gmcc = num / denom
     return gmcc
 
