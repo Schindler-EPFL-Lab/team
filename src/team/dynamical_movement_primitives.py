@@ -1,13 +1,14 @@
 import json
+import warnings
 from pathlib import Path
 from typing import Optional
-import warnings
 
 import numpy as np
 from scipy.optimize import OptimizeResult
 from skopt import gp_minimize
 
 from team.dmp_trajectory import DmpTrajectory
+from team.timed_trajectory import TimedTrajectory
 from team.utility.handling_data import save_json_dict
 
 
@@ -74,14 +75,10 @@ class DynamicMovementPrimitives:
                from a file, defaults to None
         """
 
-        self.sampling_rate = 1 / (regression[1, 0] - regression[0, 0])
-        self.dt = regression[1, 0] - regression[0, 0]
-        self.regression = regression
+        self.regression = TimedTrajectory(trajectory=regression)
         # extract information
-        self.timestamp = regression[:, 0]
-        self._y_demo = regression[:, 1:]
+        self._y_demo = self.regression.joints
         self._yd_demo, self._ydd_demo = self._compute_derivatives()
-        self._regression_trajectory = DmpTrajectory(regression[:, 1:])
         # demonstration data
         self._len_demo, self._nb_joints = np.shape(self._y_demo)
         self.T = np.stack((self._y_demo, self._yd_demo, self._ydd_demo), axis=-1)
@@ -206,7 +203,7 @@ class DynamicMovementPrimitives:
             "n_rfs": int(self._n_rfs),
             "starting_j": self._y0.tolist(),
             "goal_j": self._G.tolist(),
-            "regression": self.regression.tolist(),
+            "regression": self.regression.trajectory.tolist(),
         }
         # save to file
         save_json_dict(dmp_info_path, data, exist_ok)
@@ -288,7 +285,7 @@ class DynamicMovementPrimitives:
         """
         self.set_alpha_z_and_n_rfs(alpha_z, n_rbfs)
         dmp_trajectory = self.compute_joint_dynamics(goal=self._G, y_init=self._y0)
-        rms_error = dmp_trajectory.rms_error(self._regression_trajectory)
+        rms_error = dmp_trajectory.rms_error(self.regression)
         final_error = np.linalg.norm(dmp_trajectory.joints[-1] - self._G)
         return rms_error + final_error
 
@@ -387,7 +384,7 @@ class DynamicMovementPrimitives:
             self.v_history[i] = np.transpose([self._v, self._vd])
             self.psi_history[i] = self._psi
             self.w_history[i] = self._w
-        return DmpTrajectory(self.y[:, :, 0])
+        return DmpTrajectory(trajectory=self.y[:, :, 0])
 
     def _compute_derivatives(self) -> tuple[np.ndarray, np.ndarray]:
         """
@@ -397,8 +394,8 @@ class DynamicMovementPrimitives:
         :return: the joint angular velocity and acceleration
         """
         # derivatives
-        yd = np.diff(self._y_demo, axis=0) * self.sampling_rate
-        ydd = np.diff(yd, axis=0) * self.sampling_rate
+        yd = np.diff(self._y_demo, axis=0) * self.regression.sampling_rate
+        ydd = np.diff(yd, axis=0) * self.regression.sampling_rate
         # keep same dimensions adding rows of zeros at the end of motion
         yd = np.vstack((yd, np.zeros(np.shape(yd)[1])))
         ydd = np.vstack(
@@ -420,7 +417,7 @@ class DynamicMovementPrimitives:
         # in self._yd_demo and the others being which joint it is.
         idx = np.argwhere(np.abs(self._yd_demo) > threshold)
         # Take the last element index.
-        return float(self.timestamp[idx[-1][0]])
+        return float(self.regression.timestamps[idx[-1][0]])
 
     def _compute_f_target(self, g) -> np.ndarray:
         """
@@ -491,9 +488,9 @@ class DynamicMovementPrimitives:
 
             # filter goal change with first order differential equation
             gd = (goal - g) * self._alpha_g
-            x = xd * self.dt + x
-            v = vd * self.dt + v
-            g = gd * self.dt + g
+            x = xd * self.regression.dt + x
+            v = vd * self.regression.dt + v
+            g = gd * self.regression.dt + g
 
         # the task target
         self._dG = goal - y0
@@ -597,8 +594,8 @@ class DynamicMovementPrimitives:
         self._yd = self._z / self._tau
         self._ydd = self._zd / self._tau
         self._gd = self._alpha_g * (self._G - self._g)
-        self._x = self._xd * self.dt + self._x
-        self._v = self._vd * self.dt + self._v
-        self._z = self._zd * self.dt + self._z
-        self._y = self._yd * self.dt + self._y
-        self._g = self._gd * self.dt + self._g
+        self._x = self._xd * self.regression.dt + self._x
+        self._v = self._vd * self.regression.dt + self._v
+        self._z = self._zd * self.regression.dt + self._z
+        self._y = self._yd * self.regression.dt + self._y
+        self._g = self._gd * self.regression.dt + self._g

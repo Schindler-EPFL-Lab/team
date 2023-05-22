@@ -1,6 +1,11 @@
+import json
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 import numpy as np
+import pandas as pd
+
+import team.utility.accuracy_metric as team_metric
 
 
 class TrajectoryBase(ABC):
@@ -10,6 +15,10 @@ class TrajectoryBase(ABC):
 
     def __init__(self, trajectory: np.ndarray):
         self._trajectory = trajectory
+
+    @property
+    def trajectory(self) -> np.ndarray:
+        return self._trajectory
 
     @property
     @abstractmethod
@@ -98,3 +107,47 @@ class TrajectoryBase(ABC):
         """
         distance = np.linalg.norm(next_target - current_pose)
         return distance > tol_diff
+
+    def symmetric_gmcc(self, other: "TrajectoryBase") -> float:
+        return team_metric.symmetric_gmcc(self.joints, other.joints)
+
+    def is_longer(self, other: "TrajectoryBase") -> bool:
+        """
+        :return: if `self` is longer than `other`
+        """
+        return len(self) > len(other)
+
+    def pad_end_to(self, final_len: int) -> None:
+        """Pads the end of the trajectory by duplicating the last element until [self]
+        is of len [final_len].
+
+        :param final_len: the final length of the padded trajectory
+        """
+        if len(self) != final_len:
+            # computes number of missing data points
+            nb_samples = final_len - len(self)
+            # duplicates nb_samples time the last row
+            df = pd.DataFrame(self._trajectory)
+            df = pd.concat([df, pd.concat([df.iloc[-1:]] * nb_samples)])
+            # updates the timestamps
+            df.reset_index(drop=True, inplace=True)
+            self._trajectory = df.to_numpy()
+
+    @classmethod
+    def from_config_file(cls, file: Path) -> "TrajectoryBase":
+        with open(file, "rb") as f:
+            json_data = json.load(f)
+            return cls(
+                np.array(json_data["trajectory"]),
+            )
+
+    def save(
+        self, path_to_file: Path, initial_state: np.ndarray, target: np.ndarray
+    ) -> None:
+        dict_out = {
+            "starting_j": initial_state.tolist(),
+            "goal_j": target.tolist(),
+            "trajectory": self._trajectory.tolist(),
+        }
+        with open(path_to_file, "w") as f:
+            json.dump(dict_out, f)

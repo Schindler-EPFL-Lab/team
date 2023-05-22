@@ -64,10 +64,19 @@ class TrajectoriesTest(unittest.TestCase):
 
     def test_padding(self) -> None:
         traj = Trajectory(
-            np.array([[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]])
+            np.array(
+                [[0.0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0.0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
+            )
         )
-        traj.pad_end(10)
+        traj.pad_end_to(10)
         self.assertEqual(len(traj), 10)
+        timestamps = [0, 0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08]
+        np.testing.assert_array_equal(traj.timestamps, timestamps)
+        for el in range(len(traj)):
+            np.testing.assert_array_equal(
+                traj.get_joints_at_index(el), np.array([1, 2, 3, 4, 5, 6])
+            )
+            np.testing.assert_array_equal(traj.tcp[el, :], np.array([7, 8, 9]))
 
     def test_upsample(self) -> None:
         traj = Trajectory(
@@ -149,10 +158,14 @@ class TrajectoriesTest(unittest.TestCase):
 
     def test_rms_error(self):
         # test that the correct computation of rms
-        first_traj = Trajectory(np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]))
-        second_traj = Trajectory(np.array([[0, 1, 1, 0, 0, 0, 0, 0, 0, 0]]))
+        first_traj = Trajectory(
+            np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+        )
+        second_traj = Trajectory(
+            np.array([[0, 1, 1, 0, 0, 0, 0, 0, 0, 0], [0, 1, 1, 0, 0, 0, 0, 0, 0, 0]])
+        )
         rms_joints = first_traj.rms_error(second_traj)
-        self.assertEqual(rms_joints, np.sqrt(2))
+        self.assertEqual(rms_joints, 2)
         rms_same_traj = second_traj.rms_error(second_traj)
         self.assertEqual(rms_same_traj, 0)
 
