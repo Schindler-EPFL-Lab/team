@@ -15,7 +15,7 @@ def plotting(dmp: DynamicMovementPrimitives, show: bool = True, to_file=None) ->
 
     len_demo, nb_joints = np.shape(dmp.T)[:-1]
     # plotting
-    time = dmp.dt * np.arange(len_demo)
+    time = dmp.regression.dt * np.arange(len_demo)
     for i in range(nb_joints):
 
         _, axs = plt.subplots(3, 3, figsize=(15, 15))
