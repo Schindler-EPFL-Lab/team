@@ -91,11 +91,11 @@ class TimedTrajectory(TrajectoryBase):
         :param final_len: the final length of the padded trajectory
         """
         if len(self) != final_len:
-            nb_samples = final_len - len(self) + 1
+            nb_samples = final_len - len(self)
             current_len = len(self)
 
             super().pad_end_to(final_len)
 
-            self.trajectory[current_len - 1 : len(self), 0] += np.arange(
-                0, nb_samples * 0.01, 0.01
+            self.trajectory[current_len : len(self), 0] += np.linspace(
+                0.01, nb_samples * 0.01, nb_samples
             )
