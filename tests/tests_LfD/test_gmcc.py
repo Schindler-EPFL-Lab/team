@@ -9,43 +9,51 @@ class GmccTest(unittest.TestCase):
     @classmethod
     def setUp(cls) -> None:
         rotation_angle = 90
-        angle_radians = rotation_angle*(np.pi/180)
+        angle_radians = rotation_angle * (np.pi / 180)
         scaling_factor = 2
-        cls.regression = np.array([[1, 2, 3],
-                                   [7, 8, 9]])
-        cls.regression_j_space = np.array([[1, 2, 3, 4, 5, 6],
-                                           [7, 8, 9, 10, 11, 12]])
-        cls.translation_matrix = np.array([[1, 0, 0],
-                                           [0, 1, 0],
-                                           [1, 1, 1]])
-        cls.translation_matrix_j_space = np.array([[1, 0, 0, 0, 0, 0],
-                                                   [0, 1, 0, 0, 0, 0],
-                                                   [0, 0, 1, 0, 0, 0],
-                                                   [0, 0, 0, 1, 0, 0],
-                                                   [0, 0, 0, 0, 1, 0],
-                                                   [1, 1, 1, 1, 1, 1]])
-        cls.rotation_matrix = np.array([
-            [1, 0, 0],
-            [0, np.cos(angle_radians), -np.sin(angle_radians)],
-            [0, np.sin(angle_radians), np.cos(angle_radians)]
-            ])
-        cls.rotation_matrix_j_space = np.array([
-            [np.cos(angle_radians), np.sin(angle_radians), 0, 0, 0, 0],
-            [-np.sin(angle_radians), np.cos(angle_radians), 0, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0],
-            [0, 0, 0, np.cos(angle_radians), np.sin(angle_radians), 0],
-            [0, 0, 0, -np.sin(angle_radians), np.cos(angle_radians), 0],
-            [0, 0, 0, 0, 0, 1]
-            ])
-        cls.scaling_matrix = np.array([[scaling_factor, 0, 0],
-                                       [0, scaling_factor, 0],
-                                       [0, 0, scaling_factor]])
-        cls.scaling_matrix_j_space = np.array([[scaling_factor, 0, 0, 0, 0, 0],
-                                               [0, scaling_factor, 0, 0, 0, 0],
-                                               [0, 0, scaling_factor, 0, 0, 0],
-                                               [0, 0, 0, scaling_factor, 0, 0],
-                                               [0, 0, 0, 0, scaling_factor, 0],
-                                               [0, 0, 0, 0, 0, scaling_factor]])
+        cls.regression = np.array([[1, 2, 3], [7, 8, 9]])
+        cls.regression_j_space = np.array([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]])
+        cls.translation_matrix = np.array([[1, 0, 0], [0, 1, 0], [1, 1, 1]])
+        cls.translation_matrix_j_space = np.array(
+            [
+                [1, 0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [1, 1, 1, 1, 1, 1],
+            ]
+        )
+        cls.rotation_matrix = np.array(
+            [
+                [1, 0, 0],
+                [0, np.cos(angle_radians), -np.sin(angle_radians)],
+                [0, np.sin(angle_radians), np.cos(angle_radians)],
+            ]
+        )
+        cls.rotation_matrix_j_space = np.array(
+            [
+                [np.cos(angle_radians), np.sin(angle_radians), 0, 0, 0, 0],
+                [-np.sin(angle_radians), np.cos(angle_radians), 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, np.cos(angle_radians), np.sin(angle_radians), 0],
+                [0, 0, 0, -np.sin(angle_radians), np.cos(angle_radians), 0],
+                [0, 0, 0, 0, 0, 1],
+            ]
+        )
+        cls.scaling_matrix = np.array(
+            [[scaling_factor, 0, 0], [0, scaling_factor, 0], [0, 0, scaling_factor]]
+        )
+        cls.scaling_matrix_j_space = np.array(
+            [
+                [scaling_factor, 0, 0, 0, 0, 0],
+                [0, scaling_factor, 0, 0, 0, 0],
+                [0, 0, scaling_factor, 0, 0, 0],
+                [0, 0, 0, scaling_factor, 0, 0],
+                [0, 0, 0, 0, scaling_factor, 0],
+                [0, 0, 0, 0, 0, scaling_factor],
+            ]
+        )
         cls.dimensions = np.shape(cls.regression)[1]
         # Data for testing gmcc metric between different trajectories
         nb_samples = 100
@@ -79,8 +87,9 @@ class GmccTest(unittest.TestCase):
         self.assertNotAlmostEqual(gmcc_value, 1, delta=0.1)
 
     def test_translation_j_space(self) -> None:
-        reproduction = np.matmul(self.regression_j_space,
-                                 self.translation_matrix_j_space)
+        reproduction = np.matmul(
+            self.regression_j_space, self.translation_matrix_j_space
+        )
         gmcc_value = symmetric_gmcc(self.regression_j_space, reproduction)
         self.assertAlmostEqual(gmcc_value, 1, delta=0.02)
 
