@@ -1,4 +1,4 @@
-import math
+import argparse
 from pathlib import Path
 
 import numpy as np
@@ -9,22 +9,6 @@ from team.gaussian_mixture_regression import GMR
 from team.probabilistic_encoding import ProbabilisticEncoding
 
 
-def apply_noise(array: np.ndarray, noise: np.ndarray) -> np.ndarray:
-    """
-    Get noise vector and sum to unit vector to form noise matrix.
-    Multiply array with noise matrix to apply noise to each entry.
-
-    :param array: initial array
-    :param noise: noise vector
-    :return: noisy array
-    """
-    assert np.shape(array) == np.shape(noise), "dimensions are not correct"
-    nb_dims = np.shape(noise)[0]
-    noise = noise + np.ones(nb_dims)
-    noise_matrix = np.diag(noise)
-    return np.matmul(array, noise_matrix)
-
-
 def main():
     task_list = [
         "opening",
@@ -33,18 +17,28 @@ def main():
         "brush_picking_up",
         "rail_cleaning",
     ]
-    base_folder = Path(__file__).parent.parent.parent.joinpath("data/maintenance_tasks")
+    # read noise standard deviation from input argument
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--std-dev", type=float, default=1, help='noise standard deviation')
+    parser.add_argument("--data-folder", type=str, default="maintenance_task", help='data folder name')
+    parser.add_argument("--nb-repro", type=int, default=30, help='number of reproduction')
+    args = parser.parse_args()
+    std_dev = args.std_dev
+    if std_dev <= 0:
+        raise ValueError("std-dev has to be strictly positive")
+
+    base_folder = Path(__file__).parent.parent.parent.joinpath(f"data/{args.data_folder}")
     base_folder.mkdir()
+    experience_folder = base_folder.joinpath(f"maintenance_noise_{std_dev}")
+    experience_folder.mkdir()
     for task in task_list:
-        j = 0
-        nb_transf = 6  # ["tr", "rot", "scal", "ns_init", "ns_target", "ns_both"]
-        nb_repro = 30
+        nb_repro = args.nb_repro
         # data loading
         data_dir = Path(__file__).parent.parent.parent.joinpath(
             f"data/learning_from_demonstrations/{task}"
         )
         # create task folder
-        folder_path = base_folder.joinpath(f"{task}")
+        folder_path = experience_folder.joinpath(f"{task}")
         folder_path.mkdir()
         # data preprocessing
         trajectories = AlignedTrajectories.load_dataset_and_preprocess(str(data_dir))
@@ -65,76 +59,16 @@ def main():
 
         dmp.save_dmp(folder_path)
 
-        # choose transformation to apply
+        # generate reproductions
         for i in range(1, nb_repro + 1):
             # DMP
             target = regression.prediction[-1, 1:]
             initial_state = regression.prediction[0, 1:]
 
-            # counter to switch transformation type
-            if i % nb_transf == 0:
-                j = j + 1
-
-            if j == 0:
-                # apply translation on both initial and target references
-                magnitude = np.random.uniform(0, 0.5)
-                translation_matrix = np.array(
-                    [
-                        [1, 0, 0, 0, 0, 0],
-                        [0, 1, 0, 0, 0, 0],
-                        [0, 0, 1, 0, 0, 0],
-                        [0, 0, 0, 1, 0, 0],
-                        [0, 0, 0, 0, 1, 0],
-                        [magnitude, magnitude, magnitude, magnitude, magnitude, 1],
-                    ]
-                )
-                target = np.matmul(target, translation_matrix)
-                initial_state = np.matmul(initial_state, translation_matrix)
-            elif j == 1:
-                # apply rotation on both initial and target references
-                angle_rad = np.random.uniform(-math.pi, math.pi)
-                rotation_matrix = np.array(
-                    [
-                        [np.cos(angle_rad), np.sin(angle_rad), 0, 0, 0, 0],
-                        [-np.sin(angle_rad), np.cos(angle_rad), 0, 0, 0, 0],
-                        [0, 0, 1, 0, 0, 0],
-                        [0, 0, 0, np.cos(angle_rad), np.sin(angle_rad), 0],
-                        [0, 0, 0, -np.sin(angle_rad), np.cos(angle_rad), 0],
-                        [0, 0, 0, 0, 0, 1],
-                    ]
-                )
-                target = np.matmul(target, rotation_matrix)
-                initial_state = np.matmul(initial_state, rotation_matrix)
-            elif j == 2:
-                # apply scaling on both initial and target references
-                scaling_factor = np.random.uniform(0, 2)
-                scaling_matrix = np.array(
-                    [
-                        [scaling_factor, 0, 0, 0, 0, 0],
-                        [0, scaling_factor, 0, 0, 0, 0],
-                        [0, 0, scaling_factor, 0, 0, 0],
-                        [0, 0, 0, scaling_factor, 0, 0],
-                        [0, 0, 0, 0, scaling_factor, 0],
-                        [0, 0, 0, 0, 0, scaling_factor],
-                    ]
-                )
-                target = np.matmul(target, scaling_matrix)
-                initial_state = np.matmul(initial_state, scaling_matrix)
-            elif j == 3:
-                # apply noise on initial reference (simulate fixed target)
-                noise_i = 0.2 * np.random.rand(6)
-                target = regression.prediction[-1, 1:]
-                initial_state = apply_noise(target, noise_i)
-            elif j == 4:
-                # apply noise on target reference (simulate fixed initial position)
-                noise_t = 0.2 * np.random.rand(6)
-                target = apply_noise(target, noise_t)
-                initial_state = regression.prediction[0, 1:]
-            elif j == 5:
-                # apply noise on both initial and target references
-                noise_b = 0.2 * np.random.rand(6)
-                target = apply_noise(target, noise_b)
-                initial_state = apply_noise(initial_state, noise_b)
+            # apply noise on both initial and target references
+            noise = np.random.normal(scale=std_dev)
+            target = target + noise
+            initial_state = initial_state + noise
 
             dmp_traj = dmp.compute_joint_dynamics(goal=target, y_init=initial_state)
             reproduction_folder = Path(folder_path, "reproduction" + str(i))
