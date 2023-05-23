@@ -25,6 +25,10 @@ class TrajectoryBase(ABC):
     def joints(self) -> np.ndarray:
         raise NotImplementedError
 
+    @property
+    def nb_of_joints(self) -> int:
+        return self.joints.shape[1]
+
     def get_joint(self, i: int) -> np.ndarray:
         return self.joints[:, i]
 
@@ -134,11 +138,20 @@ class TrajectoryBase(ABC):
             self._trajectory = df.to_numpy()
 
     @classmethod
-    def from_config_file(cls, file: Path) -> "TrajectoryBase":
+    def from_config_file(
+        cls, file: Path
+    ) -> tuple["TrajectoryBase", np.ndarray, np.ndarray]:
+        """
+        :return: the trajectory, the starting pose and the target pose
+        """
         with open(file, "rb") as f:
             json_data = json.load(f)
-            return cls(
-                np.array(json_data["trajectory"]),
+            return (
+                cls(
+                    np.array(json_data["trajectory"]),
+                ),
+                np.array(json_data["starting_j"]),
+                np.array(json_data["goal_j"]),
             )
 
     def save(

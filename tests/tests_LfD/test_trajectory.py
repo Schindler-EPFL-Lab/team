@@ -16,6 +16,9 @@ class TrajectoriesTest(unittest.TestCase):
         filename_path = os.path.join(file_dir, filename)
         cls.trajectory = Trajectory.from_file(filename_path)
 
+    def test_nb_joints(self) -> None:
+        self.assertEqual(self.trajectory.nb_of_joints, 6)
+
     def test_load_single_trajectory(self) -> None:
         np.testing.assert_array_almost_equal(
             self.trajectory.joints,
