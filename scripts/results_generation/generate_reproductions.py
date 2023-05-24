@@ -9,22 +9,6 @@ from team.gaussian_mixture_regression import GMR
 from team.probabilistic_encoding import ProbabilisticEncoding
 
 
-def apply_noise(array: np.ndarray, noise: np.ndarray) -> np.ndarray:
-    """
-    Get noise vector and sum to unit vector to form noise matrix.
-    Multiply array with noise matrix to apply noise to each entry.
-
-    :param array: initial array
-    :param noise: noise vector
-    :return: noisy array
-    """
-    assert np.shape(array) == np.shape(noise), "dimensions are not correct"
-    nb_dims = np.shape(noise)[0]
-    noise = noise + np.ones(nb_dims)
-    noise_matrix = np.diag(noise)
-    return np.matmul(array, noise_matrix)
-
-
 def main():
     task_list = [
         "opening",
@@ -82,8 +66,8 @@ def main():
             # apply noise on both initial and target references
             noise = np.random.normal(scale=std_dev)
             noise_vector = noise * np.ones(np.shape(target))
-            target = apply_noise(target, noise_vector)
-            initial_state = apply_noise(initial_state, noise_vector)
+            target = target + noise_vector
+            initial_state = initial_state + noise_vector
 
             dmp_traj = dmp.compute_joint_dynamics(goal=target, y_init=initial_state)
             reproduction_folder = Path(folder_path, "reproduction" + str(i))
