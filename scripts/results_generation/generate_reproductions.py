@@ -40,7 +40,8 @@ def main():
     parser.add_argument("--nb_repro", type=int, default=30, help='number of reproduction')
     args = parser.parse_args()
     std_dev = args.std_dev
-    assert std_dev > 0, "std_dev has to be positive"
+    if std_dev <= 0:
+        raise ValueError("std_dev has to be strictly positive")
 
     base_folder = Path(__file__).parent.parent.parent.joinpath(f"data/{args.data_folder}_{std_dev}")
     base_folder.mkdir()
