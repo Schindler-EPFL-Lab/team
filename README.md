@@ -8,20 +8,17 @@
 ![ABB robot with a helmet](flowchart.png)
 
 TEAM is a parameter-free algorithm to learn motions from user demonstrations.
-A pre-print of the method can be found on [arXiv](https://arxiv.org/abs/2209.06940).
+[The paper](https://arxiv.org/abs/2209.06940) was published at the International Conference on Informatics in Control, Automation and Robotics.
 
 If you use this work please cite:
 
 ```bib
-@misc{https://doi.org/10.48550/arxiv.2209.06940,
-  doi = {10.48550/ARXIV.2209.06940},
-  url = {https://arxiv.org/abs/2209.06940},
-  author = {Panchetti, Lorenzo and Zheng, Jianhao and Bouri, Mohamed and Mielle, Malcolm},
-  title = {TEAM: a parameter-free algorithm to teach collaborative robots motions from user demonstrations},
-  publisher = {arXiv},
-  year = {2022},
-  copyright = {arXiv.org perpetual, non-exclusive license}
-  keywords = {Robotics (cs.RO), Systems and Control (eess.SY), FOS: Computer and information sciences, FOS: Computer and information sciences, FOS: Electrical engineering, electronic engineering, information engineering, FOS: Electrical engineering, electronic engineering, information engineering},
+@inproceedings{Panchetti2022TEAMAP,
+  title={TEAM: a parameter-free algorithm to teach collaborative robots motions from user demonstrations},
+  author={Lorenzo Panchetti and Jianhao Zheng and Mohamed Bouri and Malcolm Mielle},
+  booktitle={International Conference on Informatics in Control, Automation and Robotics},
+  year={2022},
+  url={https://api.semanticscholar.org/CorpusID:252280502}
 }
 ```
 
