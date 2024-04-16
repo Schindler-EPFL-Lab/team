@@ -17,7 +17,7 @@ If you use this work please cite:
   title={TEAM: a parameter-free algorithm to teach collaborative robots motions from user demonstrations},
   author={Lorenzo Panchetti and Jianhao Zheng and Mohamed Bouri and Malcolm Mielle},
   booktitle={International Conference on Informatics in Control, Automation and Robotics},
-  year={2022},
+  year={2023},
   url={https://api.semanticscholar.org/CorpusID:252280502}
 }
 ```
