@@ -4,6 +4,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 
 def main():
@@ -35,6 +36,32 @@ def main():
     with open(repro_path, "r") as f:
         repro_data = json.load(f)
         reproduction = np.array(repro_data["trajectory"])
+
+    data = np.vstack([regression.T, reproduction.T])
+
+    df = pd.DataFrame(
+        data.T,
+        columns=[
+            "time",
+            "reg1",
+            "reg2",
+            "reg3",
+            "reg4",
+            "reg5",
+            "reg6",
+            "rep1",
+            "rep2",
+            "rep3",
+            "rep4",
+            "rep5",
+            "rep6",
+        ],
+    )
+
+    tfile = open("trajectory.dat", "w")
+    tfile.write(df.to_string())
+    tfile.close()
+    
     # plot data
     fig, axs = plt.subplots(2, 3, layout="constrained", figsize=(18, 12))
     x = 0
