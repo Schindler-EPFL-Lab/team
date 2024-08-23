@@ -19,15 +19,23 @@ def main():
     ]
     # read noise standard deviation from input argument
     parser = argparse.ArgumentParser()
-    parser.add_argument("--std-dev", type=float, default=1, help='noise standard deviation')
-    parser.add_argument("--data-folder", type=str, default="maintenance_task", help='data folder name')
-    parser.add_argument("--nb-repro", type=int, default=30, help='number of reproduction')
+    parser.add_argument(
+        "--std-dev", type=float, default=1, help="noise standard deviation"
+    )
+    parser.add_argument(
+        "--data-folder", type=str, default="maintenance_task", help="data folder name"
+    )
+    parser.add_argument(
+        "--nb-repro", type=int, default=30, help="number of reproduction"
+    )
     args = parser.parse_args()
     std_dev = args.std_dev
     if std_dev <= 0:
         raise ValueError("std-dev has to be strictly positive")
 
-    base_folder = Path(__file__).parent.parent.parent.joinpath(f"data/{args.data_folder}")
+    base_folder = Path(__file__).parent.parent.parent.joinpath(
+        f"data/{args.data_folder}"
+    )
     base_folder.mkdir()
     experience_folder = base_folder.joinpath(f"maintenance_noise_{std_dev}")
     experience_folder.mkdir()
@@ -66,9 +74,10 @@ def main():
             initial_state = regression.prediction[0, 1:]
 
             # apply noise on both initial and target references
-            noise = np.random.normal(scale=std_dev)
-            target = target + noise
-            initial_state = initial_state + noise
+            noise_target = np.random.normal(scale=std_dev)
+            target = target + noise_target
+            noise_init = np.random.normal(scale=std_dev)
+            initial_state = initial_state + noise_init
 
             dmp_traj = dmp.compute_joint_dynamics(goal=target, y_init=initial_state)
             reproduction_folder = Path(folder_path, "reproduction" + str(i))

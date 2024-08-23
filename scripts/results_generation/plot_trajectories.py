@@ -61,6 +61,30 @@ def main():
     tfile = open("trajectory.dat", "w")
     tfile.write(df.to_string())
     tfile.close()
+    
+    # plot data
+    fig, axs = plt.subplots(2, 3, layout="constrained", figsize=(18, 12))
+    x = 0
+    y = 0
+    for i in range(np.shape(regression)[1] - 1):
+        axs[x, y].plot(
+            regression[:, 0], regression[:, i + 1], linewidth=5, label="regression"
+        )
+        axs[x, y].plot(
+            regression[:, 0], reproduction[:, i], linewidth=5, label="reproduction"
+        )
+        axs[x, y].tick_params(axis="x", labelsize=14)
+        axs[x, y].tick_params(axis="y", labelsize=14)
+        axs[x, y].set_title(f"Joint {i + 1} evolution", fontsize=16)
+        axs[x, y].legend(fontsize=14, markerscale=3)
+        y = y + 1
+        if y == 3:
+            x = 1
+            y = 0
+    fig.supxlabel("Time [s]", fontsize=16)
+    fig.supylabel("Joint angle [deg]", fontsize=16)
+    plt.savefig("noise_on_joints.pgf", backend="pgf")
+    plt.show()
 
 
 if __name__ == "__main__":
